@@ -1,0 +1,1 @@
+{"pages":[{"path":"pages/index/index","style":{"navigationBarTitleText":"CommerceFlow AI Mall","navigationBarBackgroundColor":"#f7f8f4","navigationBarTextStyle":"black"}}],"tabBar":{"color":"#7a857e","selectedColor":"#bb563a","list":[{"pagePath":"pages/index/index","text":"Mall"},{"pagePath":"pages/index/index","text":"Orders"}]}}
