@@ -1,0 +1,1 @@
+{"version":"2.0.0","tasks":[{"label":"Java test","type":"shell","command":".\\mvnw.cmd -f apps/mall-api/pom.xml test","problemMatcher":"$java"},{"label":"Admin build","type":"shell","command":"npm run build","options":{"cwd":"${workspaceFolder}/apps/admin-web"}},{"label":"AI test","type":"shell","command":"py -3 -m pytest services/ai-service/tests","problemMatcher":[]}]}

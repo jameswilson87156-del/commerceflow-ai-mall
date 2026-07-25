@@ -1,0 +1,12 @@
+.idea/
+.vscode/*.log
+target/
+node_modules/
+dist/
+.venv/
+__pycache__/
+.pytest_cache/
+.env
+.env*.local
+*.log
+coverage/

@@ -1,0 +1,1 @@
+{"version":"0.2.0","configurations":[{"type":"java","name":"Launch Mall API","request":"launch","mainClass":"com.commerceflow.mall.MallApiApplication","projectName":"mall-api"},{"type":"python","name":"Launch AI Service","request":"launch","module":"uvicorn","args":["app.main:app","--app-dir","services/ai-service","--port","8000"]}]}
