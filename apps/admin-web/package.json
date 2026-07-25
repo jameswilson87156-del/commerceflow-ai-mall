@@ -2,7 +2,21 @@
   "name": "commerceflow-admin-web",
   "private": true,
   "type": "module",
-  "scripts": {"dev": "vite", "build": "vue-tsc --noEmit && vite build"},
-  "dependencies": {"vue": "^3.5.13"},
-  "devDependencies": {"@vitejs/plugin-vue": "^5.2.3", "typescript": "^5.8.3", "vite": "^6.3.2", "vue-tsc": "^2.2.8"}
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.3",
+    "@vue/test-utils": "^2.4.11",
+    "jsdom": "^29.1.1",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.2",
+    "vitest": "^4.1.10",
+    "vue-tsc": "^2.2.8"
+  }
 }

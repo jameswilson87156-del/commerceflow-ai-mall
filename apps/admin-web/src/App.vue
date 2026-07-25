@@ -1,38 +1,19 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import ProductSkuManagement from './ProductSkuManagement.vue'
 
-type Product = { id:number; name:string; description:string; categoryName:string; skus:{id:number;skuCode:string;color:string;size:string;salePrice:number;availableStock:number}[] }
-type Order = { orderNo:string; totalAmount:number; currency:string; status:string; createdAt:string; items:{productName:string;skuCode:string;attributes:string;unitPrice:number;quantity:number}[] }
-const API = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api'
-const active = ref('Overview'); const products = ref<Product[]>([]); const orders = ref<Order[]>([]); const chat = ref(''); const answer = ref(''); const loading = ref(false); const trace = ref('')
-const nav = ['Overview','Catalog','Orders','AI Copy Desk','AI Support','Trace Explorer']
-const stockTotal = computed(() => products.value.flatMap(p=>p.skus).reduce((sum,s)=>sum+s.availableStock,0))
-async function load() { products.value = await fetch(`${API}/products`).then(r=>r.json()); orders.value = await fetch(`${API}/orders?userId=1`).then(r=>r.json()).catch(()=>[]) }
-async function ask() { if (!chat.value.trim()) return; loading.value = true; const r = await fetch(`${API}/ai/product-chat`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:chat.value,userId:1})}); const body=await r.json(); answer.value=body.answer; trace.value=body.traceId; loading.value=false }
-onMounted(load)
+const navigation = ['运营总览', '商品与SKU', '订单管理', 'AI客服']
 </script>
 
 <template>
-  <div class="shell">
-    <aside class="sidebar">
-      <div class="brand"><span class="brand-mark">CF</span><div><strong>CommerceFlow</strong><small>AI Mall / showcase</small></div></div>
-      <div class="workspace-label">OPERATIONS DESK</div>
-      <button v-for="item in nav" :key="item" :class="['nav-item',{selected:active===item}]" @click="active=item"><span class="nav-dot"></span>{{ item }}</button>
-      <div class="sidebar-foot"><span class="status-dot"></span><span>Demo data connected</span></div>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="商城管理导航">
+      <div class="brand-lockup"><span class="brand-mark">CF</span><div><strong>CommerceFlow</strong><small>AI Mall · 本地展示版</small></div></div>
+      <p class="nav-caption">商城运营</p>
+      <nav class="nav-list">
+        <span v-for="item in navigation" :key="item" :class="['nav-item', { active: item === '商品与SKU' }]" :aria-current="item === '商品与SKU' ? 'page' : undefined">{{ item }}</span>
+      </nav>
+      <div class="sidebar-boundary"><span class="connection-dot"></span><div><strong>本地演示数据</strong><small>仅展示当前真实入口</small></div></div>
     </aside>
-    <main class="main">
-      <header class="topbar"><div><span class="eyebrow">{{ active.toUpperCase() }}</span><h1>{{ active === 'Overview' ? 'A calm view of the mall' : active }}</h1></div><div class="top-actions"><span class="mode-chip">MOCK PROVIDER</span><div class="avatar">DW</div></div></header>
-      <section v-if="active==='Overview'" class="content">
-        <div class="intro"><div><p class="eyebrow">SATURDAY / 25 JUL 2026</p><h2>Keep the business loop visible.</h2><p class="muted">Product truth, order health, and AI evidence in one reviewable workspace.</p></div><button class="primary" @click="active='AI Support'">Open AI support <span>↗</span></button></div>
-        <div class="metric-grid"><article><span>Catalog SKUs</span><strong>{{ products.flatMap(p=>p.skus).length || '—' }}</strong><small>Across {{ products.length || '—' }} products</small></article><article><span>Available stock</span><strong>{{ stockTotal || '—' }}</strong><small>Guarded by MySQL updates</small></article><article><span>Demo orders</span><strong>{{ orders.length || '0' }}</strong><small>Order history from API</small></article><article><span>AI trace mode</span><strong>Mock</strong><small>Evidence attached by Java</small></article></div>
-        <div class="split"><section class="panel"><div class="panel-head"><div><span class="eyebrow">CATALOG SIGNAL</span><h3>Product readiness</h3></div><button class="quiet" @click="active='Catalog'">View catalog →</button></div><div class="product-list"><div v-for="p in products" :key="p.id" class="product-row"><div class="product-swatch">{{ p.name.slice(0,1) }}</div><div class="grow"><strong>{{ p.name }}</strong><span>{{ p.categoryName }} · {{ p.skus.length }} variants</span></div><span class="row-meta">{{ p.skus.reduce((n,s)=>n+s.availableStock,0) }} in stock</span></div><div v-if="!products.length" class="empty">Start mall-api to load demo catalog.</div></div></section><section class="panel signal-panel"><div class="panel-head"><div><span class="eyebrow">AI QUALITY SIGNAL</span><h3>Traceable by default</h3></div><span class="trace-icon">◎</span></div><p>Java assembles <code>businessFacts</code> from Product, SKU and Inventory before Python suggests a structured answer.</p><div class="signal-line"><span class="status-dot"></span><span>Evidence source connected</span><strong>100%</strong></div><div class="signal-line"><span class="status-dot amber"></span><span>Human review queue</span><strong>0</strong></div></section></div>
-        <section class="panel"><div class="panel-head"><div><span class="eyebrow">RECENT ORDERS</span><h3>Transaction history</h3></div><button class="quiet" @click="active='Orders'">Open orders →</button></div><table><thead><tr><th>ORDER</th><th>ITEMS</th><th>AMOUNT</th><th>STATUS</th></tr></thead><tbody><tr v-for="o in orders.slice(0,5)" :key="o.orderNo"><td><strong>{{ o.orderNo }}</strong><small>{{ new Date(o.createdAt).toLocaleString() }}</small></td><td>{{ o.items.length }} line(s)</td><td>{{ o.currency }} {{ o.totalAmount }}</td><td><span class="status-pill">{{ o.status }}</span></td></tr><tr v-if="!orders.length"><td colspan="4" class="empty">No demo orders yet. The mobile flow will appear here after checkout.</td></tr></tbody></table></section>
-      </section>
-      <section v-else class="content inner-view">
-        <div class="intro compact"><div><p class="eyebrow">LIVE API VIEW</p><h2>{{ active }}</h2><p class="muted">This showcase view is connected to the local mall-api.</p></div><span class="mode-chip">LOCAL ONLY</span></div>
-        <section v-if="active==='AI Support'||active==='AI Copy Desk'||active==='Trace Explorer'" class="panel ai-panel"><div class="panel-head"><div><span class="eyebrow">{{ active==='AI Copy Desk'?'COPY SUGGESTION':'PRODUCT SERVICE' }}</span><h3>{{ active==='Trace Explorer'?'Latest trace':'Ask about a product' }}</h3></div><span class="trace-icon">✦</span></div><div class="chat-box"><label>{{ active==='AI Copy Desk'?'Product copy brief':'Customer question' }}</label><textarea v-model="chat" :placeholder="active==='AI Copy Desk'?'Write a concise description for the Essential Cotton Shirt':'Is black M still available?'"></textarea><button class="primary" :disabled="loading" @click="ask">{{ loading?'Thinking…':'Generate structured answer' }} <span>→</span></button></div><div v-if="answer" class="answer"><span class="eyebrow">MOCK PROVIDER / JAVA EVIDENCE</span><p>{{ answer }}</p><div class="answer-meta"><span>Evidence: java.businessFacts</span><span>Trace: {{ trace }}</span></div></div></section>
-        <section v-else class="panel"><div class="panel-head"><div><span class="eyebrow">LIVE DATA</span><h3>{{ active==='Catalog'?'Product and SKU management':'Order management' }}</h3></div><button class="quiet" @click="load">Refresh API ↻</button></div><table v-if="active==='Catalog'"><thead><tr><th>PRODUCT</th><th>CATEGORY</th><th>SKUS</th><th>STOCK</th></tr></thead><tbody><tr v-for="p in products" :key="p.id"><td><strong>{{ p.name }}</strong><small>{{ p.description }}</small></td><td>{{ p.categoryName }}</td><td>{{ p.skus.map(s=>s.skuCode).join(', ') }}</td><td>{{ p.skus.reduce((n,s)=>n+s.availableStock,0) }}</td></tr></tbody></table><table v-else><thead><tr><th>ORDER</th><th>ITEMS</th><th>AMOUNT</th><th>STATUS</th></tr></thead><tbody><tr v-for="o in orders" :key="o.orderNo"><td><strong>{{ o.orderNo }}</strong><small>{{ o.createdAt }}</small></td><td>{{ o.items.map(i=>i.productName).join(', ') }}</td><td>{{ o.currency }} {{ o.totalAmount }}</td><td><span class="status-pill">{{ o.status }}</span></td></tr><tr v-if="!orders.length"><td colspan="4" class="empty">No orders in the local API.</td></tr></tbody></table></section>
-      </section>
-    </main>
+    <main class="main-content"><ProductSkuManagement /></main>
   </div>
 </template>
