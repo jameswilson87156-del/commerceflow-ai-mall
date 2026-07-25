@@ -19,3 +19,9 @@ The label `库存正常`, `库存偏低`, or `缺货` is only a visual interpret
 ## Concise Explanation
 
 "A Product is the common merchandise record, a SKU is the purchasable variant, and Inventory belongs to the SKU. The Vue page reads both catalog endpoints, displays `availableStock` exactly as returned, and only derives a centralized visual stock label for scanning."
+
+## P2.1 Demonstration Data Choice
+
+The catalog was localized so a Chinese interview demonstration can focus on the Product-SKU-Inventory relationship rather than translation. The migration changes display text only. The same Product and SKU identifiers, prices, currency, SKU codes, inventory baseline, and record count remain in place, so the API contract and order-related references are not broadened or replaced.
+
+This remains a read-only management view. Localized labels do not imply that an administrator can change products or inventory from this screen.

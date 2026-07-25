@@ -33,3 +33,19 @@ This is a presentation-only label. `availableStock` remains the real inventory f
 ## Selection Failure Handling
 
 The selected product identifier is kept separately from the successfully loaded detail object. This keeps the selected list item and any retry target aligned with the product the user clicked, even if a later detail request fails.
+
+## P2.1 Localization and Visual Polish
+
+`V3__localize_showcase_catalog.sql` updates only presentation values in the existing records. It preserves the Product IDs, SKU IDs, SKU codes, sale prices, currency, inventory quantities, and the two-product / three-SKU record count.
+
+| Record | Before V3 | After V3 |
+| --- | --- | --- |
+| Product 101 | Essential Cotton Shirt / Everyday Wear | 轻盈棉质基础T恤 / 日常服饰 |
+| Product 102 | Structured Work Tote / Work Essentials | 简约通勤托特包 / 通勤配件 |
+| SKU 10001 color | Black | 黑色 |
+| SKU 10002 color | White | 白色 |
+| SKU 10003 color | Tan | 卡其色 |
+
+The existing size values remain unchanged: `M`, `L`, and `One Size`. SKU codes remain technical identifiers and therefore remain English.
+
+The stylesheet makes the Chinese product copy easier to scan, tightens the panel gaps, increases SKU table readability, and aligns the desktop product-list panel with the selected-detail stack. These are layout-only changes; API requests and read-only behavior are unchanged.

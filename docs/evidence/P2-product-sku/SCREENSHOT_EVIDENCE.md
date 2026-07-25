@@ -27,3 +27,21 @@ npm run dev -- --host 127.0.0.1
 ```
 
 `npm test` and `npm run build` completed successfully before capture.
+
+## P2.1 Candidate Artifact
+
+`screenshots/v2/02-product-sku-real-v2.png`
+
+The previous `02-product-sku-real.png` remains unchanged as the P2 record. The P2.1 file is a separate candidate for human review and does not replace the earlier evidence.
+
+Capture settings:
+
+- viewport: `1920 x 1080`
+- `deviceScaleFactor`: `1`
+- locale and document language: `zh-CN`
+- runtime: locally installed Google Chrome controlled through Playwright
+- local Vue page: `http://127.0.0.1:5174/`
+- API base: `http://localhost:8081/api`
+- browser console errors: none
+
+The candidate contains only data returned by the rebuilt local MySQL/Flyway environment: two Products and three SKUs. It is not an AI design reference and is not used as a page background.

@@ -21,3 +21,9 @@ Before this phase, the admin client only had a generic English catalog summary i
 ## Boundary
 
 The page is a real read-only showcase surface. Inventory labels are derived only for display and never alter the Java/MySQL inventory fact.
+
+## P2.1 Localized Polish
+
+P2.1 localizes the existing two-product showcase catalog for a Chinese demonstration without expanding the catalog or adding a write path. The original Flyway migrations remain unchanged; `V3__localize_showcase_catalog.sql` applies the display-text update after the already-executed schema and seed migrations.
+
+The page remains read-only. It has no create, edit, delete, import, or bulk operation.

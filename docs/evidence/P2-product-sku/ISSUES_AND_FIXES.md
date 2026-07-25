@@ -37,3 +37,13 @@ Adding the Vue test tooling produced npm development-dependency audit notices an
 ### Resolution
 
 No dependency replacement was made in this UI-scoped phase. The notices are not a build or test blocker; dependency remediation should be handled in a dedicated upgrade review rather than silently changing the toolchain here.
+
+## P2.1 Screenshot Runtime and Favicon Request
+
+### Observation
+
+The Playwright package was available, but its default managed headless browser executable was absent. A first Chrome screenshot also reported one console error because the application had no favicon and the browser requested `/favicon.ico`.
+
+### Resolution
+
+Used the already-installed local Google Chrome executable through Playwright; no browser was downloaded or installed. Added an empty data favicon in `index.html`, then regenerated the candidate screenshot with `1920 x 1080`, `deviceScaleFactor: 1`, and `zh-CN`. The final capture reported no console errors.

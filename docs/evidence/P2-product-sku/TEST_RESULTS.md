@@ -39,3 +39,17 @@ On the running Vue page, the following interactions were verified against the lo
 - searching `TOTE-TAN-ONE` leaves the matching real SKU/product visible;
 - stock `4` is labeled `库存偏低` according to the threshold;
 - the final capture has no browser console errors.
+
+## P2.1 Verification
+
+Date: 2026-07-25.
+
+- Database rebuilt from a clean Docker volume using `scripts/start-mysql.ps1 -Reset`.
+- MySQL Flyway history shows migrations `V1`, `V2`, and `V3` as successful.
+- Java tests: 4 passed. The H2 test database also migrated from an empty schema through `V3`.
+- Vue Vitest: 2 files and 6 tests passed, including Chinese product/category fixtures, filtering, loading, empty, error, selection, and SKU rendering.
+- Vue production build passed.
+- `GET /api/products`, `GET /api/products/101`, and `GET /api/products/102` returned the localized real data.
+- Browser verification against the local API passed for Chinese search, category filtering, inventory filtering, product switching, and console-error inspection.
+
+After the clean reset, real baseline inventory returned as `12`, `8`, and `5` for SKUs `10001`, `10002`, and `10003`. These quantities were not changed by the localization migration.

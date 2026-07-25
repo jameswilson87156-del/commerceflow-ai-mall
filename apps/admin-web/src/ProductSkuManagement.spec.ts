@@ -3,8 +3,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import ProductSkuManagement from './ProductSkuManagement.vue'
 
 const products = [
-  { id: 101, name: 'Essential Cotton Shirt', description: 'Soft cotton shirt.', categoryName: 'Everyday Wear', skus: [{ id: 10001, skuCode: 'SHIRT-BLK-M', color: 'Black', size: 'M', salePrice: 129, currency: 'CNY', availableStock: 12 }] },
-  { id: 102, name: 'Structured Work Tote', description: 'Laptop-friendly tote.', categoryName: 'Work Essentials', skus: [{ id: 10003, skuCode: 'TOTE-TAN-ONE', color: 'Tan', size: 'One Size', salePrice: 299, currency: 'CNY', availableStock: 4 }] },
+  { id: 101, name: '轻盈棉质基础T恤', description: '柔软棉质基础短袖，适合日常通勤和春夏穿搭。', categoryName: '日常服饰', skus: [{ id: 10001, skuCode: 'SHIRT-BLK-M', color: '黑色', size: 'M', salePrice: 129, currency: 'CNY', availableStock: 12 }] },
+  { id: 102, name: '简约通勤托特包', description: '简洁轻便的通勤托特包，适合日常收纳。', categoryName: '通勤配件', skus: [{ id: 10003, skuCode: 'TOTE-TAN-ONE', color: '卡其色', size: 'One Size', salePrice: 299, currency: 'CNY', availableStock: 4 }] },
 ]
 
 function jsonResponse(body: unknown, status = 200) {
@@ -42,9 +42,13 @@ describe('ProductSkuManagement', () => {
     vi.stubGlobal('fetch', fetchMock)
     const wrapper = mount(ProductSkuManagement)
     await flushPromises()
+    expect(wrapper.text()).toContain('轻盈棉质基础T恤')
+    expect(wrapper.text()).toContain('日常服饰')
     expect(wrapper.get('[data-testid="sku-10001"]').text()).toContain('SHIRT-BLK-M')
     await wrapper.get('[data-testid="product-102"]').trigger('click')
     await flushPromises()
+    expect(wrapper.text()).toContain('简约通勤托特包')
+    expect(wrapper.get('[data-testid="sku-10003"]').text()).toContain('卡其色')
     expect(wrapper.get('[data-testid="sku-10003"]').text()).toContain('TOTE-TAN-ONE')
     expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/products/102'))
   })
