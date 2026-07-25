@@ -1,0 +1,21 @@
+server:
+  port: ${MALL_API_PORT:8080}
+spring:
+  application:
+    name: commerceflow-mall-api
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:${MYSQL_PORT:3307}/${MYSQL_DATABASE:commerceflow}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai}
+    username: ${DB_USERNAME:${MYSQL_USER:commerceflow}}
+    password: ${DB_PASSWORD:${MYSQL_PASSWORD:commerceflow_demo}}
+  flyway:
+    enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+commerceflow:
+  ai-service-url: ${AI_SERVICE_URL:http://127.0.0.1:8000}
