@@ -90,7 +90,7 @@ onMounted(loadCatalog)
   <section class="catalog-page" aria-labelledby="catalog-page-title">
     <header class="catalog-heading">
       <div>
-        <p class="eyebrow">CATALOG / LIVE LOCAL API</p>
+        <p class="eyebrow">商品目录 / 本地真实接口</p>
         <h1 id="catalog-page-title">商品与 SKU 管理</h1>
         <p class="subtitle">读取本地商城接口中的商品、SKU、价格与可用库存。当前为只读演示，不提供编辑或批量操作。</p>
       </div>
@@ -146,7 +146,7 @@ onMounted(loadCatalog)
       <div class="catalog-layout">
         <section class="panel product-panel" aria-labelledby="product-list-title">
           <div class="panel-title-row">
-            <div><p class="eyebrow">PRODUCTS</p><h2 id="product-list-title">商品列表</h2></div>
+            <div><p class="eyebrow">商品列表</p><h2 id="product-list-title">商品列表</h2></div>
             <span class="result-count">{{ filteredProducts.length }} 项结果</span>
           </div>
           <div v-if="filteredProducts.length" class="product-list">
@@ -182,7 +182,7 @@ onMounted(loadCatalog)
           <template v-else-if="selectedProduct">
             <section class="panel selected-product" aria-labelledby="selected-product-title">
               <div class="panel-title-row">
-                <div><p class="eyebrow">SELECTED PRODUCT</p><h2 id="selected-product-title">当前选中商品详情</h2></div>
+                <div><p class="eyebrow">当前商品</p><h2 id="selected-product-title">当前选中商品详情</h2></div>
                 <span class="read-only-badge">只读数据</span>
               </div>
               <div class="detail-grid">
@@ -192,7 +192,7 @@ onMounted(loadCatalog)
             </section>
 
             <section class="panel sku-panel" aria-labelledby="sku-table-title">
-              <div class="panel-title-row"><div><p class="eyebrow">SKU / INVENTORY</p><h2 id="sku-table-title">当前商品 SKU 列表</h2></div><span class="result-count">{{ selectedProduct.skus.length }} 个 SKU</span></div>
+              <div class="panel-title-row"><div><p class="eyebrow">SKU 与库存</p><h2 id="sku-table-title">当前商品 SKU 列表</h2></div><span class="result-count">{{ selectedProduct.skus.length }} 个 SKU</span></div>
               <div class="table-wrap">
                 <table>
                   <thead><tr><th>skuId</th><th>skuCode</th><th>颜色</th><th>尺寸</th><th>售价</th><th>货币</th><th>可用库存</th><th>库存状态</th></tr></thead>

@@ -45,3 +45,19 @@ Capture settings:
 - browser console errors: none
 
 The candidate contains only data returned by the rebuilt local MySQL/Flyway environment: two Products and three SKUs. It is not an AI design reference and is not used as a page background.
+
+## P2 Final Primary Artifact
+
+`screenshots/v2/02-product-sku-real-final.png`
+
+This is the formal primary screenshot for the Product and SKU page after the final Chinese label lock. It was captured from the same real local API using the two localized Products and three localized SKUs.
+
+The earlier `02-product-sku-real.png` and `02-product-sku-real-v2.png` remain historical evidence and are intentionally retained.
+
+Final capture settings:
+
+- viewport: `1920 x 1080`
+- `deviceScaleFactor`: `1`
+- locale and document language: `zh-CN`
+- runtime: locally installed Google Chrome controlled through Playwright
+- browser console errors: none
