@@ -22,10 +22,10 @@ Search matches real product names and `skuCode` values returned by the list endp
 
 ## Inventory Display Rule
 
-`apps/admin-web/src/catalog.ts` defines the single `LOW_STOCK_THRESHOLD` constant as `5`.
+`apps/admin-web/src/catalog.ts` defines the single `LOW_STOCK_THRESHOLD` constant as `30`.
 
 - `availableStock === 0`: `缺货`
-- `availableStock > 0 && availableStock < 5`: `库存偏低`
+- `availableStock > 0 && availableStock < 30`: `库存偏低`
 - otherwise: `库存正常`
 
 This is a presentation-only label. `availableStock` remains the real inventory fact returned by Java; the Vue client has no inventory write action.
@@ -49,3 +49,14 @@ The selected product identifier is kept separately from the successfully loaded 
 The existing size values remain unchanged: `M`, `L`, and `One Size`. SKU codes remain technical identifiers and therefore remain English.
 
 The stylesheet makes the Chinese product copy easier to scan, tightens the panel gaps, increases SKU table readability, and aligns the desktop product-list panel with the selected-detail stack. These are layout-only changes; API requests and read-only behavior are unchanged.
+
+## P2 Design-Lock Rework
+
+`V4__add_showcase_product_images.sql` is appended after V1-V3; none of the executed migrations were changed. It adds `product_code` and `cover_image_path` to `product`, plus `image_path` to `product_sku`. The migration updates the existing two local Showcase products and inserts only the two additional T-shirt variants required by the approved copy specification.
+
+The real seed now exposes two Products and five SKUs:
+
+- `PROD-1001` / `轻盈棉质基础 T 恤`: four SKUs with stock `96`, `182`, `28`, and `0`.
+- `PROD-1002` / `简约通勤托特包`: one SKU with stock `128`.
+
+The static images are copied byte-for-byte into `apps/admin-web/public/assets/products/`. Java returns their runtime paths, and the Vue component renders only those API values. The page has no local fallback catalog, no business-number constants, and no write controls.

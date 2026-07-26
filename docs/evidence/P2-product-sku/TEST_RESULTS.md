@@ -53,3 +53,14 @@ Date: 2026-07-25.
 - Browser verification against the local API passed for Chinese search, category filtering, inventory filtering, product switching, and console-error inspection.
 
 After the clean reset, real baseline inventory returned as `12`, `8`, and `5` for SKUs `10001`, `10002`, and `10003`. These quantities were not changed by the localization migration.
+
+## P2 Design-Lock Verification
+
+Date: 2026-07-26.
+
+- MySQL was rebuilt from an empty Docker volume with `scripts/start-mysql.ps1 -Reset`. Flyway applied V1 through V4 successfully.
+- Java: `./mvnw.cmd -f apps/mall-api/pom.xml test` passed: 6 tests, 0 failures, 0 errors. The added catalog API tests validate image-path fields, the four T-shirt SKUs, low stock `28`, and out-of-stock `0` on a clean H2/Flyway schema.
+- Vue: `npm.cmd run test -- --run` passed: 2 files and 6 tests. The tests cover the centralized stock threshold, name/SKU/category/state filters, loading, empty, error/retry, product switching, and rendered image paths.
+- Vue: `npm.cmd run build` passed (`vue-tsc --noEmit` and Vite production build).
+- Local API: `GET /api/products` returned 2 Products; Product `101` returned four SKUs with stocks `96`, `182`, `28`, and `0`; `GET /api/products/102` returned its tote SKU and image path.
+- Browser: local Chrome + bundled Playwright runtime used viewport `1920 x 1080`, `deviceScaleFactor: 1`, and `zh-CN`. It verified real API data, product-name search, SKU-code search, low-stock filtering, category filtering, product/SKU switching, and a zero console/page-error count.

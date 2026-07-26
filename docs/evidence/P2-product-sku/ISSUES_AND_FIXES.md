@@ -47,3 +47,17 @@ The Playwright package was available, but its default managed headless browser e
 ### Resolution
 
 Used the already-installed local Google Chrome executable through Playwright; no browser was downloaded or installed. Added an empty data favicon in `index.html`, then regenerated the candidate screenshot with `1920 x 1080`, `deviceScaleFactor: 1`, and `zh-CN`. The final capture reported no console errors.
+
+## Browser Script Chinese Option Literal
+
+### Observation
+
+The first design-lock browser verification timed out while selecting the Chinese tote category, even though the running page displayed that option and the API returned the expected category.
+
+### Root Cause
+
+The PowerShell pipeline used to pass the temporary verification script changed the non-ASCII option literal before Playwright evaluated it. This affected the one-off test script, not the Vue select element or the API data.
+
+### Resolution
+
+Inspected the real page options, confirmed the Chinese values, then selected the existing option by index in the temporary browser check. The completed check verified category filtering and recorded zero browser console or page errors. No application fallback, fake option, or additional API was added.

@@ -27,3 +27,9 @@ The page is a real read-only showcase surface. Inventory labels are derived only
 P2.1 localizes the existing two-product showcase catalog for a Chinese demonstration without expanding the catalog or adding a write path. The original Flyway migrations remain unchanged; `V3__localize_showcase_catalog.sql` applies the display-text update after the already-executed schema and seed migrations.
 
 The page remains read-only. It has no create, edit, delete, import, or bulk operation.
+
+## P2 Design Lock
+
+The design-lock rework keeps the same two real endpoints while rebuilding the visible structure around the approved source reference. `V4__add_showcase_product_images.sql` is a new Flyway migration: it adds API-backed product/SKU image paths, product codes, four T-shirt variants, and the local Showcase inventory states needed for normal, low, and out-of-stock presentation. The records are local interview-demo seed data, not merchant data.
+
+`VISUAL_COMPARISON.md` records the reference comparison. `02-product-sku-design-lock-real.png` is the new real runtime screenshot; the earlier screenshots remain historical evidence.

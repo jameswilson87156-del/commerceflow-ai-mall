@@ -61,3 +61,21 @@ Final capture settings:
 - locale and document language: `zh-CN`
 - runtime: locally installed Google Chrome controlled through Playwright
 - browser console errors: none
+
+## P2 Design-Lock Real Runtime Artifact
+
+`screenshots/v2/02-product-sku-design-lock-real.png`
+
+This is the real runtime screenshot for the reference-driven rework. It is not an AI design reference, does not embed `target-page.png`, and uses original local product assets served from `apps/admin-web/public/assets/products/`.
+
+- viewport: `1920 x 1080`
+- `deviceScaleFactor`: `1`
+- locale: `zh-CN`
+- Vue URL: `http://127.0.0.1:5174/`
+- Java API: `http://localhost:8081/api`
+- database: local MySQL rebuilt through Flyway V1-V4
+- visible data: `PROD-1001`, 4 real T-shirt SKUs, and stock `96`, `182`, `28`, `0`
+- selected SKU at capture: `T-SHIRT-GRAY-L`; its gray product asset was returned by the API and displayed by the page
+- console errors: none; page errors: none
+
+The target reference remains only in `docs/design_refs/source/product-sku/`. It is never used as a page background or runtime evidence.

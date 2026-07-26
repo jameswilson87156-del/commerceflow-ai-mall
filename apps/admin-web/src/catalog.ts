@@ -1,4 +1,4 @@
-export const LOW_STOCK_THRESHOLD = 5
+export const LOW_STOCK_THRESHOLD = 30
 
 export type StockState = 'normal' | 'low' | 'out'
 
@@ -10,13 +10,17 @@ export type Sku = {
   salePrice: number
   currency: string
   availableStock: number
+  imagePath: string
 }
 
 export type Product = {
   id: number
+  productCode: string
   name: string
   description: string
   categoryName: string
+  status: string
+  coverImagePath: string
   skus: Sku[]
 }
 
@@ -40,6 +44,11 @@ export function productStock(product: Product): number {
   return product.skus.reduce((total, sku) => total + sku.availableStock, 0)
 }
 
+export function minSalePrice(product: Product): number | null {
+  if (product.skus.length === 0) return null
+  return Math.min(...product.skus.map((sku) => sku.salePrice))
+}
+
 export function filterProducts(products: Product[], filters: CatalogFilters): Product[] {
   const query = filters.query.trim().toLocaleLowerCase()
   return products.filter((product) => {
@@ -59,4 +68,8 @@ export function formatMoney(amount: number, currency: string): string {
     currency,
     minimumFractionDigits: 2,
   }).format(amount)
+}
+
+export function productStatusLabel(status: string): string {
+  return status === 'ON_SALE' ? '已上架' : status
 }
