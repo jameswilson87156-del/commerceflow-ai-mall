@@ -8,9 +8,9 @@ Command:
 ./mvnw.cmd -f apps/mall-api/pom.xml test
 ```
 
-Result on 2026-07-26: 10 tests passed, 0 failures, 0 errors.
+Result on 2026-07-26: 12 tests passed, 0 failures, 0 errors.
 
-Coverage includes successful order snapshots and `BigDecimal` total, conditional stock deduction, movement before/after values, shortage/no-residue behavior, full rollback after a prior deduction, same-key replay, same-key conflict HTTP 409, MyBatis mapper/result map, evidence API, and clean H2 Flyway V1-V5 migration.
+Coverage includes successful order snapshots and `BigDecimal` total, conditional stock deduction, movement before/after values, shortage/no-residue behavior, full rollback after a prior deduction, same-key replay, same-key conflict HTTP 409, MyBatis mapper/result map, evidence API, duplicate-SKU aggregation, database movement uniqueness, and clean H2 Flyway V1-V6 migration.
 
 ## Vue
 
@@ -28,6 +28,6 @@ Coverage includes order list/detail/evidence rendering, list loading/empty/error
 ## Real Runtime
 
 - `scripts/start-mysql.ps1 -Reset` rebuilt MySQL from an empty volume.
-- Flyway applied V1 through V5 successfully.
+- Flyway applied V1 through V6 successfully.
 - `scripts/seed-order-evidence.ps1` created three successful orders through the real API and asserted replay, conflict, shortage, and primary movement facts.
 - Browser verification used `1920 x 1080`, `deviceScaleFactor: 1`, and `zh-CN`; it checked real API data, order-number search, and zero console/page errors.

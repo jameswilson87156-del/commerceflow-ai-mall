@@ -55,3 +55,17 @@ The frontend package is intentionally scoped to `apps/admin-web`, while the Mave
 ### Fix and Regression
 
 Ran Vitest and the Vue production build from `apps/admin-web`, then ran Maven from the repository root. Both suites passed; no source change was needed for this command-location issue.
+
+## MySQL EXPLAIN Command Quoting
+
+### Observation
+
+The first read-only MySQL `EXPLAIN` attempt used a nested Docker shell string and failed before MySQL received the query.
+
+### Root Cause
+
+The nested shell quote boundaries did not survive the PowerShell command construction.
+
+### Fix and Regression
+
+Passed MySQL arguments directly through `docker compose exec`. The completed `EXPLAIN` showed the expected `orders.order_no`, OrderItem foreign-key, and inventory-movement unique indexes. No data or schema was changed by the failed command.

@@ -4,13 +4,15 @@
 
 `V5__add_inventory_movement_evidence.sql` adds nullable color/size snapshot columns to `order_item` and adds `inventory_movement`. The movement records `order_no`, `sku_id`, movement type, quantity, exact stock before/after, idempotency key, and timestamp. Existing migrations were not modified.
 
+`V6__enforce_unique_order_inventory_movement.sql` adds `UNIQUE(order_no, sku_id, movement_type)`. Before the transactional loop, `OrderService` now aggregates identical SKU lines. This makes one successful order/SKU/type produce one OrderItem and one movement while preserving SKU-level inventory deduction.
+
 The older `inventory_change_log` lacks before/after stock and the key, so it cannot support this evidence screen. P3 leaves the old schema in place but writes the new evidence table for the active order flow.
 
 ## Transaction Write Path
 
 `OrderService.submit` remains a JDBC `@Transactional` write path.
 
-1. Resolve the SKU.
+1. Aggregate repeated SKU lines, then resolve each SKU.
 2. Lock and read the current inventory row on the server to obtain `stockBefore`.
 3. Perform the existing conditional atomic update. `affected rows = 0` means inventory could not satisfy the requested quantity, so the service throws `INVENTORY_INSUFFICIENT`.
 4. Read `stockAfter` from the same transaction.

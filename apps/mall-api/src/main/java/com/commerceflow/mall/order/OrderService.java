@@ -34,24 +34,30 @@ public class OrderService {
                 return existing.get();
             }
             if (request.items().isEmpty()) throw new CommerceException("ORDER_EMPTY", "At least one cart line is required");
+            var quantities = new java.util.LinkedHashMap<Long,Integer>();
+            for (var line: request.items()) {
+                try { quantities.merge(line.skuId(), line.quantity(), Math::addExact); }
+                catch (ArithmeticException ex) { throw new CommerceException("ORDER_QUANTITY_INVALID", "Order quantity is too large"); }
+            }
             BigDecimal total=BigDecimal.ZERO;
             var resolved=new java.util.ArrayList<ResolvedLine>();
-            for (var line: request.items()) {
+            for (var entry: quantities.entrySet()) {
+                long skuId=entry.getKey(); int quantity=entry.getValue();
                 ApiModels.Sku sku;
-                try { sku=catalog.sku(line.skuId()); } catch (Exception ex) { throw new CommerceException("SKU_NOT_FOUND", "SKU is unavailable"); }
+                try { sku=catalog.sku(skuId); } catch (Exception ex) { throw new CommerceException("SKU_NOT_FOUND", "SKU is unavailable"); }
                 int stockBefore=orders.stockForUpdate(sku.id());
-                if (orders.deduct(sku.id(),line.quantity())==0) throw new CommerceException("INVENTORY_INSUFFICIENT", "Inventory changed; please retry");
+                if (orders.deduct(sku.id(),quantity)==0) throw new CommerceException("INVENTORY_INSUFFICIENT", "Inventory changed; please retry");
                 int stockAfter=orders.currentStock(sku.id());
-                total=total.add(sku.salePrice().multiply(BigDecimal.valueOf(line.quantity()))); resolved.add(new ResolvedLine(sku, stockBefore, stockAfter));
+                total=total.add(sku.salePrice().multiply(BigDecimal.valueOf(quantity))); resolved.add(new ResolvedLine(sku, quantity, stockBefore, stockAfter));
             }
             String no="CF"+System.currentTimeMillis();
             long orderId;
             try { orderId=orders.insertOrder(no,userId,key,fingerprint,total,"CNY"); }
             catch (DuplicateKeyException ex) { throw new CommerceException("IDEMPOTENCY_IN_PROGRESS", "A request with this key is being completed"); }
-            for (int i=0;i<request.items().size();i++) { var line=request.items().get(i); var resolvedLine=resolved.get(i); var sku=resolvedLine.sku(); orders.insertItem(orderId,sku.id(),sku,catalog.productName(sku.id()),line.quantity()); orders.recordInventoryMovement(no,sku.id(),line.quantity(),resolvedLine.stockBefore(),resolvedLine.stockAfter(),key); orders.clearCart(userId,sku.id()); }
+            for (var resolvedLine: resolved) { var sku=resolvedLine.sku(); orders.insertItem(orderId,sku.id(),sku,catalog.productName(sku.id()),resolvedLine.quantity()); orders.recordInventoryMovement(no,sku.id(),resolvedLine.quantity(),resolvedLine.stockBefore(),resolvedLine.stockAfter(),key); orders.clearCart(userId,sku.id()); }
             return orders.find(no).orElseThrow();
         } finally { inFlight.remove(lock,fingerprint); }
     }
-    private record ResolvedLine(ApiModels.Sku sku, int stockBefore, int stockAfter) {}
+    private record ResolvedLine(ApiModels.Sku sku, int quantity, int stockBefore, int stockAfter) {}
     private String fingerprint(ApiModels.OrderRequest r) { String raw=r.items().stream().map(i->i.skuId()+":"+i.quantity()).sorted().reduce("",(a,b)->a+"|"+b); try { var md=MessageDigest.getInstance("SHA-256"); var out=md.digest(raw.getBytes(StandardCharsets.UTF_8)); return java.util.HexFormat.of().formatHex(out); } catch(Exception e) { throw new IllegalStateException(e); } }
 }

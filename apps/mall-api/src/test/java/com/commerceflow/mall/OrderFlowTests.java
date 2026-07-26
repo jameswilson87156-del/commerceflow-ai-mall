@@ -17,6 +17,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
@@ -132,8 +133,31 @@ class OrderFlowTests {
     }
 
     @Test
+    void duplicateSkuLinesAreAggregatedIntoOneItemAndMovement() {
+        String key = key("aggregate");
+        int before = stock(10001);
+        var request = new ApiModels.OrderRequest(List.of(
+            new ApiModels.OrderLineRequest(10001L, 1),
+            new ApiModels.OrderLineRequest(10001L, 2)));
+        var order = service.submit(1, key, request);
+
+        assertEquals(before - 3, stock(10001));
+        assertEquals(1, count("SELECT COUNT(*) FROM order_item WHERE order_id=(SELECT id FROM orders WHERE order_no=?)", order.orderNo()));
+        assertEquals(1, count("SELECT COUNT(*) FROM inventory_movement WHERE order_no=?", order.orderNo()));
+        assertEquals(3, jdbc.queryForObject("SELECT quantity FROM inventory_movement WHERE order_no=?", Integer.class, order.orderNo()));
+    }
+
+    @Test
+    void databasePreventsDuplicateMovementForSameOrderSkuAndType() {
+        var order = service.submit(1, key("unique"), request(10002, 1));
+        assertThrows(DuplicateKeyException.class, () -> jdbc.update(
+            "INSERT INTO inventory_movement(order_no,sku_id,movement_type,quantity,stock_before,stock_after,idempotency_key) VALUES (?,?,?,?,?,?,?)",
+            order.orderNo(), 10002L, "ORDER_DEDUCT", 1, 1, 0, "manual-duplicate"));
+    }
+
+    @Test
     void cleanTestDatabaseAppliedTheEvidenceMigration() {
-        assertEquals(5, count("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE AND version IS NOT NULL"));
+        assertEquals(6, count("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE AND version IS NOT NULL"));
     }
 
     private ApiModels.OrderRequest request(long skuId, int quantity) {

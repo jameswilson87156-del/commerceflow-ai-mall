@@ -13,9 +13,9 @@ This screenshot is a real local Vue runtime, not the AI design reference and not
 - locale: `zh-CN`
 - Vue: `http://127.0.0.1:5174/`
 - Java API: `http://localhost:8081/api`
-- database: clean local MySQL migrated by Flyway V1-V5
+- database: clean local MySQL migrated by Flyway V1-V6
 - visible list: three orders created by `scripts/seed-order-evidence.ps1`
-- selected order: `CF1785047035633`
+- selected order: `CF1785048273842`
 - visible movement: SKU `10004`, `28 -> 27`, quantity `1`
 - browser console errors: none
 - page errors: none
