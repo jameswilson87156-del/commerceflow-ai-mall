@@ -15,11 +15,11 @@ This matrix is the implementation baseline for future design references. It inte
 | Order submit | Implemented | `POST /api/orders?userId=1` with `Idempotency-Key` | `orderNo`, amount, currency, `CREATED`, timestamps, order item snapshots | Success screen can show the real order number and amount |
 | Order list/detail | Implemented in Java | `GET /api/orders?userId=1`, `GET /api/orders/{orderNo}` | order number, amount, currency, status, created time, product/SKU/attribute/price/quantity snapshots | Vue order table is real; a detailed panel still needs frontend work |
 | Idempotency | Implemented and tested | HTTP Header `Idempotency-Key` plus MySQL unique constraint | Replay result, in-progress conflict, key-reuse conflict | Can be explained in an order detail or interview evidence panel; not as a visible user KPI |
-| AI product support | Implemented | `POST /api/ai/product-chat` | `traceId`, `answer`, `providerMode`, `status`, `evidence` | Real question/answer panel is allowed; answer must be marked Mock when applicable |
-| Java-owned business facts | Implemented internally | Java to Python request body | question, product/SKU identity, status, color, size, stock, string price, currency, snippets, queried time | Can be shown only as returned evidence after a trace read API exists; do not invent a trace inspector now |
-| AI provider fallback | Implemented | Java timeout/fallback and Python provider fallback | `AI_FALLBACK`, provider mode, evidence tag | State can be shown in a test result or support response, not as a fake reliability percentage |
+| AI product support | Implemented backend; Vue workbench deferred to P4C | `POST /api/ai/customer-service/ask` | selected product/SKU, typed answer status, provider, Java Evidence, safe facts, compact Trace | A future panel must select a real SKU and render plain text only |
+| Java-owned business facts | Implemented internally | Java to Python `POST /internal/ai/customer-service/answer` | question, product/SKU identity/status/image, `unitPrice` decimal string, currency, stock, snippets, queried time | Java is the sole fact source; Python cannot add Evidence or query MySQL |
+| AI provider fallback | Implemented | Bounded Java call plus Java fact fallback | `FALLBACK_ANSWER`, `java-fact-fallback`, warning, safe error code | State can be shown in a future support response, not as a fake reliability percentage |
 | AI product copy | Not implemented | None | None | Design-only future reference; no runtime screenshot |
-| Trace detail | Write-only for now | `ai_trace` table insert | trace ID, question, provider mode, answer, evidence JSON, status, created time | Future page; requires read API and DTO |
+| Trace detail | Write-only for now | extended `ai_trace` table | correlation ids, fact selection ids, safe question category, answer/provider/fallback/latency/error summary | Future page; still requires a dedicated read API and DTO |
 | AI history | Not implemented | None | None | Do not show conversation list or completion rate |
 | Product/SKU management writes | Not implemented | None | None | Current Catalog view is read-only, not an admin CRUD claim |
 | Categories | Read-only through product response | `categoryName` nested in products | category name | Do not show a category management screen |
@@ -35,7 +35,7 @@ This matrix is the implementation baseline for future design references. It inte
 | Vue Overview | KPI cards, catalog signal, recent orders, AI signal | Products and orders are live; stock is computed locally | No aggregate metrics, trend API, latest activity, or trace read API |
 | Vue Catalog | Read-only table | Product API is live | No filters, pagination, write actions, or SKU detail panel |
 | Vue Orders | Read-only table | Order list is live | No order detail page, inventory deduction evidence, or status transitions |
-| Vue AI Support | Question and answer panel | Product chat is live | No history, business-facts inspection, or human review queue |
+| Vue AI Support | Sidebar label only | P4B backend is live but no Vue request surface yet | P4C must add real SKU selection, messages, loading/error/retry, Evidence, and Trace rendering |
 | Vue AI Copy Desk | Label and prompt shell | It currently reuses product chat, which is not copy generation | Requires a dedicated backend contract before it may appear in a runtime screenshot |
 | Vue Trace Explorer | Label and prompt shell | No trace read call | Requires trace detail endpoint and evidence renderer |
 | UniApp Mall | Catalog list | Product list is live | Demo login call and product detail endpoint are not used by the page |

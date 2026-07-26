@@ -4,7 +4,7 @@
 
 `POST /api/ai/customer-service/ask`
 
-The P4 endpoint replaces the prototype-only `POST /api/ai/product-chat` for the Vue workbench. The old prototype remains outside P4 behavior until a later compatibility decision; P4 implementation must not silently make its fixed-SKU behavior appear supported.
+The P4 endpoint replaces the prototype-only `POST /api/ai/product-chat` for the Vue workbench. P4B retains the old path only to return a clear deprecation error; it no longer selects a fixed SKU and does not maintain a second AI business flow.
 
 ## Request
 
@@ -21,7 +21,7 @@ The P4 endpoint replaces the prototype-only `POST /api/ai/product-chat` for the 
 | Field | Rule |
 | --- | --- |
 | `userId` | Required positive demo user id. It is trace attribution only; P4 never queries another user's order data. |
-| `productId` | Optional positive id. If supplied, Java verifies it is the selected SKU's parent. |
+| `productId` | Required positive id. Java verifies it is the selected SKU's real parent. |
 | `skuId` | Required positive id. P4 answers one real SKU at a time. |
 | `question` | Required after trim; 1-500 characters. Empty or longer values are rejected before any provider call. |
 | `clientRequestId` | Required 1-80 character request correlation value (`[A-Za-z0-9._-]`). It is not order idempotency and P4 does not deduplicate asks. |
@@ -59,4 +59,4 @@ The P4 endpoint replaces the prototype-only `POST /api/ai/product-chat` for the 
 
 ## Error Mapping
 
-Use the existing JSON error envelope for validation and selection errors. Proposed codes: `QUESTION_INVALID`, `QUESTION_TOO_LONG`, `PRODUCT_NOT_FOUND`, `SKU_NOT_FOUND`, `SKU_PRODUCT_MISMATCH`, and `SKU_NOT_AVAILABLE`. A provider failure that produces a valid fallback is HTTP 200 with `FALLBACK_ANSWER`; only a failure with no safe answer is a 502/503-style API error according to the implementation's established exception policy.
+Use the existing JSON error envelope for validation and selection errors. P4B codes are `INVALID_REQUEST`, `INVALID_QUESTION`, `QUESTION_TOO_LONG`, `INVALID_CLIENT_REQUEST_ID`, `PRODUCT_NOT_FOUND`, `SKU_NOT_FOUND`, and `PRODUCT_SKU_MISMATCH`. A provider failure that produces a valid fallback is HTTP 200 with `FALLBACK_ANSWER`; provider error categories are recorded as `AI_SERVICE_TIMEOUT`, `AI_SERVICE_UNAVAILABLE`, `AI_INVALID_RESPONSE`, or `AI_PROVIDER_ERROR` in the privacy-minimized Trace.

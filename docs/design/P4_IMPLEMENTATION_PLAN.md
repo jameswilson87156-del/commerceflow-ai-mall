@@ -11,8 +11,8 @@ P3 remains frozen. P4 begins only with a separate implementation instruction and
 3. Update FastAPI models, deterministic Mock classifier/templates, real-compatible fail-closed behavior, and tests. Keep Python database-free.
 4. Add V8 only after final SQL review: extend `ai_trace` according to `P4_TRACE_STORAGE_DECISION.md` and add migration tests.
 5. Add Java Java-owned Evidence, compact trace steps, fallback mapping, and tests.
-6. Build Vue AI workbench using real Product APIs and the new Java endpoint; no direct browser-to-Python call.
-7. Execute Java/Python/Vue/browser matrix, produce only a real runtime screenshot, then update P4 evidence.
+6. Build Vue AI workbench using real Product APIs and the new Java endpoint; no direct browser-to-Python call. This is P4C and is intentionally not part of P4B.
+7. P4B executes Java/Python/Vue regression plus local Java-to-Python integration. It does not claim a P4 final workbench screenshot before P4C exists.
 
 ## Definition of Done
 

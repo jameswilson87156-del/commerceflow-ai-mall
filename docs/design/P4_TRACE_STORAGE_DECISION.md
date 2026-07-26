@@ -16,6 +16,10 @@ Planned fields: `client_request_id`, `product_id`, `sku_id`, `question_summary`,
 
 `question` must not receive a full sensitive prompt. P4 writes a bounded normalized summary/category to the existing non-null field and to `question_summary`; no authorization header, API key, complete system prompt, address, order content, raw provider payload, or exception stack is stored. `evidence_json` contains only Java-generated allowlisted fact evidence.
 
+## P4B Finalization
+
+P4B implements `V8__extend_ai_trace_for_customer_service.sql` with the planned fields. Existing `provider_mode`, `answer`, `evidence_json`, `status`, and `created_at` remain compatible for old rows; the migration backfills only safe summaries. No new index is introduced: P4B has no Trace history/search endpoint and the existing unique `trace_id` already supports its current correlation path. An index will be reconsidered only alongside a real query and `EXPLAIN` evidence.
+
 ## Trace Steps Returned to Vue
 
 The single request response exposes a compact, ordered non-persistent display list:

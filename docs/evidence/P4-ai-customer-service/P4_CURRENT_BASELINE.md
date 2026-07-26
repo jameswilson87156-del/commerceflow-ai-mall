@@ -2,6 +2,8 @@
 
 **Audit date:** 2026-07-26
 
+**Document status:** Historical P4A audit snapshot. It is intentionally retained as the pre-implementation baseline; P4B implementation evidence is recorded in the `P4B_*.md` files in this directory.
+
 **Audited commit:** `a21d4057be3ed8b9b99026d44b01ecf6cd63dc33`
 **Scope:** Read-only audit. No P4 implementation is included in this document.
 

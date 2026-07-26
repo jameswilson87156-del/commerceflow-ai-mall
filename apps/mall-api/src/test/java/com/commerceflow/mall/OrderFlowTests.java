@@ -206,8 +206,8 @@ class OrderFlowTests {
     }
 
     @Test
-    void cleanTestDatabaseAppliedTheImageSnapshotMigration() {
-        assertEquals(7, count("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE AND version IS NOT NULL"));
+    void cleanTestDatabaseAppliedAllMigrationsThroughP4TraceStorage() {
+        assertEquals(8, count("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE AND version IS NOT NULL"));
     }
 
     private ApiModels.OrderRequest request(long skuId, int quantity) {

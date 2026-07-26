@@ -12,8 +12,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
     @ExceptionHandler(CommerceException.class)
     ResponseEntity<?> commerce(CommerceException ex) {
-        HttpStatus status = ex.code().contains("IN_PROGRESS") || ex.code().contains("REUSED") ? HttpStatus.CONFLICT : HttpStatus.BAD_REQUEST;
+        HttpStatus status = statusFor(ex.code());
         return ResponseEntity.status(status).body(Map.of("timestamp", Instant.now(), "code", ex.code(), "message", ex.getMessage()));
+    }
+
+    private HttpStatus statusFor(String code) {
+        if (code.endsWith("_NOT_FOUND")) return HttpStatus.NOT_FOUND;
+        if (code.contains("IN_PROGRESS") || code.contains("REUSED")) return HttpStatus.CONFLICT;
+        if (code.equals("AI_SERVICE_UNAVAILABLE")) return HttpStatus.SERVICE_UNAVAILABLE;
+        if (code.startsWith("AI_")) return HttpStatus.BAD_GATEWAY;
+        return HttpStatus.BAD_REQUEST;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

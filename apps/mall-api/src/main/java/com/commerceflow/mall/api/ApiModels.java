@@ -21,5 +21,4 @@ public final class ApiModels {
     public record OrderSummary(String orderNo, Long userId, BigDecimal totalAmount, String currency, String status, Instant createdAt, List<OrderItem> items) {}
     public record OrderItem(String productNameSnapshot, String skuCodeSnapshot, String colorSnapshot, String sizeSnapshot, String imagePathSnapshot, BigDecimal unitPrice, int quantity) {}
     public record ProductChatRequest(@NotBlank String question, Long userId) {}
-    public record AiAnswer(String traceId, String answer, String providerMode, String status, List<String> evidence) {}
 }

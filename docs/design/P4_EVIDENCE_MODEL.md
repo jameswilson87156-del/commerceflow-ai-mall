@@ -17,12 +17,12 @@ Java generates and validates Evidence from the loaded `businessFacts`. Python su
 
 | Field | Meaning |
 | --- | --- |
-| `evidenceType` | `PRODUCT`, `SKU`, `PRICE`, `INVENTORY`, or `STATUS`. |
+| `evidenceType` | P4B's Java-owned fact category, such as `PRODUCT_FACT`, `SKU_FACT`, `PRICE_FACT`, or `INVENTORY_FACT`. |
 | `field` | Contract field name, for example `skuCode` or `availableStock`. |
 | `displayName` | Fixed Chinese presentation label owned by Java. |
 | `value` | Safe display value formatted from Java facts; money remains a string plus currency. |
-| `sourceType` | `PRODUCT`, `PRODUCT_SKU`, or `INVENTORY`. |
-| `sourceId` | Java database identifier serialized as a string. |
+| `sourceType` | `PRODUCT`, `SKU`, or `INVENTORY`. |
+| `sourceId` | Real Java database identifier. The JSON number remains a number; no provider-defined identifier is accepted. |
 
 ## Allowlist
 

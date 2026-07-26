@@ -19,5 +19,7 @@ springdoc:
     path: /swagger-ui.html
 commerceflow:
   ai-service-url: ${AI_SERVICE_URL:http://127.0.0.1:8000}
+  ai-connect-timeout-ms: ${AI_CONNECT_TIMEOUT_MS:1500}
+  ai-read-timeout-ms: ${AI_READ_TIMEOUT_MS:3000}
 mybatis:
   mapper-locations: classpath:mappers/OrderEvidenceMapper.xml

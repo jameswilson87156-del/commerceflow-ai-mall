@@ -26,3 +26,5 @@ Shipping time, refund, payment, discount negotiation, order tracking, order priv
 | Real-provider credentials absent | Python returns an explicit configuration condition; Java does not label it as a real answer. | Mock is used only when `AI_PROVIDER_MODE=mock`; real mode fails closed. |
 
 P4 uses bounded timeouts and **no automatic retry**. A user-visible retry creates a new client request id and a new trace. Resilience4j is a later evaluation only after real remote-provider behavior is stable.
+
+P4B implements `REAL_OPENAI_COMPATIBLE` as a fail-closed placeholder only. It makes no external request and uses no real API key; the default and fully testable mode is `commerceflow-mock` / `MOCK`.

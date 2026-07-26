@@ -4,7 +4,7 @@
 
 `POST /internal/ai/customer-service/answer`
 
-Only Java calls Python. Python has no CommerceFlow MySQL credentials, no business write endpoint, and no Java callback. The P4 implementation may retain `/v1/product-answer` only as a temporary compatibility adapter during migration; the Vue browser never calls Python directly.
+Only Java calls Python. Python has no CommerceFlow MySQL credentials, no business write endpoint, and no Java callback. P4B removes the prototype `/v1/product-answer` path rather than retaining two core contracts. The Vue browser never calls Python directly.
 
 ## Internal Request
 

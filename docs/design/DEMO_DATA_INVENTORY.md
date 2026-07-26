@@ -2,24 +2,26 @@
 
 ## Seed Data
 
-Flyway V2 creates one demo account, two on-sale products, three on-sale SKUs, and inventory baseline values. These are the stable facts a design reference may use.
+Flyway V2 creates the initial account/catalog. V3 localizes the labels and V4 is the current Showcase catalog baseline: two on-sale products, five on-sale SKUs, approved local image paths, and normal/low/out-of-stock values. These are the stable facts a design reference may use after a clean V1-V8 rebuild.
 
 | Entity | ID | Value |
 | --- | ---: | --- |
 | User | 1 | `demo@commerceflow.local`, display name `Demo Buyer`, status `ACTIVE` |
-| Category | 1 | `Everyday Wear` |
-| Category | 2 | `Work Essentials` |
-| Product | 101 | `Essential Cotton Shirt`; Soft cotton shirt with a clean everyday silhouette. |
-| Product | 102 | `Structured Work Tote`; Laptop-friendly tote with a simple internal organizer. |
-| SKU | 10001 | `SHIRT-BLK-M`, Black, M, CNY 129.00, baseline stock 12 |
-| SKU | 10002 | `SHIRT-WHT-L`, White, L, CNY 129.00, baseline stock 8 |
-| SKU | 10003 | `TOTE-TAN-ONE`, Tan, One Size, CNY 299.00, baseline stock 5 |
+| Category | 1 | `服饰 / 上衣` |
+| Category | 2 | `配饰 / 包袋` |
+| Product | 101 | `轻盈棉质基础 T 恤`; local cover image path |
+| Product | 102 | `简约通勤托特包`; local cover image path |
+| SKU | 10001 | `T-SHIRT-BLACK-M`, 黑色, M, CNY 129.00, stock 96 |
+| SKU | 10002 | `T-SHIRT-WHITE-S`, 白色, S, CNY 129.00, stock 182 |
+| SKU | 10003 | `TOTE-BEIGE-ONE`, 米色, One Size, CNY 199.00, stock 128 |
+| SKU | 10004 | `T-SHIRT-GRAY-L`, 灰色, L, CNY 129.00, stock 28 |
+| SKU | 10005 | `T-SHIRT-BLUE-XL`, 藏青色, XL, CNY 129.00, stock 0 |
 
-The baseline total stock is 25. Inventory is mutable: every successful order deducts stock and clears the matching cart line. A screenshot must record the capture time and should not present the seed number as a live total after orders have run.
+The clean-rebuild baseline total stock is 434. Inventory is mutable: every successful order deducts stock and clears the matching cart line. A screenshot must record the capture time and should not present the seed number as a live total after orders have run.
 
-## Observed Runtime State During This Audit
+## Historical Runtime State During the P2 Design Audit
 
-At the time of this design audit, the running local API returned:
+This is a historical P2 observation, not the current P4B database state:
 
 | SKU | Observed available stock | Reason it may differ from seed |
 | --- | ---: | --- |
@@ -59,10 +61,10 @@ The API returned two `CREATED` demo orders at audit time. Their numbers and time
 - Product/SKU facts passed by Java
 - Structured answer suggestion
 - `traceId`
-- `providerMode` (`mock` by default)
-- `status` (`COMPLETED` or `AI_FALLBACK`)
-- Evidence tag `java.businessFacts`
-- Python risk/evidence only after Java exposes it through a trace read contract
+- `answerStatus` (`ANSWERED`, `UNSUPPORTED_QUESTION`, `INSUFFICIENT_CONTEXT`, `PROVIDER_ERROR`, or `FALLBACK_ANSWER`)
+- Provider descriptor (`commerceflow-mock` / `MOCK` by default)
+- Java-owned Evidence records and compact Trace steps returned by the new ask API
+- No Python-owned risk/evidence; a future trace read API remains required for history
 
 ## Forbidden or Unsupported Demo Claims
 

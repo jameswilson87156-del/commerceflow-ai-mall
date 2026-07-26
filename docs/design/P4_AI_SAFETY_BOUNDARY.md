@@ -17,4 +17,4 @@ Java validates Python's schema, trace id, answer-status enum, provider fields, a
 
 ## Privacy and Operations
 
-No API key, authorization header, full sensitive prompt, order/address data, raw provider response, or stack trace enters `businessFacts`, browser response, or persistent trace. Provider calls have finite timeout. P4 does not implement Redis rate limiting, queues, agents, tools, database writes, payments, or order lookup.
+No API key, authorization header, full sensitive prompt, order/address data, raw provider response, or stack trace enters `businessFacts`, browser response, or persistent trace. Provider calls have finite timeout. The ask flow is business-read-only: its sole database write is the allowlisted, privacy-minimized `ai_trace` summary. P4 does not implement Redis rate limiting, queues, agents, tools, payments, or order lookup.
