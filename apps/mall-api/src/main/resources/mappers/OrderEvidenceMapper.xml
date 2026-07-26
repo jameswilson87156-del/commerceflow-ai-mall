@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.commerceflow.mall.order.OrderEvidenceMapper">
+  <resultMap id="orderExecutionEvidenceMap" type="com.commerceflow.mall.order.OrderExecutionEvidenceDto">
+    <id column="order_no" property="orderNo"/>
+    <result column="user_id" property="userId"/>
+    <result column="status" property="status"/>
+    <result column="total_amount" property="totalAmount"/>
+    <result column="currency" property="currency"/>
+    <result column="order_created_at" property="createdAt"/>
+    <result column="idempotency_key" property="idempotencyKey"/>
+    <result column="request_result" property="requestResult"/>
+    <result column="first_creation" property="firstCreation"/>
+    <result column="idempotency_replay" property="idempotencyReplay"/>
+    <collection property="items" ofType="com.commerceflow.mall.order.OrderEvidenceItemDto">
+      <id column="item_id" property="itemId"/>
+      <result column="product_name_snapshot" property="productNameSnapshot"/>
+      <result column="sku_code_snapshot" property="skuCodeSnapshot"/>
+      <result column="color_snapshot" property="colorSnapshot"/>
+      <result column="size_snapshot" property="sizeSnapshot"/>
+      <result column="unit_price" property="unitPrice"/>
+      <result column="item_quantity" property="quantity"/>
+      <result column="subtotal" property="subtotal"/>
+    </collection>
+    <collection property="inventoryMovements" ofType="com.commerceflow.mall.order.InventoryMovementEvidenceDto">
+      <id column="movement_id" property="movementId"/>
+      <result column="movement_sku_id" property="skuId"/>
+      <result column="movement_sku_code" property="skuCode"/>
+      <result column="movement_type" property="movementType"/>
+      <result column="movement_quantity" property="quantity"/>
+      <result column="stock_before" property="stockBefore"/>
+      <result column="stock_after" property="stockAfter"/>
+      <result column="movement_created_at" property="createdAt"/>
+    </collection>
+  </resultMap>
+
+  <select id="findByOrderNo" resultMap="orderExecutionEvidenceMap">
+    SELECT o.order_no, o.user_id, o.status, o.total_amount, o.currency,
+           o.created_at AS order_created_at, o.idempotency_key,
+           'FIRST_CREATED' AS request_result, TRUE AS first_creation, FALSE AS idempotency_replay,
+           oi.id AS item_id, oi.product_name_snapshot, oi.sku_code_snapshot,
+           oi.color_snapshot, oi.size_snapshot, oi.unit_price, oi.quantity AS item_quantity,
+           oi.unit_price * oi.quantity AS subtotal,
+           im.id AS movement_id, im.sku_id AS movement_sku_id, sku.sku_code AS movement_sku_code,
+           im.movement_type, im.quantity AS movement_quantity, im.stock_before, im.stock_after,
+           im.created_at AS movement_created_at
+    FROM orders o
+    LEFT JOIN order_item oi ON oi.order_id = o.id
+    LEFT JOIN inventory_movement im ON im.order_no = o.order_no
+    LEFT JOIN product_sku sku ON sku.id = im.sku_id
+    WHERE o.order_no = #{orderNo}
+    ORDER BY oi.id, im.id
+  </select>
+</mapper>

@@ -19,3 +19,5 @@ springdoc:
     path: /swagger-ui.html
 commerceflow:
   ai-service-url: ${AI_SERVICE_URL:http://127.0.0.1:8000}
+mybatis:
+  mapper-locations: classpath:mappers/OrderEvidenceMapper.xml
