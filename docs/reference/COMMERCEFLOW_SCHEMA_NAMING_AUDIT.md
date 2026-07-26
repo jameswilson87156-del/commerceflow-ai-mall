@@ -1,7 +1,7 @@
 # CommerceFlow Schema Naming Audit
 
-**Audited source:** Flyway `V1__commerceflow_schema.sql` through `V6__enforce_unique_order_inventory_movement.sql`
-**Status:** Design audit only. No rename or schema change is made in this branch.
+**Audited source:** Flyway `V1__commerceflow_schema.sql` through `V7__add_order_item_image_snapshot.sql`
+**Status:** P3.1 naming decision implemented; no rename programme was introduced.
 
 ## Summary
 
@@ -24,7 +24,7 @@ CommerceFlow's short, module-neutral names suit a modular monolith. `product`, `
 | `created_at`, `updated_at` | KEEP / ADD LATER | Existing names are consistent. Only `inventory` currently needs `updated_at`; add it to other mutable tables only when a concrete audit/update use case exists. |
 | `cover_image_path` on product | KEEP | Clearly denotes the product-level default image. |
 | `image_path` on product_sku | KEEP | Concise because the containing table establishes SKU scope. |
-| `image_path_snapshot` on order_item | ADD | Recommended P3.1 field. It clearly states a historical, immutable order-item asset path and does not overload live SKU `image_path`. |
+| `image_path_snapshot` on order_item | KEEP | V7 field. It clearly states a historical order-item asset path and does not overload live SKU `image_path`. |
 | `product_code`, `sku_code` | KEEP | Product and SKU identifiers have distinct business roles; both remain useful in a showcase. |
 | Numeric types | KEEP | `BIGINT` ids, `DECIMAL(19,2)` monetary fields, and present `VARCHAR` sizes are sufficient for the local showcase. |
 
@@ -46,4 +46,4 @@ CommerceFlow's short, module-neutral names suit a modular monolith. `product`, `
 
 ## P3.1 Naming Boundary
 
-Add only `order_item.image_path_snapshot VARCHAR(255)` in a future, new Flyway migration if the user approves implementation. It stores the local asset path selected at order creation. No current table needs a prefix, no current status needs renaming, and no external schema is to be imported.
+V7 adds only `order_item.image_path_snapshot VARCHAR(255)`. It stores the local asset path selected at order creation. No current table needs a prefix, no current status needs renaming, and no external schema was imported.

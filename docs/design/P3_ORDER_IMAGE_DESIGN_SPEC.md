@@ -1,7 +1,7 @@
 # P3.1 Order Image Page Design Specification
 
-**Status:** DESIGN_LOCKED_FOR_IMPLEMENTATION_PENDING_USER_CONFIRMATION
-**Scope:** Specification only. This document does not implement P3.1.
+**Status:** IMPLEMENTED_P3.1
+**Scope:** Design contract implemented by the P3.1 order evidence page. It remains a boundary document, not a claim that payment or fulfillment features exist.
 
 ## Desktop Composition
 

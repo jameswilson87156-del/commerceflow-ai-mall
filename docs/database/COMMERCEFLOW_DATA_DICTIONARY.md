@@ -1,7 +1,7 @@
 # CommerceFlow Data Dictionary
 
-**Source of truth for this document:** Flyway migrations V1-V6 on the P3 stable baseline.
-**Scope:** Current schema only; P3.1 `image_path_snapshot` is a recommendation, not a present field.
+**Source of truth for this document:** Flyway migrations V1-V7 on the P3.1 implementation branch.
+**Scope:** Current local Showcase schema. V7 adds the implemented `order_item.image_path_snapshot` field.
 
 ## `user_account` - 用户演示账户
 
@@ -61,7 +61,7 @@ Responsibility: purchasable variant and current SKU asset. Primary key: `id BIGI
 | `status` | VARCHAR(20), no | SKU sale state |
 | `image_path` | VARCHAR(255), yes | Current approved SKU asset path |
 
-Boundary: current image is not yet an order-history snapshot.
+Boundary: this is the current SKU asset path. New order history uses the separate `order_item.image_path_snapshot`; old orders are not backfilled.
 
 ## `inventory` - 可用库存
 
@@ -120,10 +120,11 @@ Responsibility: immutable business snapshots for each order line. Primary key: `
 | `sku_attributes_snapshot` | VARCHAR(180), no | Historical combined attributes |
 | `color_snapshot` | VARCHAR(60), yes | Historical color |
 | `size_snapshot` | VARCHAR(40), yes | Historical size |
+| `image_path_snapshot` | VARCHAR(255), yes | Asset path captured at successful order creation; `NULL` is supported for pre-V7 orders |
 | `unit_price` | DECIMAL(19,2), no | Historical unit price |
 | `quantity` | INT, no | Purchased quantity |
 
-Boundary: no image path snapshot yet; P3.1 recommends adding it through a new migration.
+Boundary: this records a local path, not an immutable binary, CDN version, or asset lifecycle. The P3 page renders only this snapshot path and does not join the current SKU image as a fallback.
 
 ## `inventory_movement` - 库存变动证据
 

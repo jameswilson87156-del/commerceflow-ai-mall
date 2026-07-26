@@ -48,16 +48,47 @@ public class OrderService {
                 int stockBefore=orders.stockForUpdate(sku.id());
                 if (orders.deduct(sku.id(),quantity)==0) throw new CommerceException("INVENTORY_INSUFFICIENT", "Inventory changed; please retry");
                 int stockAfter=orders.currentStock(sku.id());
-                total=total.add(sku.salePrice().multiply(BigDecimal.valueOf(quantity))); resolved.add(new ResolvedLine(sku, quantity, stockBefore, stockAfter));
+                long productId = catalog.productId(sku.id());
+                String productName = catalog.productName(sku.id());
+                total = total.add(sku.salePrice().multiply(BigDecimal.valueOf(quantity)));
+                resolved.add(new ResolvedLine(
+                    productId,
+                    sku.id(),
+                    productName,
+                    sku.skuCode(),
+                    sku.color(),
+                    sku.size(),
+                    sku.salePrice(),
+                    sku.currency(),
+                    sku.imagePath(),
+                    quantity,
+                    stockBefore,
+                    stockAfter));
             }
             String no="CF"+System.currentTimeMillis();
             long orderId;
             try { orderId=orders.insertOrder(no,userId,key,fingerprint,total,"CNY"); }
             catch (DuplicateKeyException ex) { throw new CommerceException("IDEMPOTENCY_IN_PROGRESS", "A request with this key is being completed"); }
-            for (var resolvedLine: resolved) { var sku=resolvedLine.sku(); orders.insertItem(orderId,sku.id(),sku,catalog.productName(sku.id()),resolvedLine.quantity()); orders.recordInventoryMovement(no,sku.id(),resolvedLine.quantity(),resolvedLine.stockBefore(),resolvedLine.stockAfter(),key); orders.clearCart(userId,sku.id()); }
+            for (var line : resolved) {
+                orders.insertItem(orderId, line);
+                orders.recordInventoryMovement(no, line.skuId(), line.quantity(), line.stockBefore(), line.stockAfter(), key);
+                orders.clearCart(userId, line.skuId());
+            }
             return orders.find(no).orElseThrow();
         } finally { inFlight.remove(lock,fingerprint); }
     }
-    private record ResolvedLine(ApiModels.Sku sku, int quantity, int stockBefore, int stockAfter) {}
+    public record ResolvedLine(
+        long productId,
+        long skuId,
+        String productName,
+        String skuCode,
+        String color,
+        String size,
+        BigDecimal unitPrice,
+        String currency,
+        String imagePath,
+        int quantity,
+        int stockBefore,
+        int stockAfter) {}
     private String fingerprint(ApiModels.OrderRequest r) { String raw=r.items().stream().map(i->i.skuId()+":"+i.quantity()).sorted().reduce("",(a,b)->a+"|"+b); try { var md=MessageDigest.getInstance("SHA-256"); var out=md.digest(raw.getBytes(StandardCharsets.UTF_8)); return java.util.HexFormat.of().formatHex(out); } catch(Exception e) { throw new IllegalStateException(e); } }
 }

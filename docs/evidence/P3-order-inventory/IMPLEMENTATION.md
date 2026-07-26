@@ -6,6 +6,8 @@
 
 `V6__enforce_unique_order_inventory_movement.sql` adds `UNIQUE(order_no, sku_id, movement_type)`. Before the transactional loop, `OrderService` now aggregates identical SKU lines. This makes one successful order/SKU/type produce one OrderItem and one movement while preserving SKU-level inventory deduction.
 
+`V7__add_order_item_image_snapshot.sql` adds nullable `order_item.image_path_snapshot`. The same transaction snapshots the resolved SKU asset path. P3.1 also corrects the OrderItem `product_id` write: the parent Product id is now resolved and inserted separately from the SKU id.
+
 The older `inventory_change_log` lacks before/after stock and the key, so it cannot support this evidence screen. P3 leaves the old schema in place but writes the new evidence table for the active order flow.
 
 ## Transaction Write Path
@@ -16,7 +18,7 @@ The older `inventory_change_log` lacks before/after stock and the key, so it can
 2. Lock and read the current inventory row on the server to obtain `stockBefore`.
 3. Perform the existing conditional atomic update. `affected rows = 0` means inventory could not satisfy the requested quantity, so the service throws `INVENTORY_INSUFFICIENT`.
 4. Read `stockAfter` from the same transaction.
-5. Insert `orders`, `order_item` snapshots, and `inventory_movement`, then clear the matching cart item.
+5. Insert `orders`, `order_item` snapshots (including image path), and `inventory_movement`, then clear the matching cart item.
 
 The condition `available_stock >= quantity` prevents a successful update from making stock negative. If any later operation fails, Spring rolls back the entire transaction, including the inventory update and movement insert.
 
@@ -30,4 +32,4 @@ The stored evidence result is `FIRST_CREATED`: it identifies the initial success
 
 ## Vue Page
 
-`OrderInventoryEvidence.vue` uses the three endpoints above. It has a real `userId` query, local order-number search on the loaded API response, order selection, loading, empty, error, and retry states. The page is read-only and has no payment or fulfillment controls.
+`OrderInventoryEvidence.vue` uses the three endpoints above. It has a real `userId` query, local order-number search on the loaded API response, order selection, loading, empty, error, and retry states. It renders only `imagePathSnapshot` supplied by the API, with missing/failed-image states that retain textual item details. The page is read-only and has no payment or fulfillment controls.

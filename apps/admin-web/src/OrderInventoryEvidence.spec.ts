@@ -2,16 +2,30 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import OrderInventoryEvidence from './OrderInventoryEvidence.vue'
 
+const grayItem = {
+  productNameSnapshot: '轻盈棉质基础 T 恤', skuCodeSnapshot: 'T-SHIRT-GRAY-L', colorSnapshot: '灰色', sizeSnapshot: 'L',
+  imagePathSnapshot: '/assets/products/product-tshirt-gray.png', unitPrice: 129, quantity: 1,
+}
+const toteItem = {
+  productNameSnapshot: '简约通勤托特包', skuCodeSnapshot: 'TOTE-BEIGE-ONE', colorSnapshot: '米色', sizeSnapshot: 'One Size',
+  imagePathSnapshot: '/assets/products/product-tote-beige.png', unitPrice: 199, quantity: 1,
+}
+const whiteItem = {
+  productNameSnapshot: '轻盈棉质基础 T 恤', skuCodeSnapshot: 'T-SHIRT-WHITE-S', colorSnapshot: '白色', sizeSnapshot: 'S',
+  imagePathSnapshot: '/assets/products/product-tshirt-white.png', unitPrice: 129, quantity: 1,
+}
 const orders = [
-  { orderNo: 'CF1001', userId: 1, totalAmount: 129, currency: 'CNY', status: 'CREATED', createdAt: '2026-07-26T10:00:00', items: [] },
-  { orderNo: 'CF1002', userId: 1, totalAmount: 199, currency: 'CNY', status: 'CREATED', createdAt: '2026-07-26T10:02:00', items: [] },
+  { orderNo: 'CF2001', userId: 1, totalAmount: 328, currency: 'CNY', status: 'CREATED', createdAt: '2026-07-26T10:00:00', items: [grayItem, toteItem] },
+  { orderNo: 'CF2002', userId: 1, totalAmount: 129, currency: 'CNY', status: 'CREATED', createdAt: '2026-07-26T10:02:00', items: [whiteItem] },
 ]
-
 const evidence = {
-  orderNo: 'CF1001', userId: 1, totalAmount: 129, currency: 'CNY', status: 'CREATED', createdAt: '2026-07-26T10:00:00',
-  idempotencyKey: 'p3-real-key-1', requestResult: 'FIRST_CREATED', firstCreation: true, idempotencyReplay: false,
-  items: [{ productNameSnapshot: '轻盈棉质基础 T 恤', skuCodeSnapshot: 'T-SHIRT-WHITE-S', colorSnapshot: '白色', sizeSnapshot: 'S', unitPrice: 129, quantity: 1, subtotal: 129 }],
-  inventoryMovements: [{ movementId: 1, skuId: 10002, skuCode: 'T-SHIRT-WHITE-S', movementType: 'ORDER_DEDUCT', quantity: 1, stockBefore: 182, stockAfter: 181, createdAt: '2026-07-26T10:00:00' }],
+  orderNo: 'CF2001', userId: 1, totalAmount: 328, currency: 'CNY', status: 'CREATED', createdAt: '2026-07-26T10:00:00',
+  idempotencyKey: 'p31-dual-order', requestResult: 'FIRST_CREATED', firstCreation: true, idempotencyReplay: false,
+  items: [{ ...grayItem, subtotal: 129 }, { ...toteItem, subtotal: 199 }],
+  inventoryMovements: [
+    { movementId: 1, skuId: 10004, skuCode: 'T-SHIRT-GRAY-L', movementType: 'ORDER_DEDUCT', quantity: 1, stockBefore: 28, stockAfter: 27, createdAt: '2026-07-26T10:00:00' },
+    { movementId: 2, skuId: 10003, skuCode: 'TOTE-BEIGE-ONE', movementType: 'ORDER_DEDUCT', quantity: 1, stockBefore: 128, stockAfter: 127, createdAt: '2026-07-26T10:00:00' },
+  ],
 }
 
 function jsonResponse(body: unknown, status = 200) {
@@ -42,9 +56,8 @@ describe('OrderInventoryEvidence', () => {
   })
 
   it('renders an error state and retries the order API', async () => {
-    const fetchMock = readyFetch().mockRejectedValueOnce(new Error('unused'))
-    fetchMock.mockReset()
-    fetchMock.mockResolvedValueOnce(jsonResponse({}, 500))
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(jsonResponse({}, 500))
       .mockResolvedValueOnce(jsonResponse(orders))
       .mockResolvedValueOnce(jsonResponse(orders[0]))
       .mockResolvedValueOnce(jsonResponse(evidence))
@@ -54,34 +67,63 @@ describe('OrderInventoryEvidence', () => {
     expect(wrapper.get('[data-testid="order-error"]').text()).toContain('订单列表加载失败')
     await wrapper.get('[data-testid="order-error"] button').trigger('click')
     await flushPromises()
-    expect(wrapper.text()).toContain('CF1001')
+    expect(wrapper.text()).toContain('CF2001')
   })
 
-  it('renders real item, movement, and idempotency evidence', async () => {
+  it('renders list thumbnails, a two-item summary, and two real item image paths', async () => {
     vi.stubGlobal('fetch', readyFetch())
     const wrapper = mount(OrderInventoryEvidence)
     await flushPromises()
-    expect(wrapper.text()).toContain('轻盈棉质基础 T 恤')
-    expect(wrapper.text()).toContain('T-SHIRT-WHITE-S')
-    expect(wrapper.text()).toContain('182')
-    expect(wrapper.text()).toContain('181')
-    expect(wrapper.text()).toContain('p3-real-key-1')
+
+    expect(wrapper.get('[data-testid="order-thumbnail-CF2001"]').attributes('src')).toBe('/assets/products/product-tshirt-gray.png')
+    expect(wrapper.get('[data-testid="order-CF2001"]').text()).toContain('共 2 件')
+    expect(wrapper.get('[data-testid="order-item-image-T-SHIRT-GRAY-L"]').attributes('src')).toBe('/assets/products/product-tshirt-gray.png')
+    expect(wrapper.get('[data-testid="order-item-image-TOTE-BEIGE-ONE"]').attributes('src')).toBe('/assets/products/product-tote-beige.png')
+    expect(wrapper.text()).toContain('¥328.00')
     expect(wrapper.text()).toContain('首次创建')
+    expect(wrapper.text()).not.toContain('非重放记录')
   })
 
-  it('filters loaded order numbers and requests a newly selected order', async () => {
-    const secondEvidence = { ...evidence, orderNo: 'CF1002', totalAmount: 199, idempotencyKey: 'p3-real-key-2' }
+  it('updates the item image after selecting another order', async () => {
+    const secondEvidence = {
+      ...evidence,
+      orderNo: 'CF2002', totalAmount: 129, idempotencyKey: 'p31-single-order',
+      items: [{ ...whiteItem, subtotal: 129 }],
+      inventoryMovements: [{ movementId: 3, skuId: 10002, skuCode: 'T-SHIRT-WHITE-S', movementType: 'ORDER_DEDUCT', quantity: 1, stockBefore: 182, stockAfter: 181, createdAt: '2026-07-26T10:02:00' }],
+    }
     const fetchMock = readyFetch()
       .mockResolvedValueOnce(jsonResponse(orders[1]))
       .mockResolvedValueOnce(jsonResponse(secondEvidence))
     vi.stubGlobal('fetch', fetchMock)
     const wrapper = mount(OrderInventoryEvidence)
     await flushPromises()
-    await wrapper.get('[data-testid="order-search"]').setValue('CF1002')
-    expect(wrapper.find('[data-testid="order-CF1001"]').exists()).toBe(false)
-    await wrapper.get('[data-testid="order-CF1002"]').trigger('click')
+    await wrapper.get('[data-testid="order-CF2002"]').trigger('click')
     await flushPromises()
-    expect(wrapper.text()).toContain('p3-real-key-2')
-    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/orders/CF1002/execution-evidence'))
+
+    expect(wrapper.get('[data-testid="order-item-image-T-SHIRT-WHITE-S"]').attributes('src')).toBe('/assets/products/product-tshirt-white.png')
+    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/orders/CF2002/execution-evidence'))
+  })
+
+  it('shows the missing-image state for a legacy null snapshot', async () => {
+    const nullSnapshot = { ...evidence, items: [{ ...grayItem, imagePathSnapshot: null, subtotal: 129 }] }
+    const nullOrder = { ...orders[0], items: [{ ...grayItem, imagePathSnapshot: null }] }
+    vi.stubGlobal('fetch', vi.fn()
+      .mockResolvedValueOnce(jsonResponse([nullOrder]))
+      .mockResolvedValueOnce(jsonResponse(nullOrder))
+      .mockResolvedValueOnce(jsonResponse(nullSnapshot)))
+    const wrapper = mount(OrderInventoryEvidence)
+    await flushPromises()
+
+    expect(wrapper.get('[data-testid="image-missing-T-SHIRT-GRAY-L"]').text()).toContain('暂无快照图片')
+  })
+
+  it('shows the failed-image state without hiding the item text', async () => {
+    vi.stubGlobal('fetch', readyFetch())
+    const wrapper = mount(OrderInventoryEvidence)
+    await flushPromises()
+    await wrapper.get('[data-testid="order-item-image-T-SHIRT-GRAY-L"]').trigger('error')
+
+    expect(wrapper.get('[data-testid="image-failed-T-SHIRT-GRAY-L"]').text()).toContain('图片加载失败')
+    expect(wrapper.text()).toContain('轻盈棉质基础 T 恤')
   })
 })

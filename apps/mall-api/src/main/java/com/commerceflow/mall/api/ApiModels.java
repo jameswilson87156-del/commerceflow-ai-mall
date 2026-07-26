@@ -19,7 +19,7 @@ public final class ApiModels {
     public record Sku(Long id, String skuCode, String color, String size, BigDecimal salePrice, String currency, int availableStock, String imagePath) {}
     public record CartItem(Long id, Long skuId, String productName, String skuCode, String color, String size, BigDecimal unitPrice, int quantity, int availableStock) {}
     public record OrderSummary(String orderNo, Long userId, BigDecimal totalAmount, String currency, String status, Instant createdAt, List<OrderItem> items) {}
-    public record OrderItem(String productNameSnapshot, String skuCodeSnapshot, String colorSnapshot, String sizeSnapshot, BigDecimal unitPrice, int quantity) {}
+    public record OrderItem(String productNameSnapshot, String skuCodeSnapshot, String colorSnapshot, String sizeSnapshot, String imagePathSnapshot, BigDecimal unitPrice, int quantity) {}
     public record ProductChatRequest(@NotBlank String question, Long userId) {}
     public record AiAnswer(String traceId, String answer, String providerMode, String status, List<String> evidence) {}
 }

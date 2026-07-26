@@ -20,6 +20,7 @@
       <result column="sku_code_snapshot" property="skuCodeSnapshot"/>
       <result column="color_snapshot" property="colorSnapshot"/>
       <result column="size_snapshot" property="sizeSnapshot"/>
+      <result column="image_path_snapshot" property="imagePathSnapshot"/>
       <result column="unit_price" property="unitPrice"/>
       <result column="item_quantity" property="quantity"/>
       <result column="subtotal" property="subtotal"/>
@@ -41,7 +42,7 @@
            o.created_at AS order_created_at, o.idempotency_key,
            'FIRST_CREATED' AS request_result, TRUE AS first_creation, FALSE AS idempotency_replay,
            oi.id AS item_id, oi.product_name_snapshot, oi.sku_code_snapshot,
-           oi.color_snapshot, oi.size_snapshot, oi.unit_price, oi.quantity AS item_quantity,
+           oi.color_snapshot, oi.size_snapshot, oi.image_path_snapshot, oi.unit_price, oi.quantity AS item_quantity,
            oi.unit_price * oi.quantity AS subtotal,
            im.id AS movement_id, im.sku_id AS movement_sku_id, sku.sku_code AS movement_sku_code,
            im.movement_type, im.quantity AS movement_quantity, im.stock_before, im.stock_after,

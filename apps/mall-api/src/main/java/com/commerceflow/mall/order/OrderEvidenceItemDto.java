@@ -8,6 +8,7 @@ public class OrderEvidenceItemDto {
     private String skuCodeSnapshot;
     private String colorSnapshot;
     private String sizeSnapshot;
+    private String imagePathSnapshot;
     private BigDecimal unitPrice;
     private int quantity;
     private BigDecimal subtotal;
@@ -22,6 +23,8 @@ public class OrderEvidenceItemDto {
     public void setColorSnapshot(String colorSnapshot) { this.colorSnapshot = colorSnapshot; }
     public String getSizeSnapshot() { return sizeSnapshot; }
     public void setSizeSnapshot(String sizeSnapshot) { this.sizeSnapshot = sizeSnapshot; }
+    public String getImagePathSnapshot() { return imagePathSnapshot; }
+    public void setImagePathSnapshot(String imagePathSnapshot) { this.imagePathSnapshot = imagePathSnapshot; }
     public BigDecimal getUnitPrice() { return unitPrice; }
     public void setUnitPrice(BigDecimal unitPrice) { this.unitPrice = unitPrice; }
     public int getQuantity() { return quantity; }

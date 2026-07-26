@@ -6,6 +6,7 @@ import {
   orderStatusLabel,
   requestResultLabel,
   type OrderExecutionEvidence,
+  type OrderItemSnapshot,
   type OrderSummary,
 } from './orders'
 
@@ -23,6 +24,7 @@ const listState = ref<LoadState>('loading')
 const detailState = ref<LoadState>('loading')
 const listError = ref('')
 const detailError = ref('')
+const failedImageKeys = ref(new Set<string>())
 
 const filteredOrders = computed(() => {
   const keyword = query.value.trim().toLocaleLowerCase()
@@ -31,6 +33,22 @@ const filteredOrders = computed(() => {
 
 function responseError(response: Response): Error {
   return new Error(`请求失败（HTTP ${response.status}）`)
+}
+
+function firstItem(order: OrderSummary): OrderItemSnapshot | null {
+  return order.items[0] ?? null
+}
+
+function imageKey(orderNo: string, item: Pick<OrderItemSnapshot, 'skuCodeSnapshot'> | null): string {
+  return `${orderNo}:${item?.skuCodeSnapshot ?? 'missing'}`
+}
+
+function hasImageFailure(key: string): boolean {
+  return failedImageKeys.value.has(key)
+}
+
+function markImageFailure(key: string) {
+  failedImageKeys.value = new Set([...failedImageKeys.value, key])
 }
 
 async function requestOrders(): Promise<OrderSummary[]> {
@@ -64,7 +82,7 @@ async function selectOrder(orderNo: string) {
     detailState.value = 'ready'
   } catch (error) {
     detailState.value = 'error'
-    detailError.value = error instanceof Error ? error.message : '订单执行证据加载失败'
+    detailError.value = error instanceof Error ? error.message : '订单详情与执行证据加载失败'
   }
 }
 
@@ -76,6 +94,7 @@ async function loadOrders() {
   selectedOrder.value = null
   selectedOrderNo.value = null
   evidence.value = null
+  failedImageKeys.value = new Set()
   try {
     orders.value = await requestOrders()
     if (orders.value.length === 0) {
@@ -101,9 +120,8 @@ onMounted(loadOrders)
       <div>
         <p class="eyebrow">订单执行 / 本地真实证据</p>
         <h1 id="order-page-title">订单管理与库存执行证据</h1>
-        <p class="subtitle">查看已创建订单、OrderItem 快照、库存扣减记录与幂等初始结果</p>
+        <p class="subtitle">查看已创建订单、商品快照、库存扣减记录与订单初始结果</p>
       </div>
-      <p class="catalog-source">GET /api/orders · GET /api/orders/{orderNo}/execution-evidence</p>
     </header>
 
     <section class="order-filter-bar" aria-label="订单真实查询条件">
@@ -128,9 +146,17 @@ onMounted(loadOrders)
           <div class="panel-title-row"><div><p class="eyebrow">真实订单列表</p><h2 id="order-list-title">已创建订单</h2></div><span class="result-count">{{ filteredOrders.length }} 笔</span></div>
           <div v-if="filteredOrders.length" class="order-list">
             <button v-for="order in filteredOrders" :key="order.orderNo" type="button" :class="['order-card', { selected: selectedOrderNo === order.orderNo }]" :data-testid="`order-${order.orderNo}`" @click="selectOrder(order.orderNo)">
-              <span class="order-card-top"><strong class="mono">{{ order.orderNo }}</strong><span class="created-status">{{ orderStatusLabel(order.status) }}</span></span>
-              <span class="order-card-summary"><span>userId {{ order.userId }}</span><strong>{{ formatOrderMoney(order.totalAmount, order.currency) }}</strong></span>
-              <small>{{ formatOrderTime(order.createdAt) }}</small>
+              <template v-if="firstItem(order)">
+                <img v-if="firstItem(order)?.imagePathSnapshot && !hasImageFailure(imageKey(order.orderNo, firstItem(order)))" class="order-card-image" :src="firstItem(order)?.imagePathSnapshot ?? ''" :alt="`${firstItem(order)?.productNameSnapshot ?? order.orderNo} 商品缩略图`" :data-testid="`order-thumbnail-${order.orderNo}`" @error="markImageFailure(imageKey(order.orderNo, firstItem(order)))">
+                <span v-else class="order-image-placeholder" :data-testid="`order-thumbnail-placeholder-${order.orderNo}`">{{ firstItem(order)?.imagePathSnapshot ? '图片加载失败' : '暂无快照图片' }}</span>
+              </template>
+              <span v-else class="order-image-placeholder">暂无商品</span>
+              <span class="order-card-content">
+                <span class="order-card-top"><strong class="mono">{{ order.orderNo }}</strong><span class="created-status">{{ orderStatusLabel(order.status) }}</span></span>
+                <strong class="order-card-product">{{ firstItem(order)?.productNameSnapshot ?? '暂无商品快照' }}</strong>
+                <span class="order-card-summary"><span>{{ order.items.length > 1 ? `共 ${order.items.length} 件` : '共 1 件' }}</span><strong>{{ formatOrderMoney(order.totalAmount, order.currency) }}</strong></span>
+                <small>{{ formatOrderTime(order.createdAt) }}</small>
+              </span>
             </button>
           </div>
           <div v-else class="filtered-empty" data-testid="order-filtered-empty">没有匹配订单号的真实订单。</div>
@@ -143,20 +169,21 @@ onMounted(loadOrders)
             <section class="panel order-overview" aria-labelledby="order-overview-title">
               <div class="panel-title-row"><div><p class="eyebrow">当前订单</p><h2 id="order-overview-title">订单基本信息</h2></div><span class="created-status">{{ selectedOrder.status }} / {{ orderStatusLabel(selectedOrder.status) }}</span></div>
               <div class="order-overview-grid">
-                <div><span>订单号</span><strong class="mono">{{ selectedOrder.orderNo }}</strong></div><div><span>userId</span><strong>{{ selectedOrder.userId }}</strong></div><div><span>订单金额</span><strong class="order-money">{{ formatOrderMoney(selectedOrder.totalAmount, selectedOrder.currency) }}</strong></div><div><span>currency</span><strong class="mono">{{ selectedOrder.currency }}</strong></div><div class="wide"><span>createdAt</span><strong>{{ formatOrderTime(selectedOrder.createdAt) }}</strong></div>
+                <div><span>订单号</span><strong class="mono">{{ selectedOrder.orderNo }}</strong></div><div><span>用户</span><strong>{{ selectedOrder.userId }}</strong></div><div><span>订单金额</span><strong class="order-money">{{ formatOrderMoney(selectedOrder.totalAmount, selectedOrder.currency) }}</strong></div><div><span>currency</span><strong class="mono">{{ selectedOrder.currency }}</strong></div><div class="wide"><span>createdAt</span><strong>{{ formatOrderTime(selectedOrder.createdAt) }}</strong></div>
               </div>
             </section>
 
             <section class="panel order-items-panel" aria-labelledby="order-items-title">
               <div class="panel-title-row"><div><p class="eyebrow">OrderItem 快照</p><h2 id="order-items-title">商品与 SKU 快照</h2></div><span class="result-count">{{ evidence.items.length }} 项</span></div>
-              <div class="table-wrap"><table><thead><tr><th>商品快照</th><th>skuCode 快照</th><th>颜色</th><th>尺寸</th><th>unitPrice</th><th>数量</th><th>小计</th></tr></thead><tbody><tr v-for="item in evidence.items" :key="`${item.skuCodeSnapshot}-${item.quantity}`"><td class="strong-cell">{{ item.productNameSnapshot }}</td><td class="mono">{{ item.skuCodeSnapshot }}</td><td>{{ item.colorSnapshot }}</td><td>{{ item.sizeSnapshot }}</td><td class="money">{{ formatOrderMoney(item.unitPrice, evidence.currency) }}</td><td>{{ item.quantity }}</td><td class="order-money">{{ formatOrderMoney(item.subtotal, evidence.currency) }}</td></tr></tbody></table></div>
+              <div class="table-wrap"><table class="order-item-table"><thead><tr><th>商品图片</th><th>商品名称快照</th><th>SKU 编码快照</th><th>颜色</th><th>尺寸</th><th>单价</th><th>数量</th><th>小计</th></tr></thead><tbody><tr v-for="item in evidence.items" :key="`${item.skuCodeSnapshot}-${item.quantity}`"><td><img v-if="item.imagePathSnapshot && !hasImageFailure(imageKey(selectedOrder.orderNo, item))" class="order-item-image" :src="item.imagePathSnapshot" :alt="`${item.productNameSnapshot} 商品图片`" :data-testid="`order-item-image-${item.skuCodeSnapshot}`" @error="markImageFailure(imageKey(selectedOrder.orderNo, item))"><span v-else class="order-image-placeholder table-placeholder" :data-testid="item.imagePathSnapshot ? `image-failed-${item.skuCodeSnapshot}` : `image-missing-${item.skuCodeSnapshot}`">{{ item.imagePathSnapshot ? '图片加载失败' : '暂无快照图片' }}</span></td><td class="strong-cell">{{ item.productNameSnapshot }}</td><td class="mono">{{ item.skuCodeSnapshot }}</td><td>{{ item.colorSnapshot }}</td><td>{{ item.sizeSnapshot }}</td><td class="money">{{ formatOrderMoney(item.unitPrice, evidence.currency) }}</td><td>{{ item.quantity }}</td><td class="order-money">{{ formatOrderMoney(item.subtotal, evidence.currency) }}</td></tr></tbody></table></div>
             </section>
 
             <section class="panel execution-panel" aria-labelledby="execution-title">
-              <div class="panel-title-row"><div><p class="eyebrow">库存扣减证据</p><h2 id="execution-title">库存变动与幂等结果</h2></div><span class="evidence-badge">数据库记录</span></div>
+              <div class="panel-title-row"><div><p class="eyebrow">库存扣减证据</p><h2 id="execution-title">库存变动与事务结果</h2></div><span class="evidence-badge">数据库记录</span></div>
               <div class="movement-wrap"><table><thead><tr><th>skuId</th><th>skuCode</th><th>扣减前</th><th>本次扣减</th><th>扣减后</th><th>movementType</th><th>执行时间</th></tr></thead><tbody><tr v-for="movement in evidence.inventoryMovements" :key="movement.movementId"><td class="mono">{{ movement.skuId }}</td><td class="mono strong-cell">{{ movement.skuCode }}</td><td>{{ movement.stockBefore }}</td><td class="deduct-value">-{{ movement.quantity }}</td><td class="stock-value">{{ movement.stockAfter }}</td><td class="mono">{{ movement.movementType }}</td><td>{{ formatOrderTime(movement.createdAt) }}</td></tr></tbody></table></div>
-              <div class="idempotency-grid"><div><span>Idempotency-Key</span><strong class="mono">{{ evidence.idempotencyKey }}</strong></div><div><span>初始请求结果</span><strong>{{ requestResultLabel(evidence.requestResult) }}</strong></div><div><span>幂等重放</span><strong>{{ evidence.idempotencyReplay ? '重放请求' : '非重放记录' }}</strong></div></div>
-              <p class="transaction-note">库存条件 UPDATE、订单、快照、库存 movement 与购物车清理处于同一事务。相同 Key 且相同请求返回本订单，不会重复扣库存或写入 movement；相同 Key 不同请求返回 409。</p>
+              <div class="idempotency-grid"><div><span>Idempotency-Key</span><strong class="mono">{{ evidence.idempotencyKey }}</strong></div><div><span>订单初始结果</span><strong>{{ requestResultLabel(evidence.requestResult) }}</strong></div></div>
+              <p class="transaction-note">库存条件 UPDATE、订单、OrderItem 图片快照、库存 movement 与购物车清理处于同一事务。</p>
+              <details class="developer-notes"><summary>开发演示信息</summary><p><code>GET /api/orders</code>、<code>GET /api/orders/{orderNo}</code> 与 <code>GET /api/orders/{orderNo}/execution-evidence</code> 提供页面事实。相同 Idempotency-Key 和相同请求体会返回原订单，不产生新订单、明细、库存扣减或 movement；相同 Key 不同请求体返回 409。</p></details>
             </section>
           </template>
         </section>

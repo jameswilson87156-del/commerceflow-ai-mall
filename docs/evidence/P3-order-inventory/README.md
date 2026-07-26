@@ -15,6 +15,9 @@ P3 implements the real Chinese order-management and inventory-execution evidence
 - `ISSUES_AND_FIXES.md`: only problems observed during P3.
 - `SCREENSHOT_EVIDENCE.md`: real runtime screenshot provenance.
 - `INTERVIEW_NOTES.md`: concise technical explanation.
+- `P3_IMAGE_IMPLEMENTATION.md`: V7 snapshot write/read implementation and P3.1 correctness repair.
+- `P3_IMAGE_TEST_RESULTS.md`: P3.1 test, database, API, and browser verification record.
+- `P3_IMAGE_VISUAL_COMPARISON.md`: old P3, design reference, and P3.1 screenshot comparison.
 
 ## Boundary
 

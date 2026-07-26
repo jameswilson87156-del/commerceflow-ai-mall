@@ -3,6 +3,7 @@ export type OrderItemSnapshot = {
   skuCodeSnapshot: string
   colorSnapshot: string
   sizeSnapshot: string
+  imagePathSnapshot: string | null
   unitPrice: number
   quantity: number
 }

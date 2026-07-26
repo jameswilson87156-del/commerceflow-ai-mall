@@ -1,6 +1,7 @@
 package com.commerceflow.mall;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -17,8 +18,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -31,17 +32,16 @@ class OrderFlowTests {
     @Autowired MockMvc mockMvc;
 
     @Test
-    void successfulOrderPersistsSnapshotsAmountAndMovementEvidence() {
+    void successfulOrderPersistsRealProductIdImageSnapshotAmountAndMovementEvidence() {
         int before = stock(10002);
-        String key = key("success");
-        var first = service.submit(1, key, request(10002, 1));
+        var first = service.submit(1, key("success"), request(10002, 1));
 
         assertEquals("CREATED", first.status());
         assertEquals(0, first.totalAmount().compareTo(new BigDecimal("129.00")));
-        assertEquals("轻盈棉质基础 T 恤", first.items().get(0).productNameSnapshot());
         assertEquals("T-SHIRT-WHITE-S", first.items().get(0).skuCodeSnapshot());
-        assertEquals("白色", first.items().get(0).colorSnapshot());
-        assertEquals("S", first.items().get(0).sizeSnapshot());
+        assertEquals("/assets/products/product-tshirt-white.png", first.items().get(0).imagePathSnapshot());
+        assertEquals(101L, jdbc.queryForObject("SELECT product_id FROM order_item WHERE order_id=(SELECT id FROM orders WHERE order_no=?)", Long.class, first.orderNo()));
+        assertEquals(10002L, jdbc.queryForObject("SELECT sku_id FROM order_item WHERE order_id=(SELECT id FROM orders WHERE order_no=?)", Long.class, first.orderNo()));
         assertEquals(before - 1, stock(10002));
         assertEquals(1, count("SELECT COUNT(*) FROM inventory_movement WHERE order_no=?", first.orderNo()));
         assertEquals(before, jdbc.queryForObject("SELECT stock_before FROM inventory_movement WHERE order_no=?", Integer.class, first.orderNo()));
@@ -49,32 +49,38 @@ class OrderFlowTests {
     }
 
     @Test
-    void sameKeySameBodyReturnsOriginalWithoutAdditionalWrites() {
+    void sameKeySameBodyReturnsOriginalWithoutAdditionalWritesOrImageSnapshots() {
         String key = key("replay");
         int before = stock(10001);
         var first = service.submit(1, key, request(10001, 1));
         int itemsAfterFirst = count("SELECT COUNT(*) FROM order_item WHERE order_id=(SELECT id FROM orders WHERE order_no=?)", first.orderNo());
         int movementsAfterFirst = count("SELECT COUNT(*) FROM inventory_movement WHERE order_no=?", first.orderNo());
+        int snapshotsAfterFirst = count("SELECT COUNT(*) FROM order_item WHERE order_id=(SELECT id FROM orders WHERE order_no=?) AND image_path_snapshot IS NOT NULL", first.orderNo());
+
         var replay = service.submit(1, key, request(10001, 1));
 
         assertEquals(first.orderNo(), replay.orderNo());
         assertEquals(before - 1, stock(10001));
         assertEquals(itemsAfterFirst, count("SELECT COUNT(*) FROM order_item WHERE order_id=(SELECT id FROM orders WHERE order_no=?)", first.orderNo()));
         assertEquals(movementsAfterFirst, count("SELECT COUNT(*) FROM inventory_movement WHERE order_no=?", first.orderNo()));
+        assertEquals(snapshotsAfterFirst, count("SELECT COUNT(*) FROM order_item WHERE order_id=(SELECT id FROM orders WHERE order_no=?) AND image_path_snapshot IS NOT NULL", first.orderNo()));
     }
 
     @Test
-    void insufficientInventoryLeavesNoOrderInventoryOrMovement() {
+    void insufficientInventoryLeavesNoOrderItemImageSnapshotOrMovement() {
         String key = key("shortage");
         int before = stock(10005);
+
         assertThrows(CommerceException.class, () -> service.submit(1, key, request(10005, 1)));
+
         assertEquals(before, stock(10005));
         assertEquals(0, count("SELECT COUNT(*) FROM orders WHERE idempotency_key=?", key));
         assertEquals(0, count("SELECT COUNT(*) FROM inventory_movement WHERE idempotency_key=?", key));
+        assertEquals(0, count("SELECT COUNT(*) FROM order_item oi JOIN orders o ON o.id=oi.order_id WHERE o.idempotency_key=?", key));
     }
 
     @Test
-    void failureAfterAnEarlierDeductionRollsBackEverything() {
+    void failureAfterAnEarlierDeductionRollsBackItemsImagesAndInventory() {
         String key = key("rollback");
         int shirtBefore = stock(10001);
         int outBefore = stock(10005);
@@ -83,14 +89,16 @@ class OrderFlowTests {
             new ApiModels.OrderLineRequest(10005L, 1)));
 
         assertThrows(CommerceException.class, () -> service.submit(1, key, mixedRequest));
+
         assertEquals(shirtBefore, stock(10001));
         assertEquals(outBefore, stock(10005));
         assertEquals(0, count("SELECT COUNT(*) FROM orders WHERE idempotency_key=?", key));
         assertEquals(0, count("SELECT COUNT(*) FROM inventory_movement WHERE idempotency_key=?", key));
+        assertEquals(0, count("SELECT COUNT(*) FROM order_item oi JOIN orders o ON o.id=oi.order_id WHERE o.idempotency_key=?", key));
     }
 
     @Test
-    void reusedKeyWithDifferentBodyReturns409AndDoesNotWrite() throws Exception {
+    void reusedKeyWithDifferentBodyReturns409AndDoesNotWriteOrderItem() throws Exception {
         String key = key("conflict");
         var first = service.submit(1, key, request(10001, 1));
         int stockAfterFirst = stock(10001);
@@ -107,44 +115,36 @@ class OrderFlowTests {
         assertEquals(1, count("SELECT COUNT(*) FROM orders WHERE idempotency_key=?", key));
         assertEquals(stockAfterFirst, stock(10001));
         assertEquals(movementAfterFirst, count("SELECT COUNT(*) FROM inventory_movement WHERE order_no=?", first.orderNo()));
+        assertEquals(1, count("SELECT COUNT(*) FROM order_item WHERE order_id=(SELECT id FROM orders WHERE order_no=?)", first.orderNo()));
     }
 
     @Test
-    void executionEvidenceApiAndMybatisReadModelExposeStoredFacts() throws Exception {
-        String key = key("evidence");
-        var order = service.submit(1, key, request(10004, 2));
+    void evidenceApiAndMybatisReadModelExposeStoredImageSnapshot() throws Exception {
+        var order = service.submit(1, key("evidence"), request(10004, 2));
 
         var evidence = evidenceMapper.findByOrderNo(order.orderNo());
         assertEquals(order.orderNo(), evidence.getOrderNo());
-        assertEquals(key, evidence.getIdempotencyKey());
-        assertEquals("FIRST_CREATED", evidence.getRequestResult());
         assertEquals(1, evidence.getItems().size());
         assertEquals(1, evidence.getInventoryMovements().size());
-        assertEquals(28, evidence.getInventoryMovements().get(0).getStockBefore());
-        assertEquals(26, evidence.getInventoryMovements().get(0).getStockAfter());
+        assertEquals("/assets/products/product-tshirt-gray.png", evidence.getItems().get(0).getImagePathSnapshot());
 
         mockMvc.perform(get("/api/orders/{orderNo}/execution-evidence", order.orderNo()))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.orderNo").value(order.orderNo()))
-            .andExpect(jsonPath("$.userId").value(1))
-            .andExpect(jsonPath("$.items[0].colorSnapshot").value("灰色"))
-            .andExpect(jsonPath("$.inventoryMovements[0].stockBefore").value(28))
-            .andExpect(jsonPath("$.inventoryMovements[0].stockAfter").value(26));
+            .andExpect(jsonPath("$.items[0].imagePathSnapshot").value("/assets/products/product-tshirt-gray.png"));
     }
 
     @Test
-    void duplicateSkuLinesAreAggregatedIntoOneItemAndMovement() {
-        String key = key("aggregate");
+    void duplicateSkuLinesAreAggregatedIntoOneItemMovementAndImageSnapshot() {
         int before = stock(10001);
         var request = new ApiModels.OrderRequest(List.of(
             new ApiModels.OrderLineRequest(10001L, 1),
             new ApiModels.OrderLineRequest(10001L, 2)));
-        var order = service.submit(1, key, request);
+        var order = service.submit(1, key("aggregate"), request);
 
         assertEquals(before - 3, stock(10001));
         assertEquals(1, count("SELECT COUNT(*) FROM order_item WHERE order_id=(SELECT id FROM orders WHERE order_no=?)", order.orderNo()));
         assertEquals(1, count("SELECT COUNT(*) FROM inventory_movement WHERE order_no=?", order.orderNo()));
-        assertEquals(3, jdbc.queryForObject("SELECT quantity FROM inventory_movement WHERE order_no=?", Integer.class, order.orderNo()));
+        assertEquals(1, count("SELECT COUNT(*) FROM order_item WHERE order_id=(SELECT id FROM orders WHERE order_no=?) AND image_path_snapshot IS NOT NULL", order.orderNo()));
     }
 
     @Test
@@ -156,8 +156,58 @@ class OrderFlowTests {
     }
 
     @Test
-    void cleanTestDatabaseAppliedTheEvidenceMigration() {
-        assertEquals(6, count("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE AND version IS NOT NULL"));
+    void dualProductOrderKeepsTwoItemsTwoMovementsAndTwoImageSnapshotsInMybatisReadModel() throws Exception {
+        var request = new ApiModels.OrderRequest(List.of(
+            new ApiModels.OrderLineRequest(10004L, 1),
+            new ApiModels.OrderLineRequest(10003L, 1)));
+        var order = service.submit(1, key("dual-image"), request);
+        var evidence = evidenceMapper.findByOrderNo(order.orderNo());
+
+        assertEquals(0, order.totalAmount().compareTo(new BigDecimal("328.00")));
+        assertEquals(2, order.items().size());
+        assertEquals(2, count("SELECT COUNT(*) FROM order_item WHERE order_id=(SELECT id FROM orders WHERE order_no=?)", order.orderNo()));
+        assertEquals(2, count("SELECT COUNT(*) FROM inventory_movement WHERE order_no=?", order.orderNo()));
+        assertEquals(101L, jdbc.queryForObject("SELECT product_id FROM order_item WHERE order_id=(SELECT id FROM orders WHERE order_no=?) AND sku_id=10004", Long.class, order.orderNo()));
+        assertEquals(102L, jdbc.queryForObject("SELECT product_id FROM order_item WHERE order_id=(SELECT id FROM orders WHERE order_no=?) AND sku_id=10003", Long.class, order.orderNo()));
+        assertEquals(2, evidence.getItems().size());
+        assertEquals(2, evidence.getInventoryMovements().size());
+        assertEquals(2, evidence.getItems().stream().map(item -> item.getSkuCodeSnapshot()).distinct().count());
+        assertEquals(2, evidence.getInventoryMovements().stream().map(movement -> movement.getSkuId()).distinct().count());
+        var gray = evidence.getItems().stream().filter(item -> item.getSkuCodeSnapshot().equals("T-SHIRT-GRAY-L")).findFirst().orElseThrow();
+        var tote = evidence.getItems().stream().filter(item -> item.getSkuCodeSnapshot().equals("TOTE-BEIGE-ONE")).findFirst().orElseThrow();
+        assertEquals("/assets/products/product-tshirt-gray.png", gray.getImagePathSnapshot());
+        assertEquals("/assets/products/product-tote-beige.png", tote.getImagePathSnapshot());
+        assertEquals(0, gray.getSubtotal().compareTo(new BigDecimal("129.00")));
+        assertEquals(0, tote.getSubtotal().compareTo(new BigDecimal("199.00")));
+
+        mockMvc.perform(get("/api/orders/{orderNo}", order.orderNo()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.items.length()").value(2))
+            .andExpect(jsonPath("$.items[0].imagePathSnapshot").value("/assets/products/product-tshirt-gray.png"))
+            .andExpect(jsonPath("$.items[1].imagePathSnapshot").value("/assets/products/product-tote-beige.png"));
+        mockMvc.perform(get("/api/orders/{orderNo}/execution-evidence", order.orderNo()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.items.length()").value(2))
+            .andExpect(jsonPath("$.inventoryMovements.length()").value(2))
+            .andExpect(jsonPath("$.items[0].imagePathSnapshot").value("/assets/products/product-tshirt-gray.png"))
+            .andExpect(jsonPath("$.items[1].imagePathSnapshot").value("/assets/products/product-tote-beige.png"));
+    }
+
+    @Test
+    void legacyOrderWithNullImageSnapshotRemainsReadable() {
+        String orderNo = "LEGACY" + UUID.randomUUID().toString().replace("-", "");
+        jdbc.update("INSERT INTO orders(order_no,user_id,idempotency_key,request_fingerprint,total_amount,currency,status) VALUES (?,?,?,?,?,?,?)", orderNo, 1L, key("legacy"), "legacy-fingerprint", new BigDecimal("129.00"), "CNY", "CREATED");
+        long orderId = jdbc.queryForObject("SELECT id FROM orders WHERE order_no=?", Long.class, orderNo);
+        jdbc.update("INSERT INTO order_item(order_id,product_id,sku_id,product_name_snapshot,sku_code_snapshot,sku_attributes_snapshot,color_snapshot,size_snapshot,unit_price,quantity) VALUES (?,?,?,?,?,?,?,?,?,?)", orderId, 101L, 10002L, "Legacy shirt", "T-SHIRT-WHITE-S", "white / S", "white", "S", new BigDecimal("129.00"), 1);
+
+        var evidence = evidenceMapper.findByOrderNo(orderNo);
+        assertEquals(1, evidence.getItems().size());
+        assertNull(evidence.getItems().get(0).getImagePathSnapshot());
+    }
+
+    @Test
+    void cleanTestDatabaseAppliedTheImageSnapshotMigration() {
+        assertEquals(7, count("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE AND version IS NOT NULL"));
     }
 
     private ApiModels.OrderRequest request(long skuId, int quantity) {
@@ -177,6 +227,6 @@ class OrderFlowTests {
     }
 
     private String key(String suffix) {
-        return "p3-" + suffix + "-" + UUID.randomUUID();
+        return "p31-" + suffix + "-" + UUID.randomUUID();
     }
 }

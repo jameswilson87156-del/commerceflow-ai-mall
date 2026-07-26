@@ -37,6 +37,18 @@
 - Added V6 `UNIQUE(order_no, sku_id, movement_type)` because the original request could contain repeated SKU lines. The service now aggregates same-SKU quantities before deduction, so one order/SKU/type produces one movement.
 - No new secondary index was added during final audit. MySQL `EXPLAIN` used `orders.order_no`, the existing OrderItem foreign-key index, and the V6 unique index's `order_no` left prefix. The existing `(user_id, idempotency_key)` unique key serves idempotency lookup; `sku_id` has the foreign-key index.
 
+## P3.1 Image Snapshot Acceptance
+
+- Screenshot: `screenshots/v2/03-order-inventory-image-snapshot-real.png`
+- Flyway: clean local MySQL applied V1-V7.
+- Selected order: `CF1785054984427`, a two-product order for SKU `10004` and SKU `10003`, total `328 CNY`.
+- Visible item evidence: two stored `image_path_snapshot` values, two Product/SKU snapshots, and two inventory movements.
+- Idempotency: a same-key/same-body request returned the original selected order; a same-key/different-body request returned HTTP 409 and did not create another order row.
+- Inventory shortage: SKU `10005` returned HTTP 400 and left no order or movement.
+- Browser console errors: `0`; page errors: `0`.
+
+P3.1 does not add payment, shipment, logistics, refund, product-writing, or asset-lifecycle features.
+
 ## Explicit Boundaries
 
 Only `CREATED / 已创建` is supported. Payment, shipment, logistics, refunds, addresses, coupons, production throughput claims, and multi-node in-progress idempotency coordination are not part of P3.

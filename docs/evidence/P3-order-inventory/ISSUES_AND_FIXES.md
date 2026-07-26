@@ -69,3 +69,31 @@ The nested shell quote boundaries did not survive the PowerShell command constru
 ### Fix and Regression
 
 Passed MySQL arguments directly through `docker compose exec`. The completed `EXPLAIN` showed the expected `orders.order_no`, OrderItem foreign-key, and inventory-movement unique indexes. No data or schema was changed by the failed command.
+
+## Legacy Test Order Number Length
+
+### Observation
+
+The new legacy-null-snapshot test initially failed while inserting its manual order fixture.
+
+### Root Cause
+
+The generated order number exceeded the existing `orders.order_no VARCHAR(40)` boundary.
+
+### Fix and Regression
+
+The fixture was changed to a valid 38-character value. The schema remained unchanged and the full 14-test Maven suite passed.
+
+## Local Runtime Port Occupancy
+
+### Observation
+
+Ports 8080 and 8081 were already occupied when P3.1 required an isolated API runtime for the screenshot.
+
+### Root Cause
+
+Existing local processes were already using those ports.
+
+### Fix and Regression
+
+P3.1 ran on 8082 and the existing processes were left untouched. The browser verification used an isolated request-forwarding route only for its capture session; it received real responses from the new MySQL-backed API. No project source configuration was changed.
