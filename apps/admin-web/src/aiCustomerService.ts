@@ -161,7 +161,7 @@ export function traceStepLabel(step: TraceStep['step'], displayName: string): st
     PYTHON_REQUEST_SENT: '调用本地 AI 服务',
     PROVIDER_COMPLETED: 'Provider 返回结果',
     RESPONSE_VALIDATED: '校验结构化响应',
-    RESPONSE_RETURNED: '返回答案与证据',
+    RESPONSE_RETURNED: '组装答案与证据',
   }
   return labels[step] || displayName
 }

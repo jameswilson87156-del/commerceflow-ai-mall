@@ -207,6 +207,44 @@ describe('AI customer service workbench', () => {
     expect(fallbackWrapper.text()).toContain('java-fact-fallback')
   })
 
+  it('renders unsupported Java fallback with its returned warning instead of a stock answer', async () => {
+    const unsupportedFallback = answer({
+      answer: '当前本地商品事实客服只支持价格、颜色尺码、库存、是否可购买和 SKU 编码问题；暂不支持该问题。',
+      answerStatus: 'UNSUPPORTED_QUESTION',
+      provider: { name: 'java-fact-fallback', mode: 'FALLBACK', model: null },
+      fallbackUsed: true,
+      warning: 'AI 服务暂时不可用。该问题不属于本地商品事实客服支持范围。',
+      trace: answer().trace.map((step) => step.step === 'PROVIDER_COMPLETED'
+        ? { ...step, status: 'FALLBACK', durationMs: 17, detail: 'AI_SERVICE_UNAVAILABLE' }
+        : step),
+    })
+    vi.stubGlobal('fetch', apiMock(unsupportedFallback))
+    const wrapper = mount(AiCustomerServiceWorkbench)
+    await flushPromises()
+    await wrapper.get('[data-testid="ai-question-input"]').setValue('什么时候发货？')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('暂不支持的问题')
+    expect(wrapper.text()).toContain('AI 服务暂时不可用。该问题不属于本地商品事实客服支持范围。')
+    expect(wrapper.text()).not.toContain('当前库存为 28 件')
+    expect(wrapper.get('[data-testid="ai-trace-PROVIDER_COMPLETED"]').classes()).toContain('amber')
+  })
+
+  it('renders the backend-provided trace durations without replacing them with fixed values', async () => {
+    const dynamicTrace = answer().trace.map((step, index) => ({ ...step, durationMs: (index + 1) * 13 }))
+    vi.stubGlobal('fetch', apiMock(answer({ trace: dynamicTrace, latencyMs: 91 })))
+    const wrapper = mount(AiCustomerServiceWorkbench)
+    await flushPromises()
+    await wrapper.get('[data-testid="ai-question-input"]').setValue('库存还有吗？')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+
+    expect(wrapper.get('[data-testid="ai-trace-PROVIDER_COMPLETED"]').text()).toContain('52 ms')
+    expect(wrapper.get('[data-testid="ai-trace-RESPONSE_RETURNED"]').text()).toContain('78 ms')
+    expect(wrapper.text()).toContain('91 ms')
+  })
+
   it('keeps the original question and provides retry after a network error', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(jsonResponse(products))

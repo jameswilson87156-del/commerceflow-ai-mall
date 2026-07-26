@@ -66,8 +66,8 @@ class CommerceFlowMockProvider:
         return self._mentions(
             question,
             "发货", "物流", "快递", "退款", "退货", "支付", "付款", "优惠", "折扣", "订单",
-            "其他用户", "忽略之前", "system prompt", "系统提示", "提示词", "改价", "修改价格", "改库存",
-            "修改库存", "<script", "javascript:",
+            "其他用户", "忽略之前", "忽略规则", "system prompt", "系统prompt", "系统提示", "提示词", "改价", "修改价格", "改库存",
+            "修改库存", "script", "javascript",
         )
 
     def _mentions(self, question: str, *terms: str) -> bool:

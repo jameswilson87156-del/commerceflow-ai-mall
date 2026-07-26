@@ -325,6 +325,7 @@ onMounted(loadCatalog)
               <p v-if="message.response.answerStatus === 'UNSUPPORTED_QUESTION'" class="ai-boundary-copy">当前仅支持商品价格、规格、库存、SKU 和可购买状态问题。</p>
               <p v-if="message.response.answerStatus === 'INSUFFICIENT_CONTEXT'" class="ai-boundary-copy">当前事实不足，页面不会补造或猜测答案。</p>
               <p v-if="message.response.fallbackUsed" class="ai-fallback-copy">Python 服务不可用或超时时，回答由 Java 基于当前商品事实安全降级生成。</p>
+              <p v-if="message.response.warning" class="ai-warning-copy" role="note">{{ message.response.warning }}</p>
               <div class="ai-answer-meta">
                 <span :class="['ai-status-badge', answerTone(message.response.answerStatus)]">{{ statusLabel(message.response.answerStatus) }}</span>
                 <span>{{ message.response.provider.name }}</span><span>{{ message.response.provider.mode }}</span><span>fallback {{ message.response.fallbackUsed ? '是' : '否' }}</span><span>{{ message.response.latencyMs }} ms</span><span class="mono">{{ message.response.traceId }}</span>
@@ -349,7 +350,7 @@ onMounted(loadCatalog)
         </section>
 
         <section class="ai-fact-section" aria-labelledby="ai-facts-title">
-          <div class="panel-title-row"><div><p class="eyebrow">Business Facts</p><h2 id="ai-facts-title">本次商品事实</h2></div><span class="ai-data-source">{{ currentFacts?.source === 'answer' ? '本次回答依据' : '当前选择预览' }}</span></div>
+          <div class="panel-title-row"><div><p class="eyebrow">业务事实</p><h2 id="ai-facts-title">本次商品事实</h2></div><span class="ai-data-source">{{ currentFacts?.source === 'answer' ? '本次回答依据' : '当前选择预览' }}</span></div>
           <template v-if="currentFacts">
             <div class="ai-fact-product">
               <img v-if="currentFacts.facts.productImagePath && !imageFailed(currentFacts.facts.productImagePath)" :src="currentFacts.facts.productImagePath" :alt="currentFacts.facts.productName" @error="markImageFailure(currentFacts.facts.productImagePath)">
@@ -362,7 +363,7 @@ onMounted(loadCatalog)
         </section>
 
         <section class="ai-evidence-section" aria-labelledby="ai-evidence-title">
-          <div class="panel-title-row"><div><p class="eyebrow">Java-owned Evidence</p><h2 id="ai-evidence-title">事实证据</h2></div><span v-if="latestResponse" class="result-count">{{ latestResponse.evidence.length }} 条</span></div>
+          <div class="panel-title-row"><div><p class="eyebrow">Java 事实证据</p><h2 id="ai-evidence-title">事实证据</h2></div><span v-if="latestResponse" class="result-count">{{ latestResponse.evidence.length }} 条</span></div>
           <div v-if="evidenceGroups.length" class="ai-evidence-groups">
             <div v-for="group in evidenceGroups" :key="group.sourceType" class="ai-evidence-group">
               <strong>{{ group.label }} <small class="mono">{{ group.sourceType }}</small></strong>
@@ -373,9 +374,9 @@ onMounted(loadCatalog)
         </section>
 
         <section class="ai-trace-section" aria-labelledby="ai-trace-title">
-          <div class="panel-title-row"><div><p class="eyebrow">Trace</p><h2 id="ai-trace-title">调用追踪</h2></div><span v-if="latestResponse" class="result-count">{{ latestResponse.trace.length }} 步</span></div>
+          <div class="panel-title-row"><div><p class="eyebrow">调用 Trace</p><h2 id="ai-trace-title">调用追踪</h2></div><span v-if="latestResponse" class="result-count">{{ latestResponse.trace.length }} 步</span></div>
           <ol v-if="latestResponse?.trace.length" class="ai-trace-list">
-            <li v-for="step in latestResponse.trace" :key="step.step" :class="traceTone(step.status)"><span class="ai-trace-dot"></span><div><strong>{{ traceStepLabel(step.step, step.displayName) }}</strong><small>{{ step.status }} · {{ step.durationMs }} ms</small><p>{{ step.detail }}</p></div></li>
+            <li v-for="step in latestResponse.trace" :key="step.step" :class="traceTone(step.status)" :data-testid="`ai-trace-${step.step}`"><span class="ai-trace-dot"></span><div><strong>{{ traceStepLabel(step.step, step.displayName) }}</strong><small>{{ step.status }} · {{ step.durationMs }} ms</small><p>{{ step.detail }}</p></div></li>
           </ol>
           <p v-else class="ai-empty-copy" data-testid="ai-trace-empty">等待真实请求后展示后端返回的 Trace 步骤。</p>
         </section>

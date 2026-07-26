@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import org.springframework.stereotype.Service;
@@ -27,30 +28,52 @@ public class AiService {
     }
 
     public AiModels.CustomerServiceAnswer ask(AiModels.CustomerServiceAskRequest rawRequest) {
+        long requestStarted = System.nanoTime();
+        List<AiModels.TraceStep> steps = new ArrayList<>();
+
+        long stageStarted = System.nanoTime();
         ValidatedRequest request = validate(rawRequest);
+        steps.add(step("REQUEST_RECEIVED", "COMPLETED", "已接收请求", elapsedMs(stageStarted), "已校验请求参数"));
+
+        stageStarted = System.nanoTime();
         CatalogRepository.CustomerServiceSelection selection = selection(request.productId(), request.skuId());
-        String traceId = UUID.randomUUID().toString();
         Instant createdAt = Instant.now();
         AiModels.BusinessFacts facts = facts(request.question(), selection, createdAt);
-        long started = System.nanoTime();
-        List<AiModels.TraceStep> steps = new ArrayList<>();
-        steps.add(step("REQUEST_RECEIVED", "COMPLETED", "已接收请求", 0, "已验证请求参数"));
-        steps.add(step("BUSINESS_FACTS_LOADED", "COMPLETED", "已加载商品事实", 0, "来自 Product、SKU 与 Inventory"));
+        steps.add(step("BUSINESS_FACTS_LOADED", "COMPLETED", "已加载商品事实", elapsedMs(stageStarted), "来自 Product、SKU 与 Inventory"));
+
+        stageStarted = System.nanoTime();
+        String traceId = UUID.randomUUID().toString();
+        AiModels.PythonCustomerServiceRequest pythonRequest =
+                new AiModels.PythonCustomerServiceRequest(traceId, request.clientRequestId(), request.question(), facts);
+        steps.add(step("PYTHON_REQUEST_SENT", "COMPLETED", "已准备 AI 服务请求", elapsedMs(stageStarted), "已构造受限 businessFacts"));
 
         ProviderOutcome outcome;
+        long providerStarted = System.nanoTime();
         try {
-            steps.add(step("PYTHON_REQUEST_SENT", "COMPLETED", "已调用 AI 服务", 0, "发送受限 businessFacts"));
-            AiModels.PythonCustomerServiceResponse response = providerClient.answer(
-                    new AiModels.PythonCustomerServiceRequest(traceId, request.clientRequestId(), request.question(), facts));
+            AiModels.PythonCustomerServiceResponse response = providerClient.answer(pythonRequest);
+            boolean providerReportedError = response != null
+                    && (response.answerStatus() == AiModels.AnswerStatus.PROVIDER_ERROR
+                    || response.answerStatus() == AiModels.AnswerStatus.FALLBACK_ANSWER);
+            steps.add(step(
+                    "PROVIDER_COMPLETED",
+                    providerReportedError ? "FALLBACK" : "COMPLETED",
+                    providerReportedError ? "AI 服务已降级" : "AI 服务已完成",
+                    elapsedMs(providerStarted),
+                    providerReportedError ? "提供方返回错误状态" : "已收到结构化回答"));
+
+            stageStarted = System.nanoTime();
             validatePythonResponse(response, traceId);
-            if (response.answerStatus() == AiModels.AnswerStatus.PROVIDER_ERROR
-                    || response.answerStatus() == AiModels.AnswerStatus.FALLBACK_ANSWER) {
-                outcome = fallback(facts, "AI_PROVIDER_ERROR", "AI 服务未返回可用回答，已由 Java 基于当前商品事实生成说明。");
-                steps.add(step("PROVIDER_COMPLETED", "FALLBACK", "AI 服务已降级", 0, "提供方返回错误状态"));
+            if (providerReportedError) {
+                outcome = fallback(request.question(), facts, "AI_PROVIDER_ERROR", "AI 服务未返回可用回答，已由 Java 基于当前商品事实生成说明。");
             } else {
                 outcome = new ProviderOutcome(response.answer(), response.answerStatus(), response.provider(), false, response.warning(), null);
-                steps.add(step("PROVIDER_COMPLETED", "COMPLETED", "AI 服务已完成", 0, "已收到结构化回答"));
             }
+            steps.add(step(
+                    "RESPONSE_VALIDATED",
+                    outcome.fallbackUsed() ? "FALLBACK" : "COMPLETED",
+                    outcome.fallbackUsed() ? "已校验并生成降级结果" : "已校验 AI 响应",
+                    elapsedMs(stageStarted),
+                    outcome.fallbackUsed() ? "已校验提供方状态并应用本地边界" : "Java 已校验状态、提供方与回答内容"));
         } catch (AiProviderClientException ex) {
             String errorCode = switch (ex.kind()) {
                 case TIMEOUT -> "AI_SERVICE_TIMEOUT";
@@ -58,20 +81,24 @@ public class AiService {
                 case INVALID_RESPONSE -> "AI_INVALID_RESPONSE";
                 case PROVIDER_ERROR -> "AI_PROVIDER_ERROR";
             };
-            outcome = fallback(facts, errorCode, "AI 服务暂时不可用，以下回答由 Java 基于当前商品事实生成。");
-            steps.add(step("PROVIDER_COMPLETED", "FALLBACK", "AI 服务已降级", 0, errorCode));
+            steps.add(step("PROVIDER_COMPLETED", "FALLBACK", "AI 服务已降级", elapsedMs(providerStarted), errorCode));
+            stageStarted = System.nanoTime();
+            outcome = fallback(request.question(), facts, errorCode, "AI 服务暂时不可用，以下回答由 Java 基于当前商品事实生成。");
+            steps.add(step("RESPONSE_VALIDATED", "FALLBACK", "已生成降级结果", elapsedMs(stageStarted), "提供方响应未通过本地可用性校验"));
         } catch (InvalidProviderResponseException ex) {
-            outcome = fallback(facts, "AI_INVALID_RESPONSE", "AI 服务返回格式无效，以下回答由 Java 基于当前商品事实生成。");
-            steps.add(step("PROVIDER_COMPLETED", "FALLBACK", "AI 服务已降级", 0, "AI_INVALID_RESPONSE"));
+            stageStarted = System.nanoTime();
+            outcome = fallback(request.question(), facts, "AI_INVALID_RESPONSE", "AI 服务返回格式无效，以下回答由 Java 基于当前商品事实生成。");
+            steps.add(step("RESPONSE_VALIDATED", "FALLBACK", "已生成降级结果", elapsedMs(stageStarted), "AI_INVALID_RESPONSE"));
         }
 
-        long latencyMs = Math.max(0, (System.nanoTime() - started) / 1_000_000);
-        steps.add(step("RESPONSE_VALIDATED", "COMPLETED", "已校验 AI 响应", 0, "Java 已校验状态、提供方与回答内容"));
+        stageStarted = System.nanoTime();
         List<AiModels.Evidence> evidence = evidence(facts);
-        steps.add(step("RESPONSE_RETURNED", "COMPLETED", "已返回结果", 0, "已附加 Java Evidence 与 Trace"));
+        steps.add(step("RESPONSE_RETURNED", "COMPLETED", "已组装响应", elapsedMs(stageStarted), "已附加 Java Evidence 与 Trace，准备返回客户端"));
+        long latencyMs = elapsedMs(requestStarted);
         AiModels.CustomerServiceAnswer answer = new AiModels.CustomerServiceAnswer(
                 traceId, request.clientRequestId(), outcome.answer(), outcome.status(), outcome.provider(), evidence, facts,
                 List.copyOf(steps), latencyMs, outcome.fallbackUsed(), outcome.warning(), createdAt);
+        // Trace persistence is deliberately outside the response latency reported to the client.
         traces.save(answer, request.userId(), request.productId(), request.skuId(), questionSummary(request.question()), outcome.errorCode());
         return answer;
     }
@@ -123,19 +150,59 @@ public class AiService {
         return value == null || value.isBlank();
     }
 
-    private ProviderOutcome fallback(AiModels.BusinessFacts facts, String errorCode, String warning) {
-        String answer;
-        boolean sellable = "ON_SALE".equals(facts.productStatus()) && "ON_SALE".equals(facts.skuStatus());
-        if (!sellable) {
-            answer = "该商品当前不是上架销售状态，暂时无法购买。";
-        } else if (facts.availableStock() == 0) {
-            answer = "该 SKU 当前库存为 0，暂时无法购买。";
-        } else {
-            answer = "%s %s 码当前库存为 %d 件，可以购买，售价为 ¥%s。".formatted(
-                    facts.color(), facts.size(), facts.availableStock(), price(facts.unitPrice()));
+    private ProviderOutcome fallback(String question, AiModels.BusinessFacts facts, String errorCode, String warning) {
+        FallbackQuestionType questionType = classifyFallbackQuestion(question);
+        if (questionType == FallbackQuestionType.UNSUPPORTED) {
+            return fallbackOutcome(
+                    "当前本地商品事实客服只支持价格、颜色尺码、库存、是否可购买和 SKU 编码问题；暂不支持该问题。",
+                    AiModels.AnswerStatus.UNSUPPORTED_QUESTION,
+                    errorCode,
+                    warning + " 该问题不属于本地商品事实客服支持范围。");
         }
-        return new ProviderOutcome(answer, AiModels.AnswerStatus.FALLBACK_ANSWER,
+
+        String answer = switch (questionType) {
+            case PRICE -> "%s %s %s 的售价为 ¥%s。".formatted(
+                    facts.productName(), facts.color(), facts.size(), price(facts.unitPrice()));
+            case SPECIFICATION -> "当前选择的 SKU 为 %s %s，SKU 编码为 %s。".formatted(
+                    facts.color(), facts.size(), facts.skuCode());
+            case SKU_CODE -> "该 SKU 编码为 %s。".formatted(facts.skuCode());
+            case STOCK_OR_PURCHASE -> stockOrPurchaseAnswer(facts);
+            case UNSUPPORTED -> throw new IllegalStateException("Unsupported question was handled above");
+        };
+        return fallbackOutcome(answer, AiModels.AnswerStatus.FALLBACK_ANSWER, errorCode, warning);
+    }
+
+    private ProviderOutcome fallbackOutcome(String answer, AiModels.AnswerStatus status, String errorCode, String warning) {
+        return new ProviderOutcome(answer, status,
                 new AiModels.Provider("java-fact-fallback", AiModels.ProviderMode.FALLBACK, null), true, warning, errorCode);
+    }
+
+    private String stockOrPurchaseAnswer(AiModels.BusinessFacts facts) {
+        boolean sellable = "ON_SALE".equals(facts.productStatus()) && "ON_SALE".equals(facts.skuStatus());
+        if (!sellable) return "该商品当前不是上架销售状态，暂时无法购买。";
+        if (facts.availableStock() == 0) return "该 SKU 当前库存为 0，暂时无法购买。";
+        return "%s %s 码当前库存为 %d 件，可以购买，售价为 ¥%s。".formatted(
+                facts.color(), facts.size(), facts.availableStock(), price(facts.unitPrice()));
+    }
+
+    private FallbackQuestionType classifyFallbackQuestion(String question) {
+        String normalized = question.toLowerCase(Locale.ROOT);
+        if (mentions(normalized, "发货", "物流", "快递", "退款", "退货", "支付", "付款", "优惠", "折扣", "订单", "其他用户",
+                "改价", "修改价格", "改库存", "修改库存", "system prompt", "系统prompt", "系统提示", "提示词", "忽略规则", "忽略之前", "script", "javascript")) {
+            return FallbackQuestionType.UNSUPPORTED;
+        }
+        if (mentions(normalized, "sku", "编码", "货号")) return FallbackQuestionType.SKU_CODE;
+        if (mentions(normalized, "颜色", "尺码", "尺寸", "规格")) return FallbackQuestionType.SPECIFICATION;
+        if (mentions(normalized, "价格", "售价", "多少钱", "价钱")) return FallbackQuestionType.PRICE;
+        if (mentions(normalized, "库存", "有货", "购买", "能买", "可买", "下单")) return FallbackQuestionType.STOCK_OR_PURCHASE;
+        return FallbackQuestionType.UNSUPPORTED;
+    }
+
+    private boolean mentions(String question, String... terms) {
+        for (String term : terms) {
+            if (question.contains(term)) return true;
+        }
+        return false;
     }
 
     private List<AiModels.Evidence> evidence(AiModels.BusinessFacts facts) {
@@ -158,15 +225,21 @@ public class AiService {
     }
 
     private String questionSummary(String question) {
-        String lower = question.toLowerCase();
-        if (lower.contains("库存") || lower.contains("有货") || lower.contains("购买")) return "商品客服：库存或购买咨询";
-        if (lower.contains("价格") || lower.contains("售价") || lower.contains("多少钱")) return "商品客服：价格咨询";
-        if (lower.contains("颜色") || lower.contains("尺码") || lower.contains("尺寸")) return "商品客服：规格咨询";
-        return "商品客服：受限商品咨询";
+        return switch (classifyFallbackQuestion(question)) {
+            case PRICE -> "商品客服：价格咨询";
+            case SPECIFICATION -> "商品客服：规格咨询";
+            case SKU_CODE -> "商品客服：SKU 编码咨询";
+            case STOCK_OR_PURCHASE -> "商品客服：库存或购买咨询";
+            case UNSUPPORTED -> "商品客服：暂不支持的问题";
+        };
     }
 
     private AiModels.TraceStep step(String step, String status, String displayName, long durationMs, String detail) {
         return new AiModels.TraceStep(step, status, displayName, durationMs, detail);
+    }
+
+    private long elapsedMs(long startedAt) {
+        return Math.max(0, (System.nanoTime() - startedAt) / 1_000_000);
     }
 
     private record ValidatedRequest(long userId, long productId, long skuId, String question, String clientRequestId) {
@@ -179,6 +252,14 @@ public class AiService {
             boolean fallbackUsed,
             String warning,
             String errorCode) {
+    }
+
+    private enum FallbackQuestionType {
+        PRICE,
+        SPECIFICATION,
+        SKU_CODE,
+        STOCK_OR_PURCHASE,
+        UNSUPPORTED
     }
 
     private static class InvalidProviderResponseException extends RuntimeException {
