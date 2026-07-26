@@ -263,8 +263,8 @@ onMounted(loadCatalog)
       <button class="secondary-button" type="button" data-testid="ai-catalog-retry" @click="loadCatalog">重新加载</button>
     </div>
 
-    <div v-else class="ai-workbench-layout">
-      <aside class="ai-selector-panel" aria-labelledby="ai-selector-title">
+    <div v-else class="ai-workbench-layout" data-testid="ai-three-column-layout">
+      <aside class="ai-selector-panel" data-testid="ai-sku-selector-panel" aria-labelledby="ai-selector-title">
         <div class="panel-title-row">
           <div><p class="eyebrow">真实选择</p><h2 id="ai-selector-title">商品与 SKU</h2></div>
           <span class="result-count">{{ filteredSelections.length }} 个</span>
@@ -298,7 +298,7 @@ onMounted(loadCatalog)
         <p v-else class="ai-filter-empty" data-testid="ai-filter-empty">没有匹配当前搜索或筛选条件的真实 SKU。</p>
       </aside>
 
-      <section class="ai-chat-panel" aria-labelledby="ai-chat-title">
+      <section class="ai-chat-panel" data-testid="ai-chat-panel" aria-labelledby="ai-chat-title">
         <div class="panel-title-row">
           <div><p class="eyebrow">单轮问答</p><h2 id="ai-chat-title">AI 客服工作区</h2></div>
           <span v-if="selected" class="ai-selected-chip">SKU {{ selected.sku.id }}</span>
@@ -328,7 +328,7 @@ onMounted(loadCatalog)
               <p v-if="message.response.warning" class="ai-warning-copy" role="note">{{ message.response.warning }}</p>
               <div class="ai-answer-meta">
                 <span :class="['ai-status-badge', answerTone(message.response.answerStatus)]">{{ statusLabel(message.response.answerStatus) }}</span>
-                <span>{{ message.response.provider.name }}</span><span>{{ message.response.provider.mode }}</span><span>fallback {{ message.response.fallbackUsed ? '是' : '否' }}</span><span>{{ message.response.latencyMs }} ms</span><span class="mono">{{ message.response.traceId }}</span>
+                <span>{{ message.response.provider.name }}</span><span>{{ message.response.provider.mode }}</span><span>fallback {{ message.response.fallbackUsed ? '是' : '否' }}</span><span>{{ message.response.latencyMs }} ms</span><span class="mono ai-trace-id" :title="message.response.traceId">{{ message.response.traceId }}</span>
               </div>
             </template>
           </article>
@@ -341,7 +341,7 @@ onMounted(loadCatalog)
         </form>
       </section>
 
-      <aside class="ai-facts-panel" aria-labelledby="ai-facts-title">
+      <aside class="ai-facts-panel" data-testid="ai-facts-evidence-panel" aria-labelledby="ai-facts-title">
         <section class="ai-provider-card" data-testid="ai-provider-card">
           <p class="eyebrow">Provider 状态</p>
           <strong>{{ latestResponse?.provider.name ?? '等待首次请求' }}</strong>
@@ -367,7 +367,7 @@ onMounted(loadCatalog)
           <div v-if="evidenceGroups.length" class="ai-evidence-groups">
             <div v-for="group in evidenceGroups" :key="group.sourceType" class="ai-evidence-group">
               <strong>{{ group.label }} <small class="mono">{{ group.sourceType }}</small></strong>
-              <dl><div v-for="item in group.items" :key="`${item.sourceType}-${item.field}`"><dt>{{ item.displayName }} <small class="mono">{{ item.field }}</small></dt><dd>{{ item.value }}<small class="mono">{{ item.sourceType }} / {{ item.sourceId }}</small></dd></div></dl>
+              <dl><div v-for="item in group.items" :key="`${item.sourceType}-${item.field}`"><dt :title="`${item.displayName} (${item.field})`">{{ item.displayName }} <small class="mono">{{ item.field }}</small></dt><dd :title="`${item.value} (${item.sourceType} / ${item.sourceId})`">{{ item.value }}<small class="mono">{{ item.sourceType }} / {{ item.sourceId }}</small></dd></div></dl>
             </div>
           </div>
           <p v-else class="ai-empty-copy" data-testid="ai-evidence-empty">发送问题后仅展示 Java 返回的实际 Evidence。</p>
@@ -376,7 +376,7 @@ onMounted(loadCatalog)
         <section class="ai-trace-section" aria-labelledby="ai-trace-title">
           <div class="panel-title-row"><div><p class="eyebrow">调用 Trace</p><h2 id="ai-trace-title">调用追踪</h2></div><span v-if="latestResponse" class="result-count">{{ latestResponse.trace.length }} 步</span></div>
           <ol v-if="latestResponse?.trace.length" class="ai-trace-list">
-            <li v-for="step in latestResponse.trace" :key="step.step" :class="traceTone(step.status)" :data-testid="`ai-trace-${step.step}`"><span class="ai-trace-dot"></span><div><strong>{{ traceStepLabel(step.step, step.displayName) }}</strong><small>{{ step.status }} · {{ step.durationMs }} ms</small><p>{{ step.detail }}</p></div></li>
+            <li v-for="step in latestResponse.trace" :key="step.step" :class="traceTone(step.status)" :data-testid="`ai-trace-${step.step}`"><span class="ai-trace-dot"></span><div><strong>{{ traceStepLabel(step.step, step.displayName) }}</strong><small>{{ step.status }} · {{ step.durationMs }} ms</small><p :title="step.detail">{{ step.detail }}</p></div></li>
           </ol>
           <p v-else class="ai-empty-copy" data-testid="ai-trace-empty">等待真实请求后展示后端返回的 Trace 步骤。</p>
         </section>

@@ -185,6 +185,38 @@ describe('AI customer service workbench', () => {
     expect(wrapper.findAll('.ai-trace-list li')).toHaveLength(6)
   })
 
+  it('keeps the three factual panels mounted and makes long technical ids shrink inside their own panel', async () => {
+    const longTraceId = 'trace-p4e-6f3b1d6f-09d4-4c7d-9d7d-31c8c9ad0d67-with-extra-diagnostic-context'
+    vi.stubGlobal('fetch', apiMock(answer({ traceId: longTraceId })))
+    const wrapper = mount(AiCustomerServiceWorkbench)
+    await flushPromises()
+    await wrapper.get('[data-testid="ai-question-input"]').setValue('这件灰色L码T恤现在还有库存吗？')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+
+    expect(wrapper.get('[data-testid="ai-three-column-layout"]').classes()).toContain('ai-workbench-layout')
+    expect(wrapper.get('[data-testid="ai-sku-selector-panel"]').text()).toContain('商品与 SKU')
+    expect(wrapper.get('[data-testid="ai-chat-panel"]').text()).toContain('AI 客服工作区')
+    expect(wrapper.get('[data-testid="ai-facts-evidence-panel"]').text()).toContain('事实证据')
+    const traceId = wrapper.get('.ai-trace-id')
+    expect(traceId.attributes('title')).toBe(longTraceId)
+    expect(traceId.classes()).toContain('ai-trace-id')
+  })
+
+  it('keeps a long customer question as normal text content without adding a hard-coded answer', async () => {
+    const longQuestion = '这件灰色L码T恤现在还有库存吗？我还想确认当前展示的库存是否来自本地真实商品接口。'
+    vi.stubGlobal('fetch', apiMock())
+    const wrapper = mount(AiCustomerServiceWorkbench)
+    await flushPromises()
+    await wrapper.get('[data-testid="ai-question-input"]').setValue(longQuestion)
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+
+    expect(wrapper.get('.ai-message.user .ai-message-text').text()).toBe(longQuestion)
+    expect(wrapper.get('.ai-message.assistant .ai-message-text').text()).toContain('库存为 28 件')
+    expect(wrapper.get('[data-testid="ai-facts-evidence-panel"]').findAll('.ai-trace-list li')).toHaveLength(6)
+  })
+
   it('renders unsupported and fallback results as distinct response-driven boundaries', async () => {
     const unsupported = answer({ answerStatus: 'UNSUPPORTED_QUESTION', answer: '当前商品客服暂不支持发货问题。' })
     vi.stubGlobal('fetch', apiMock(unsupported))
