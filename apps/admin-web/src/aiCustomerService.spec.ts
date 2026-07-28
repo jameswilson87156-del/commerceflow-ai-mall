@@ -2,6 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import AiCustomerServiceWorkbench from './AiCustomerServiceWorkbench.vue'
 import {
+  askCustomerService,
   createClientRequestId,
   filterSkus,
   flattenSkus,
@@ -82,7 +83,10 @@ function apiMock(answerResponse = answer()) {
   })
 }
 
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => {
+  vi.useRealTimers()
+  vi.unstubAllGlobals()
+})
 
 describe('AI customer service workbench', () => {
   it('shows catalog loading before the real product request resolves', () => {
@@ -316,22 +320,35 @@ describe('AI customer service workbench', () => {
     expect(wrapper.get('[data-testid="ai-rate-limit-inline"]').text()).toContain('剩余 4 次')
   })
 
-  it('keeps the question and disables sending during a 429 retry countdown without fabricating an answer', async () => {
+  it('uses one header-first 429 cooldown for the page, blocks every send path, and reinitializes after a new 429', async () => {
     vi.useFakeTimers()
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(jsonResponse(products))
       .mockResolvedValueOnce(jsonResponse({
         code: 'AI_RATE_LIMIT_EXCEEDED',
-        message: '请求过于频繁，请在 2 秒后重试。',
-        retryAfterSeconds: 2,
+        message: '请求过于频繁，请在 46 秒后重试。',
+        retryAfterSeconds: 46,
         limit: 5,
         remaining: 0,
       }, 429, {
-        'Retry-After': '2',
+        'Retry-After': '3',
         'X-RateLimit-Mode': 'redis',
         'X-RateLimit-Limit': '5',
         'X-RateLimit-Remaining': '0',
         'X-RateLimit-Reset': '1785056460',
+      }))
+      .mockResolvedValueOnce(jsonResponse({
+        code: 'AI_RATE_LIMIT_EXCEEDED',
+        message: '请求过于频繁，请在 99 秒后重试。',
+        retryAfterSeconds: 99,
+        limit: 5,
+        remaining: 0,
+      }, 429, {
+        'Retry-After': '5',
+        'X-RateLimit-Mode': 'redis',
+        'X-RateLimit-Limit': '5',
+        'X-RateLimit-Remaining': '0',
+        'X-RateLimit-Reset': '1785056465',
       }))
     vi.stubGlobal('fetch', fetchMock)
     const wrapper = mount(AiCustomerServiceWorkbench)
@@ -339,25 +356,123 @@ describe('AI customer service workbench', () => {
     await wrapper.get('[data-testid="ai-question-input"]').setValue('库存还有吗？')
     await wrapper.get('form').trigger('submit')
     await flushPromises()
-    expect(wrapper.text()).toContain('请求过于频繁')
-    expect(wrapper.get('[data-testid="ai-rate-limit-countdown"]').text()).toContain('2 秒后')
+    expect(wrapper.get('[data-testid="ai-rate-limit-error-title"]').text()).toBe('请求过于频繁')
+    expect(wrapper.text()).toContain('当前请求已被 Redis 限流保护拦截，请等待倒计时结束后重试。')
+    expect(wrapper.text()).not.toContain('请在 46 秒后重试。')
+    expect(wrapper.get('[data-testid="ai-rate-limit-countdown"]').text()).toContain('3 秒后')
     expect(wrapper.get('[data-testid="ai-rate-limit-inline"]').text()).toContain('本窗口限额 5 次')
     expect(wrapper.get('[data-testid="ai-rate-limit-inline"]').text()).toContain('剩余 0 次')
-    expect(wrapper.get('[data-testid="ai-inline-countdown"]').text()).toContain('Retry-After 2 秒')
+    expect(wrapper.get('[data-testid="ai-inline-countdown"]').text()).toContain('Retry-After 3 秒')
+    expect(wrapper.get('.ai-message.assistant .secondary-button').text()).toContain('3 秒后可发送')
     expect((wrapper.get('[data-testid="ai-question-input"]').element as HTMLTextAreaElement).value).toBe('库存还有吗？')
     expect(wrapper.find('.ai-message.assistant.complete').exists()).toBe(false)
     expect(wrapper.get('[data-testid="ai-send-button"]').attributes('disabled')).toBeDefined()
     const callsBeforeDisabledRetry = fetchMock.mock.calls.length
     await wrapper.get('.ai-message.assistant .secondary-button').trigger('click')
     expect(fetchMock).toHaveBeenCalledTimes(callsBeforeDisabledRetry)
+    await wrapper.get('[data-testid="ai-question-input"]').trigger('keydown', { key: 'Enter' })
+    expect(fetchMock).toHaveBeenCalledTimes(callsBeforeDisabledRetry)
     await vi.advanceTimersByTimeAsync(1000)
     await flushPromises()
-    expect(wrapper.get('[data-testid="ai-inline-countdown"]').text()).toContain('Retry-After 1 秒')
-    await vi.advanceTimersByTimeAsync(1000)
+    expect(wrapper.get('[data-testid="ai-rate-limit-countdown"]').text()).toContain('2 秒后')
+    expect(wrapper.get('[data-testid="ai-inline-countdown"]').text()).toContain('Retry-After 2 秒')
+    expect(wrapper.get('.ai-message.assistant .secondary-button').text()).toContain('2 秒后可发送')
+    await vi.advanceTimersByTimeAsync(2000)
     await flushPromises()
     expect(wrapper.find('[data-testid="ai-rate-limit-countdown"]').exists()).toBe(false)
     expect(wrapper.get('[data-testid="ai-send-button"]').attributes('disabled')).toBeUndefined()
-    vi.useRealTimers()
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.get('[data-testid="ai-rate-limit-countdown"]').text()).toContain('5 秒后')
+    expect(wrapper.get('[data-testid="ai-inline-countdown"]').text()).toContain('Retry-After 5 秒')
+    expect(wrapper.get('.ai-message.assistant .secondary-button').text()).toContain('5 秒后可发送')
+    wrapper.unmount()
+  })
+
+  it('uses the body retryAfterSeconds only when the Retry-After header is absent', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(jsonResponse({
+      code: 'AI_RATE_LIMIT_EXCEEDED',
+      message: '请求过于频繁，请稍后重试。',
+      retryAfterSeconds: 7,
+    }, 429, {
+      'X-RateLimit-Mode': 'redis',
+      'X-RateLimit-Limit': '5',
+      'X-RateLimit-Remaining': '0',
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+    await expect(askCustomerService({ userId: 1, productId: 101, skuId: 10004, question: '库存还有吗？', clientRequestId: 'p5d-body-fallback' }))
+      .rejects.toMatchObject({ status: 429, retryAfterSeconds: 7 })
+  })
+
+  it('uses a one-second safe cooldown only when a 429 has neither header nor body retry metadata', async () => {
+    vi.useFakeTimers()
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(jsonResponse(products))
+      .mockResolvedValueOnce(jsonResponse({ code: 'AI_RATE_LIMIT_EXCEEDED', message: '请求过于频繁。' }, 429, {
+        'X-RateLimit-Mode': 'redis',
+        'X-RateLimit-Limit': '5',
+        'X-RateLimit-Remaining': '0',
+      }))
+    vi.stubGlobal('fetch', fetchMock)
+    const wrapper = mount(AiCustomerServiceWorkbench)
+    await flushPromises()
+    await wrapper.get('[data-testid="ai-question-input"]').setValue('库存还有吗？')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.get('[data-testid="ai-rate-limit-countdown"]').text()).toContain('1 秒后')
+    wrapper.unmount()
+  })
+
+  it('does not show a previous answer as current Provider, Evidence, or Trace after a later 429', async () => {
+    vi.useFakeTimers()
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(jsonResponse(products))
+      .mockResolvedValueOnce(jsonResponse(answer(), 200, {
+        'X-RateLimit-Mode': 'redis',
+        'X-RateLimit-Limit': '5',
+        'X-RateLimit-Remaining': '1',
+      }))
+      .mockResolvedValueOnce(jsonResponse({ code: 'AI_RATE_LIMIT_EXCEEDED', message: '请求过于频繁，请在 8 秒后重试。' }, 429, {
+        'Retry-After': '3',
+        'X-RateLimit-Mode': 'redis',
+        'X-RateLimit-Limit': '5',
+        'X-RateLimit-Remaining': '0',
+      }))
+    vi.stubGlobal('fetch', fetchMock)
+    const wrapper = mount(AiCustomerServiceWorkbench)
+    await flushPromises()
+    await wrapper.get('[data-testid="ai-question-input"]').setValue('库存还有吗？')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.get('[data-testid="ai-provider-card"]').text()).toContain('commerceflow-mock')
+    await wrapper.get('[data-testid="ai-question-input"]').setValue('灰色 L 码还能购买吗？')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.get('[data-testid="ai-provider-card"]').text()).toContain('等待首次请求')
+    expect(wrapper.find('[data-testid="ai-evidence-empty"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="ai-trace-empty"]').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('clears the active cooldown interval when the workbench unmounts', async () => {
+    vi.useFakeTimers()
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(jsonResponse(products))
+      .mockResolvedValueOnce(jsonResponse({ code: 'AI_RATE_LIMIT_EXCEEDED', message: '请求过于频繁。' }, 429, {
+        'Retry-After': '4',
+        'X-RateLimit-Mode': 'redis',
+        'X-RateLimit-Limit': '5',
+        'X-RateLimit-Remaining': '0',
+      }))
+    vi.stubGlobal('fetch', fetchMock)
+    const wrapper = mount(AiCustomerServiceWorkbench)
+    await flushPromises()
+    await wrapper.get('[data-testid="ai-question-input"]').setValue('库存还有吗？')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(vi.getTimerCount()).toBeGreaterThan(0)
+    wrapper.unmount()
+    expect(vi.getTimerCount()).toBe(0)
   })
 
   it('shows a safe fail-open notice without inventing remaining quota', async () => {

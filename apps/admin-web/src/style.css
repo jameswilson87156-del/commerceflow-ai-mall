@@ -277,6 +277,7 @@ tbody tr:last-child td:last-child { border-radius: 0 0 0 5px; }
 .ai-message.assistant.error { border-color: #f5c8d1; background: #fff7f8; }
 .ai-message-role { margin: 0 0 7px; color: #6280a7; font-size: 10px; font-weight: 760; }
 .ai-message.assistant .ai-message-role { color: #159589; }
+.ai-rate-limit-error-title { margin: 0 0 7px; color: #c04559; font-size: 13px; font-weight: 800; }
 .ai-message-text { margin: 0; color: #2a3f59; font-size: 13px; line-height: 1.66; overflow-wrap: anywhere; white-space: pre-wrap; word-break: normal; }
 .ai-boundary-copy, .ai-fallback-copy { margin: 10px 0 0; border-top: 1px dashed #d9e3ec; padding-top: 9px; color: #a36a18; font-size: 11px; line-height: 1.55; }
 .ai-fallback-copy { color: #ae4f5e; }

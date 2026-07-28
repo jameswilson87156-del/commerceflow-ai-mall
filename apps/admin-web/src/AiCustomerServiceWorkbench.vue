@@ -30,6 +30,7 @@ type ChatMessage = {
   state?: 'loading' | 'error' | 'complete'
   response?: CustomerServiceAnswer
   error?: string
+  rateLimited?: boolean
 }
 
 const products = ref<Awaited<ReturnType<typeof requestProducts>>>([])
@@ -47,6 +48,7 @@ const isSending = ref(false)
 const rateLimit = ref<RateLimitMetadata | null>(null)
 const cooldownSeconds = ref(0)
 let cooldownTimer: ReturnType<typeof setInterval> | null = null
+const DEFAULT_COOLDOWN_SECONDS = 1
 const failedImages = ref(new Set<string>())
 const composer = ref<HTMLTextAreaElement | null>(null)
 const messageList = ref<HTMLElement | null>(null)
@@ -60,10 +62,8 @@ const filteredSelections = computed(() => filterSkus(selections.value, {
 }))
 const selected = computed<SelectedSku | null>(() => selections.value.find(({ sku }) => sku.id === selectedSkuId.value) ?? null)
 const latestResponse = computed(() => {
-  for (const message of [...messages.value].reverse()) {
-    if (message.response) return message.response
-  }
-  return null
+  const latestAssistantMessage = [...messages.value].reverse().find((message) => message.role === 'assistant')
+  return latestAssistantMessage?.state === 'complete' ? latestAssistantMessage.response ?? null : null
 })
 const evidenceGroups = computed(() => {
   const groups: Array<{ sourceType: 'PRODUCT' | 'SKU' | 'INVENTORY'; label: string; items: CustomerServiceAnswer['evidence'] }> = [
@@ -184,7 +184,7 @@ function clearCooldown() {
 
 function startCooldown(seconds: number | null) {
   clearCooldown()
-  cooldownSeconds.value = Math.max(1, seconds ?? 1)
+  cooldownSeconds.value = Math.max(1, seconds ?? DEFAULT_COOLDOWN_SECONDS)
   cooldownTimer = setInterval(() => {
     cooldownSeconds.value = Math.max(0, cooldownSeconds.value - 1)
     if (cooldownSeconds.value === 0) clearCooldown()
@@ -255,7 +255,7 @@ async function sendQuestion(retryMessageId?: string) {
     rememberMessageScrollPosition()
     assistantId = retryMessageId
     messages.value = messages.value.map((message) => message.id === assistantId
-      ? { ...message, state: 'loading', error: undefined }
+      ? { ...message, state: 'loading', error: undefined, rateLimited: false }
       : message)
     scrollMessagesToLatest()
   } else {
@@ -277,18 +277,24 @@ async function sendQuestion(retryMessageId?: string) {
     updateRateLimit(result.rateLimit)
     rememberMessageScrollPosition()
     messages.value = messages.value.map((message) => message.id === assistantId
-      ? { ...message, response: result.answer, content: result.answer.answer, state: 'complete', error: undefined }
+      ? { ...message, response: result.answer, content: result.answer.answer, state: 'complete', error: undefined, rateLimited: false }
       : message)
     question.value = ''
     scrollMessagesToLatest()
   } catch (error) {
-    if (error instanceof AiRequestError && error.status === 429) {
+    const rateLimited = error instanceof AiRequestError && error.status === 429
+    if (rateLimited) {
       updateRateLimit(error.rateLimit)
       startCooldown(error.retryAfterSeconds)
     }
     rememberMessageScrollPosition()
     messages.value = messages.value.map((message) => message.id === assistantId
-      ? { ...message, state: 'error', error: error instanceof Error ? error.message : 'AI 请求失败，请重试。' }
+      ? {
+          ...message,
+          state: 'error',
+          error: rateLimited ? undefined : error instanceof Error ? error.message : 'AI 请求失败，请重试。',
+          rateLimited,
+        }
       : message)
     scrollMessagesToLatest()
   } finally {
@@ -406,7 +412,15 @@ onBeforeUnmount(clearCooldown)
             <p class="ai-message-role">{{ message.role === 'user' ? '用户问题' : 'AI 商品客服' }}</p>
             <template v-if="message.role === 'user'"><p class="ai-message-text">{{ message.content }}</p></template>
             <template v-else-if="message.state === 'loading'"><p class="ai-message-text">正在请求 Java 商品事实与本地 Mock Provider…</p></template>
-            <template v-else-if="message.state === 'error'"><p class="ai-message-text">{{ message.error }}</p><p v-if="cooldownSeconds > 0" class="ai-boundary-copy" data-testid="ai-rate-limit-countdown">{{ cooldownSeconds }} 秒后可再次发送</p><button class="secondary-button" type="button" :disabled="cooldownSeconds > 0 || isSending" @click="sendQuestion(message.id)">重试请求</button></template>
+            <template v-else-if="message.state === 'error'">
+              <template v-if="message.rateLimited">
+                <p class="ai-rate-limit-error-title" data-testid="ai-rate-limit-error-title">请求过于频繁</p>
+                <p class="ai-message-text">当前请求已被 Redis 限流保护拦截，请等待倒计时结束后重试。</p>
+                <p v-if="cooldownSeconds > 0" class="ai-boundary-copy" data-testid="ai-rate-limit-countdown">{{ cooldownSeconds }} 秒后可再次发送</p>
+              </template>
+              <p v-else class="ai-message-text">{{ message.error }}</p>
+              <button class="secondary-button" type="button" :disabled="cooldownSeconds > 0 || isSending" @click="sendQuestion(message.id)">{{ cooldownSeconds > 0 ? `${cooldownSeconds} 秒后可发送` : '重试请求' }}</button>
+            </template>
             <template v-else-if="message.response">
               <p class="ai-message-text">{{ message.content }}</p>
               <p v-if="message.response.answerStatus === 'UNSUPPORTED_QUESTION'" class="ai-boundary-copy">当前仅支持商品价格、规格、库存、SKU 和可购买状态问题。</p>

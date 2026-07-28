@@ -176,7 +176,13 @@ export function readRateLimitMetadata(response: Response): RateLimitMetadata {
 
 async function responseError(response: Response): Promise<AiRequestError> {
   const body = await response.json().catch(() => null) as { code?: unknown; message?: unknown; retryAfterSeconds?: unknown } | null
-  const retryAfterSeconds = typeof body?.retryAfterSeconds === 'number' ? body.retryAfterSeconds : readIntegerHeader(response, 'Retry-After')
+  const retryAfterFromHeader = readIntegerHeader(response, 'Retry-After')
+  const retryAfterFromBody = typeof body?.retryAfterSeconds === 'number'
+    && Number.isInteger(body.retryAfterSeconds)
+    && body.retryAfterSeconds >= 0
+    ? body.retryAfterSeconds
+    : null
+  const retryAfterSeconds = retryAfterFromHeader ?? retryAfterFromBody
   const message = typeof body?.message === 'string' ? body.message : `请求失败（HTTP ${response.status}）`
   return new AiRequestError(message, response.status, typeof body?.code === 'string' ? body.code : null, retryAfterSeconds, readRateLimitMetadata(response))
 }
