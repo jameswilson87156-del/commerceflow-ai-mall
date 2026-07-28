@@ -5,7 +5,7 @@ const props = withDefaults(defineProps<{
   src?: string | null
   alt?: string
   placeholder?: string
-}>(), {alt: '商品图片', placeholder: '图片暂不可用'})
+}>(), { alt: '商品图片', placeholder: '图片暂不可用' })
 
 const failed = ref(!props.src)
 const imageSource = computed(() => props.src || '')

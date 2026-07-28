@@ -1,6 +1,7 @@
 package com.commerceflow.mall;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -153,6 +154,16 @@ class OrderFlowTests {
         assertThrows(DuplicateKeyException.class, () -> jdbc.update(
             "INSERT INTO inventory_movement(order_no,sku_id,movement_type,quantity,stock_before,stock_after,idempotency_key) VALUES (?,?,?,?,?,?,?)",
             order.orderNo(), 10002L, "ORDER_DEDUCT", 1, 1, 0, "manual-duplicate"));
+    }
+
+    @Test
+    void rapidOrdersReceiveDistinctOrderNumbersWithoutChangingIdempotencyBehavior() {
+        var first = service.submit(1, key("rapid-one"), request(10001, 1));
+        var second = service.submit(1, key("rapid-two"), request(10002, 1));
+
+        assertNotEquals(first.orderNo(), second.orderNo());
+        assertEquals(34, first.orderNo().length());
+        assertEquals(34, second.orderNo().length());
     }
 
     @Test

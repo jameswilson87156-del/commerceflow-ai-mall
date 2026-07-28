@@ -34,3 +34,17 @@
 
 - Symptom: the initial mobile `node --test tests` invocation was not a valid Windows test target.
 - Fix: the package script now names the portable test file explicitly as `node --test tests/runtime-helpers.test.mjs`.
+
+## P6B.2 mobile H5 clipping and overlap
+
+- Symptom: product detail text could leave the viewport; cart and confirm notices or item copy could overlap or stack unexpectedly; result cards could leave clipped white fragments at the left edge.
+- Root cause: UniApp H5 `view` elements computed as inline boxes unless explicitly constrained. A generic panel rule then overrode page-level Flex/Grid behavior in the injected style order. Product detail also inherited a generic Hero image size.
+- Fix: made page roots and generic panels block-level, made required Flex/Grid cards use higher-specificity `*.panel` selectors, scoped the product Hero image, introduced normal-flow `MobileNotice`, and standardized the 84px fixed action bar plus content padding.
+- Regression: two viewports across six routes report no horizontal overflow, no core-element out-of-bounds box, and no browser errors.
+
+## Rapid order-number collision found during full regression
+
+- Symptom: the full Java suite intermittently treated two rapid independent orders as an idempotency-in-progress error.
+- Root cause: the generated order number used only `System.currentTimeMillis()`, so a same-millisecond unique-order constraint collision was caught by the idempotency error mapping.
+- Fix: generate a `CF`-prefixed UUID-based 34-character order number and add a focused rapid-order regression test. Inventory, amount, request fingerprint, idempotency-key behavior, schema, and API contracts remain unchanged.
+- Regression: the complete Java suite passes 43 tests; the isolated MySQL two-item order also completed successfully.

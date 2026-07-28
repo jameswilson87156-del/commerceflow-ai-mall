@@ -5,17 +5,14 @@ withDefaults(defineProps<{
   subtitle?: string
   back?: boolean
   actionLabel?: string
-}>(), {eyebrow: 'COMMERCEFLOW AI MALL', back: false})
+}>(), { eyebrow: 'COMMERCEFLOW AI MALL', back: false })
 
-const emit = defineEmits<{
-  back: []
-  action: []
-}>()
+const emit = defineEmits<{ back: []; action: [] }>()
 </script>
 
 <template>
   <view class="mobile-header">
-    <button v-if="back" class="icon-button header-back" aria-label="返回" @click="emit('back')"><text>‹</text></button>
+    <button v-if="back" class="icon-button header-back" aria-label="返回" @click="emit('back')"><text>&lt;</text></button>
     <view class="header-copy">
       <text class="header-eyebrow">{{ eyebrow }}</text>
       <text class="header-title">{{ title }}</text>

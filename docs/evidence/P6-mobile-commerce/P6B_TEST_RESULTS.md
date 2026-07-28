@@ -6,16 +6,16 @@ Date: 2026-07-29
 
 | Area | Command | Result |
 |---|---|---|
-| Java API | `./mvnw -q -f apps/mall-api/pom.xml test` | 42 passed, 0 failures, 0 errors |
+| Java API | `./mvnw.cmd -f apps/mall-api/pom.xml test` | 43 passed, 0 failures, 0 errors |
 | Redis regression subset | `AiRateLimitRedisIntegrationTests` | 5 passed |
 | Python AI service | `pytest -q` | 11 passed |
 | Admin Vue | `npm test` | 43 passed |
 | Admin Vue type/build | `npm run build` | passed |
-| Mobile helper tests | `apps/mobile-app/npm test` | 6 passed |
+| Mobile helper tests | `apps/mobile-app/npm test` | 18 passed |
 | Mobile H5 build | `apps/mobile-app/npm run build` | passed |
 | Mobile UniApp build | `apps/mobile-app/npm run build:uni` | passed |
 
-Java test reports validated 9 test classes and 42 tests. Flyway applied V1-V8 from a clean H2 test database. The full Java suite includes the five Redis rate-limit integration test methods; the local API browser run used Redis only for existing P5 functionality and did not add a mobile Redis feature.
+Java test reports validated 9 test classes and 43 tests. Flyway applied V1-V8 from a clean H2 test database, and P6B.2 additionally verified V1-V8 on a separate empty MySQL 8.4 volume. The full Java suite includes the five Redis rate-limit integration test methods; the local API browser run used Redis only for existing P5 functionality and did not add a mobile Redis feature.
 
 ## Browser Acceptance
 
@@ -28,4 +28,4 @@ Java test reports validated 9 test classes and 42 tests. Flyway applied V1-V8 fr
 
 ## Known Test Limit
 
-The mobile test suite is intentionally small and currently covers pure runtime helpers automatically. The page interaction matrix is recorded as reproducible Playwright browser evidence rather than pretending the Node helper tests cover the rendered pages.
+The mobile Node suite covers pure runtime and display-policy helpers automatically. The rendered interaction matrix is recorded in `P6B2_TEST_COVERAGE_MATRIX.md` and reproducible Playwright browser evidence rather than pretending Node helpers cover the rendered pages.

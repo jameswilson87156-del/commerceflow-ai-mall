@@ -65,7 +65,7 @@ public class OrderService {
                     stockBefore,
                     stockAfter));
             }
-            String no="CF"+System.currentTimeMillis();
+            String no=nextOrderNo();
             long orderId;
             try { orderId=orders.insertOrder(no,userId,key,fingerprint,total,"CNY"); }
             catch (DuplicateKeyException ex) { throw new CommerceException("IDEMPOTENCY_IN_PROGRESS", "A request with this key is being completed"); }
@@ -91,4 +91,5 @@ public class OrderService {
         int stockBefore,
         int stockAfter) {}
     private String fingerprint(ApiModels.OrderRequest r) { String raw=r.items().stream().map(i->i.skuId()+":"+i.quantity()).sorted().reduce("",(a,b)->a+"|"+b); try { var md=MessageDigest.getInstance("SHA-256"); var out=md.digest(raw.getBytes(StandardCharsets.UTF_8)); return java.util.HexFormat.of().formatHex(out); } catch(Exception e) { throw new IllegalStateException(e); } }
+    private String nextOrderNo() { return "CF" + java.util.UUID.randomUUID().toString().replace("-", ""); }
 }
