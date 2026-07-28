@@ -3,6 +3,19 @@ on: [push, pull_request]
 jobs:
   java:
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:8.0.2
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
     defaults: {run: {working-directory: apps/mall-api}}
     steps:
       - uses: actions/checkout@v4

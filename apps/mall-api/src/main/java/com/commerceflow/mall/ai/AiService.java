@@ -2,6 +2,9 @@ package com.commerceflow.mall.ai;
 
 import com.commerceflow.mall.catalog.CatalogRepository;
 import com.commerceflow.mall.core.CommerceException;
+import com.commerceflow.mall.ai.ratelimit.AiRateLimiter;
+import com.commerceflow.mall.ai.ratelimit.RateLimitDecision;
+import com.commerceflow.mall.ai.ratelimit.RateLimitExceededException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -20,19 +23,31 @@ public class AiService {
     private final CatalogRepository catalog;
     private final CustomerServiceProviderClient providerClient;
     private final AiTraceRepository traces;
+    private final AiRateLimiter rateLimiter;
 
-    public AiService(CatalogRepository catalog, CustomerServiceProviderClient providerClient, AiTraceRepository traces) {
+    public AiService(CatalogRepository catalog, CustomerServiceProviderClient providerClient, AiTraceRepository traces, AiRateLimiter rateLimiter) {
         this.catalog = catalog;
         this.providerClient = providerClient;
         this.traces = traces;
+        this.rateLimiter = rateLimiter;
     }
 
     public AiModels.CustomerServiceAnswer ask(AiModels.CustomerServiceAskRequest rawRequest) {
+        return askWithRateLimit(rawRequest, "127.0.0.1").answer();
+    }
+
+    public AiRequestResult askWithRateLimit(AiModels.CustomerServiceAskRequest rawRequest, String remoteAddress) {
+        ValidatedRequest request = validate(rawRequest);
+        RateLimitDecision decision = rateLimiter.check(request.userId(), remoteAddress);
+        if (!decision.allowed()) throw new RateLimitExceededException(decision);
+        return new AiRequestResult(askValidated(request), decision);
+    }
+
+    private AiModels.CustomerServiceAnswer askValidated(ValidatedRequest request) {
         long requestStarted = System.nanoTime();
         List<AiModels.TraceStep> steps = new ArrayList<>();
 
         long stageStarted = System.nanoTime();
-        ValidatedRequest request = validate(rawRequest);
         steps.add(step("REQUEST_RECEIVED", "COMPLETED", "已接收请求", elapsedMs(stageStarted), "已校验请求参数"));
 
         stageStarted = System.nanoTime();
@@ -243,6 +258,9 @@ public class AiService {
     }
 
     private record ValidatedRequest(long userId, long productId, long skuId, String question, String clientRequestId) {
+    }
+
+    public record AiRequestResult(AiModels.CustomerServiceAnswer answer, RateLimitDecision rateLimit) {
     }
 
     private record ProviderOutcome(

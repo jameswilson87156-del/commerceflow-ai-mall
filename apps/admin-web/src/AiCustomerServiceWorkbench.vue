@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import {
   API_BASE,
+  AiRequestError,
   DEMO_USER_ID,
   MAX_QUESTION_LENGTH,
   aiMoney,
@@ -17,6 +18,7 @@ import {
   traceStepLabel,
   type CustomerServiceAnswer,
   type LoadState,
+  type RateLimitMetadata,
   type SelectedSku,
 } from './aiCustomerService'
 import { stockState, type StockState } from './catalog'
@@ -42,6 +44,9 @@ const question = ref('')
 const inputError = ref('')
 const switchNotice = ref('')
 const isSending = ref(false)
+const rateLimit = ref<RateLimitMetadata | null>(null)
+const cooldownSeconds = ref(0)
+let cooldownTimer: ReturnType<typeof setInterval> | null = null
 const failedImages = ref(new Set<string>())
 const composer = ref<HTMLTextAreaElement | null>(null)
 
@@ -91,7 +96,7 @@ const currentFacts = computed(() => {
   }
 })
 const questionCount = computed(() => question.value.length)
-const canSend = computed(() => Boolean(selected.value) && question.value.trim().length > 0 && questionCount.value <= MAX_QUESTION_LENGTH && !isSending.value)
+const canSend = computed(() => Boolean(selected.value) && question.value.trim().length > 0 && questionCount.value <= MAX_QUESTION_LENGTH && !isSending.value && cooldownSeconds.value === 0)
 const javaPort = computed(() => {
   try {
     const url = new URL(API_BASE)
@@ -146,6 +151,26 @@ function setQuickQuestion(value: string) {
   void nextTick(() => composer.value?.focus())
 }
 
+function clearCooldown() {
+  if (cooldownTimer) clearInterval(cooldownTimer)
+  cooldownTimer = null
+  cooldownSeconds.value = 0
+}
+
+function startCooldown(seconds: number | null) {
+  clearCooldown()
+  cooldownSeconds.value = Math.max(1, seconds ?? 1)
+  cooldownTimer = setInterval(() => {
+    cooldownSeconds.value = Math.max(0, cooldownSeconds.value - 1)
+    if (cooldownSeconds.value === 0) clearCooldown()
+  }, 1000)
+}
+
+function updateRateLimit(metadata: RateLimitMetadata) {
+  rateLimit.value = metadata
+  if (metadata.mode !== 'redis') clearCooldown()
+}
+
 function selectSku(selection: SelectedSku) {
   if (isSending.value || selectedSkuId.value === selection.sku.id) return
   const hadConversation = messages.value.length > 0
@@ -181,7 +206,7 @@ function submitFromKeyboard() {
 }
 
 async function sendQuestion(retryMessageId?: string) {
-  if (isSending.value) return
+  if (isSending.value || cooldownSeconds.value > 0) return
   const normalized = question.value.trim()
   if (!normalized) {
     inputError.value = '请输入商品问题后再发送。'
@@ -214,18 +239,23 @@ async function sendQuestion(retryMessageId?: string) {
 
   isSending.value = true
   try {
-    const response = await askCustomerService({
+    const result = await askCustomerService({
       userId: DEMO_USER_ID,
       productId: selected.value.product.id,
       skuId: selected.value.sku.id,
       question: normalized,
       clientRequestId,
     })
+    updateRateLimit(result.rateLimit)
     messages.value = messages.value.map((message) => message.id === assistantId
-      ? { ...message, response, content: response.answer, state: 'complete', error: undefined }
+      ? { ...message, response: result.answer, content: result.answer.answer, state: 'complete', error: undefined }
       : message)
     question.value = ''
   } catch (error) {
+    if (error instanceof AiRequestError && error.status === 429) {
+      updateRateLimit(error.rateLimit)
+      startCooldown(error.retryAfterSeconds)
+    }
     messages.value = messages.value.map((message) => message.id === assistantId
       ? { ...message, state: 'error', error: error instanceof Error ? error.message : 'AI 请求失败，请重试。' }
       : message)
@@ -235,6 +265,7 @@ async function sendQuestion(retryMessageId?: string) {
 }
 
 onMounted(loadCatalog)
+onBeforeUnmount(clearCooldown)
 </script>
 
 <template>
@@ -319,7 +350,7 @@ onMounted(loadCatalog)
             <p class="ai-message-role">{{ message.role === 'user' ? '用户问题' : 'AI 商品客服' }}</p>
             <template v-if="message.role === 'user'"><p class="ai-message-text">{{ message.content }}</p></template>
             <template v-else-if="message.state === 'loading'"><p class="ai-message-text">正在请求 Java 商品事实与本地 Mock Provider…</p></template>
-            <template v-else-if="message.state === 'error'"><p class="ai-message-text">{{ message.error }}</p><button class="secondary-button" type="button" @click="sendQuestion(message.id)">重试请求</button></template>
+            <template v-else-if="message.state === 'error'"><p class="ai-message-text">{{ message.error }}</p><p v-if="cooldownSeconds > 0" class="ai-boundary-copy" data-testid="ai-rate-limit-countdown">{{ cooldownSeconds }} 秒后可再次发送</p><button class="secondary-button" type="button" :disabled="cooldownSeconds > 0 || isSending" @click="sendQuestion(message.id)">重试请求</button></template>
             <template v-else-if="message.response">
               <p class="ai-message-text">{{ message.content }}</p>
               <p v-if="message.response.answerStatus === 'UNSUPPORTED_QUESTION'" class="ai-boundary-copy">当前仅支持商品价格、规格、库存、SKU 和可购买状态问题。</p>
@@ -337,11 +368,31 @@ onMounted(loadCatalog)
           <label for="ai-question">商品问题</label>
           <textarea id="ai-question" ref="composer" v-model="question" :maxlength="MAX_QUESTION_LENGTH" :disabled="isSending || !selected" placeholder="例如：这件灰色 L 码 T 恤现在还有库存吗？" data-testid="ai-question-input" @keydown.enter.exact.prevent="submitFromKeyboard"></textarea>
           <div class="ai-composer-footer"><span v-if="inputError" class="ai-input-error" role="alert">{{ inputError }}</span><span v-else>Enter 发送，Shift+Enter 换行</span><span>{{ questionCount }} / {{ MAX_QUESTION_LENGTH }}</span></div>
-          <button class="primary-button ai-send-button" type="submit" :disabled="!canSend" data-testid="ai-send-button">{{ isSending ? '正在请求…' : '发送问题' }}</button>
+          <button class="primary-button ai-send-button" type="submit" :disabled="!canSend" data-testid="ai-send-button">{{ isSending ? '正在请求…' : cooldownSeconds > 0 ? `${cooldownSeconds} 秒后可发送` : '发送问题' }}</button>
         </form>
       </section>
 
       <aside class="ai-facts-panel" data-testid="ai-facts-evidence-panel" aria-labelledby="ai-facts-title">
+        <section class="ai-rate-limit-card" data-testid="ai-rate-limit-card" aria-live="polite">
+          <p class="eyebrow">请求保护</p>
+          <template v-if="rateLimit?.mode === 'redis'">
+            <strong>Redis 限流正常</strong>
+            <p>本窗口限额 {{ rateLimit.limit }} 次，剩余 {{ rateLimit.remaining }} 次。</p>
+            <small v-if="rateLimit.resetEpochSeconds">将在 {{ new Date(rateLimit.resetEpochSeconds * 1000).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) }} 重置</small>
+          </template>
+          <template v-else-if="rateLimit?.mode === 'degraded'">
+            <strong>限流保护暂时降级</strong>
+            <p>本次请求仍按本地演示链路处理，未显示未经证实的剩余额度。</p>
+          </template>
+          <template v-else-if="rateLimit?.mode === 'disabled'">
+            <strong>限流保护已关闭</strong>
+            <p>当前本地配置未启用 Redis 限流。</p>
+          </template>
+          <template v-else>
+            <strong>等待首次 AI 请求</strong>
+            <p>首次真实响应后显示当前请求保护状态。</p>
+          </template>
+        </section>
         <section class="ai-provider-card" data-testid="ai-provider-card">
           <p class="eyebrow">Provider 状态</p>
           <strong>{{ latestResponse?.provider.name ?? '等待首次请求' }}</strong>

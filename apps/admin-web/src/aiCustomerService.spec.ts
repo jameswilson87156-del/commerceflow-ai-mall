@@ -38,8 +38,8 @@ const products = [
   },
 ]
 
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
+function jsonResponse(body: unknown, status = 200, headers: Record<string, string> = {}) {
+  return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...headers } })
 }
 
 function answer(overrides: Partial<CustomerServiceAnswer> = {}): CustomerServiceAnswer {
@@ -293,6 +293,77 @@ describe('AI customer service workbench', () => {
     await flushPromises()
     expect(wrapper.text()).toContain('commerceflow-mock')
     expect(fetchMock).toHaveBeenCalledTimes(3)
+  })
+
+  it('renders real rate-limit headers after a successful AI answer', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(jsonResponse(products))
+      .mockResolvedValueOnce(jsonResponse(answer(), 200, {
+        'X-RateLimit-Mode': 'redis',
+        'X-RateLimit-Limit': '5',
+        'X-RateLimit-Remaining': '4',
+        'X-RateLimit-Reset': '1785056460',
+      }))
+    vi.stubGlobal('fetch', fetchMock)
+    const wrapper = mount(AiCustomerServiceWorkbench)
+    await flushPromises()
+    await wrapper.get('[data-testid="ai-question-input"]').setValue('库存还有吗？')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.get('[data-testid="ai-rate-limit-card"]').text()).toContain('Redis 限流正常')
+    expect(wrapper.get('[data-testid="ai-rate-limit-card"]').text()).toContain('限额 5 次，剩余 4 次')
+  })
+
+  it('keeps the question and disables sending during a 429 retry countdown without fabricating an answer', async () => {
+    vi.useFakeTimers()
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(jsonResponse(products))
+      .mockResolvedValueOnce(jsonResponse({
+        code: 'AI_RATE_LIMIT_EXCEEDED',
+        message: '请求过于频繁，请在指定时间后重试。',
+        retryAfterSeconds: 2,
+        limit: 5,
+        remaining: 0,
+      }, 429, {
+        'Retry-After': '2',
+        'X-RateLimit-Mode': 'redis',
+        'X-RateLimit-Limit': '5',
+        'X-RateLimit-Remaining': '0',
+        'X-RateLimit-Reset': '1785056460',
+      }))
+    vi.stubGlobal('fetch', fetchMock)
+    const wrapper = mount(AiCustomerServiceWorkbench)
+    await flushPromises()
+    await wrapper.get('[data-testid="ai-question-input"]').setValue('库存还有吗？')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.text()).toContain('请求过于频繁')
+    expect(wrapper.get('[data-testid="ai-rate-limit-countdown"]').text()).toContain('2 秒后')
+    expect((wrapper.get('[data-testid="ai-question-input"]').element as HTMLTextAreaElement).value).toBe('库存还有吗？')
+    expect(wrapper.find('.ai-message.assistant.complete').exists()).toBe(false)
+    expect(wrapper.get('[data-testid="ai-send-button"]').attributes('disabled')).toBeDefined()
+    await vi.advanceTimersByTimeAsync(2000)
+    await flushPromises()
+    expect(wrapper.find('[data-testid="ai-rate-limit-countdown"]').exists()).toBe(false)
+    expect(wrapper.get('[data-testid="ai-send-button"]').attributes('disabled')).toBeUndefined()
+    vi.useRealTimers()
+  })
+
+  it('shows a safe fail-open notice without inventing remaining quota', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(jsonResponse(products))
+      .mockResolvedValueOnce(jsonResponse(answer(), 200, { 'X-RateLimit-Mode': 'degraded' }))
+    vi.stubGlobal('fetch', fetchMock)
+    const wrapper = mount(AiCustomerServiceWorkbench)
+    await flushPromises()
+    await wrapper.get('[data-testid="ai-question-input"]').setValue('库存还有吗？')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    const card = wrapper.get('[data-testid="ai-rate-limit-card"]').text()
+    expect(card).toContain('限流保护暂时降级')
+    expect(card).not.toContain('限额 5 次')
+    expect(card).not.toMatch(/剩余\s+\d+\s+次/)
+    expect(wrapper.text()).toContain('commerceflow-mock')
   })
 
   it('clears browser-only conversation when the selected SKU changes', async () => {

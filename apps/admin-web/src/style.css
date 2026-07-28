@@ -287,9 +287,10 @@ tbody tr:last-child td:last-child { border-radius: 0 0 0 5px; }
 .ai-send-button { width: fit-content; min-width: 116px; margin-top: 3px; }
 
 .ai-facts-panel { display: grid; min-height: 0; align-content: start; gap: 5px; padding: 9px; }
-.ai-provider-card { border: 1px solid #d8ebe7; border-radius: 7px; background: #f7fcfb; padding: 8px; }
-.ai-provider-card > strong { display: block; margin-top: 3px; color: #187e75; font-size: 14px; }
-.ai-provider-card > p { margin: 3px 0 0; color: #5e7c7b; font-size: 11px; line-height: 1.3; }
+.ai-provider-card, .ai-rate-limit-card { border: 1px solid #d8ebe7; border-radius: 7px; background: #f7fcfb; padding: 8px; }
+.ai-provider-card > strong, .ai-rate-limit-card > strong { display: block; margin-top: 3px; color: #187e75; font-size: 14px; }
+.ai-provider-card > p, .ai-rate-limit-card > p { margin: 3px 0 0; color: #5e7c7b; font-size: 11px; line-height: 1.3; }
+.ai-rate-limit-card > small { display: block; margin-top: 4px; color: #71879a; font-size: 10px; }
 .ai-provider-card dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px 6px; margin: 5px 0 0; border-top: 1px solid #dfeeea; padding-top: 4px; }
 .ai-provider-card dl div { display: grid; gap: 2px; }
 .ai-provider-card dt, .ai-facts-grid dt, .ai-evidence-group dt, .ai-developer-notes dt { color: #8290a2; font-size: 10px; }

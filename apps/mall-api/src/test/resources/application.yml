@@ -8,3 +8,7 @@ spring:
   sql:
     init:
       mode: never
+commerceflow:
+  ai:
+    rate-limit:
+      enabled: false

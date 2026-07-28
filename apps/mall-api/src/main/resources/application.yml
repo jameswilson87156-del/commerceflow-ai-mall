@@ -9,6 +9,14 @@ spring:
     password: ${DB_PASSWORD:${MYSQL_PASSWORD:commerceflow_demo}}
   flyway:
     enabled: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6380}
+      database: ${REDIS_DATABASE:0}
+      password: ${REDIS_PASSWORD:}
+      connect-timeout: ${REDIS_CONNECT_TIMEOUT:500ms}
+      timeout: ${REDIS_TIMEOUT:500ms}
 management:
   endpoints:
     web:
@@ -21,5 +29,13 @@ commerceflow:
   ai-service-url: ${AI_SERVICE_URL:http://127.0.0.1:8000}
   ai-connect-timeout-ms: ${AI_CONNECT_TIMEOUT_MS:1500}
   ai-read-timeout-ms: ${AI_READ_TIMEOUT_MS:3000}
+  ai:
+    rate-limit:
+      enabled: ${AI_RATE_LIMIT_ENABLED:true}
+      limit: ${AI_RATE_LIMIT_LIMIT:5}
+      window-seconds: ${AI_RATE_LIMIT_WINDOW_SECONDS:60}
+      key-prefix: ${AI_RATE_LIMIT_KEY_PREFIX:commerceflow:local:ai:rate:v1}
+      failure-policy: ${AI_RATE_LIMIT_FAILURE_POLICY:FAIL_OPEN}
+      identity-hash-secret: ${AI_RATE_LIMIT_IDENTITY_HASH_SECRET:local-showcase-rate-limit-salt}
 mybatis:
   mapper-locations: classpath:mappers/OrderEvidenceMapper.xml

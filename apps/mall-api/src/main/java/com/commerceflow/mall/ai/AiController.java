@@ -2,6 +2,9 @@ package com.commerceflow.mall.ai;
 
 import com.commerceflow.mall.api.ApiModels;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import com.commerceflow.mall.ai.ratelimit.RateLimitHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -11,8 +14,11 @@ public class AiController {
     public AiController(AiService service) { this.service=service; }
 
     @PostMapping("/customer-service/ask")
-    public AiModels.CustomerServiceAnswer ask(@Valid @RequestBody AiModels.CustomerServiceAskRequest request) {
-        return service.ask(request);
+    public ResponseEntity<AiModels.CustomerServiceAnswer> ask(
+            @Valid @RequestBody AiModels.CustomerServiceAskRequest request,
+            HttpServletRequest servletRequest) {
+        AiService.AiRequestResult result = service.askWithRateLimit(request, servletRequest.getRemoteAddr());
+        return ResponseEntity.ok().headers(RateLimitHeaders.success(result.rateLimit())).body(result.answer());
     }
 
     /**

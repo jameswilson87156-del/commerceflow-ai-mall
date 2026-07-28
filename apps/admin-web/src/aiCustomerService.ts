@@ -76,6 +76,30 @@ export type CustomerServiceAnswer = {
   createdAt: string
 }
 
+export type RateLimitMetadata = {
+  mode: 'redis' | 'degraded' | 'disabled'
+  limit: number | null
+  remaining: number | null
+  resetEpochSeconds: number | null
+}
+
+export type AskCustomerServiceResult = {
+  answer: CustomerServiceAnswer
+  rateLimit: RateLimitMetadata
+}
+
+export class AiRequestError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly code: string | null,
+    public readonly retryAfterSeconds: number | null,
+    public readonly rateLimit: RateLimitMetadata,
+  ) {
+    super(message)
+  }
+}
+
 export type SkuFilters = {
   query: string
   saleStatus: 'all' | 'on-sale'
@@ -134,24 +158,43 @@ export function createClientRequestId(): string {
   return `p4c-local-${Date.now().toString(36)}-${fallbackCounter}`
 }
 
-function responseError(response: Response): Error {
-  return new Error(`请求失败（HTTP ${response.status}）`)
+function readIntegerHeader(response: Response, name: string): number | null {
+  const raw = response.headers.get(name)
+  if (!raw || !/^\d+$/.test(raw)) return null
+  return Number(raw)
+}
+
+export function readRateLimitMetadata(response: Response): RateLimitMetadata {
+  const mode = response.headers.get('X-RateLimit-Mode')
+  return {
+    mode: mode === 'redis' || mode === 'degraded' || mode === 'disabled' ? mode : 'disabled',
+    limit: readIntegerHeader(response, 'X-RateLimit-Limit'),
+    remaining: readIntegerHeader(response, 'X-RateLimit-Remaining'),
+    resetEpochSeconds: readIntegerHeader(response, 'X-RateLimit-Reset'),
+  }
+}
+
+async function responseError(response: Response): Promise<AiRequestError> {
+  const body = await response.json().catch(() => null) as { code?: unknown; message?: unknown; retryAfterSeconds?: unknown } | null
+  const retryAfterSeconds = typeof body?.retryAfterSeconds === 'number' ? body.retryAfterSeconds : readIntegerHeader(response, 'Retry-After')
+  const message = typeof body?.message === 'string' ? body.message : `请求失败（HTTP ${response.status}）`
+  return new AiRequestError(message, response.status, typeof body?.code === 'string' ? body.code : null, retryAfterSeconds, readRateLimitMetadata(response))
 }
 
 export async function requestProducts(): Promise<Product[]> {
   const response = await fetch(`${API_BASE}/products`)
-  if (!response.ok) throw responseError(response)
+  if (!response.ok) throw await responseError(response)
   return response.json() as Promise<Product[]>
 }
 
-export async function askCustomerService(request: AskRequest): Promise<CustomerServiceAnswer> {
+export async function askCustomerService(request: AskRequest): Promise<AskCustomerServiceResult> {
   const response = await fetch(`${API_BASE}/ai/customer-service/ask`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(request),
   })
-  if (!response.ok) throw responseError(response)
-  return response.json() as Promise<CustomerServiceAnswer>
+  if (!response.ok) throw await responseError(response)
+  return { answer: await response.json() as CustomerServiceAnswer, rateLimit: readRateLimitMetadata(response) }
 }
 
 export function traceStepLabel(step: TraceStep['step'], displayName: string): string {
