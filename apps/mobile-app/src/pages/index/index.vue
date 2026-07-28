@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { getProducts } from '../../api/catalog'
 import { resolveImageUrl, ApiError } from '../../api/runtime'
+import ProductImage from '../../components/ProductImage.vue'
 import type { Product } from '../../api/types'
 
 const products = ref<Product[]>([])
@@ -42,8 +43,7 @@ onMounted(loadProducts)
     <view v-else-if="state === 'empty'" class="panel empty-box">当前没有可展示的商品</view>
     <view v-else class="product-list">
       <view v-for="product in products" :key="product.id" class="product-card panel" @click="openProduct(product)">
-        <view v-if="product.coverImagePath" class="product-cover-wrap"><img class="product-cover" :src="imageUrl(product.coverImagePath)" /></view>
-        <view v-else class="product-cover-wrap image-fallback">暂无商品图片</view>
+        <ProductImage class="product-cover-wrap" :src="imageUrl(product.coverImagePath)" :alt="product.name" />
         <view class="product-card-content"><view class="card-heading"><text class="product-name">{{ product.name }}</text><text :class="['tag', product.status === 'ON_SALE' ? 'tag-success' : 'tag-neutral']">{{ product.status === 'ON_SALE' ? '在售' : product.status }}</text></view><text class="product-code">{{ product.productCode }}</text><text class="product-description">{{ product.description }}</text><view class="card-meta"><text>{{ product.categoryName }}</text><text>{{ product.skus.length }} 个 SKU</text><text v-if="product.skus.length">¥{{ lowestSku(product).salePrice }} 起</text></view></view>
       </view>
     </view>
@@ -51,5 +51,5 @@ onMounted(loadProducts)
 </template>
 
 <style>
-.catalog-summary{display:flex;align-items:baseline;gap:12rpx;padding:22rpx 24rpx}.summary-number{color:#2563eb;font-size:44rpx;font-weight:800}.summary-label{font-size:24rpx;font-weight:700}.catalog-summary .muted{margin-left:auto}.product-card{display:flex;gap:20rpx;padding:18rpx;margin-bottom:16rpx}.product-cover-wrap{width:190rpx;height:190rpx;flex:none;border-radius:14rpx;overflow:hidden;background:#f3f5f8}.product-cover{display:block;width:100%;height:100%}.product-card-content{min-width:0;flex:1;padding:4rpx 0}.card-heading{display:flex;align-items:flex-start;gap:10rpx}.product-name{flex:1;color:#172033;font-size:28rpx;font-weight:800;line-height:1.35}.product-code{display:block;margin-top:8rpx;color:#6c7890;font-family:monospace;font-size:19rpx}.product-description{display:block;margin-top:12rpx;color:#6c778a;font-size:22rpx;line-height:1.45}.card-meta{display:flex;flex-wrap:wrap;gap:10rpx 18rpx;margin-top:16rpx;color:#64748b;font-size:20rpx}.card-meta text:last-child{color:#2563eb;font-weight:700}.retry-button{display:block;width:100%;margin-top:18rpx}
+.catalog-summary{display:flex;align-items:baseline;gap:12px;padding:20px 22px}.summary-number{color:var(--cf-blue);font-size:42px;font-weight:800}.summary-label{font-size:23px;font-weight:800}.catalog-summary .muted{margin-left:auto}.product-card{display:flex;gap:16px;padding:16px;margin-bottom:14px}.product-cover-wrap{width:176px;height:176px;flex:none;border-radius:16px}.product-card-content{min-width:0;flex:1;padding:2px 0}.card-heading{display:flex;align-items:flex-start;gap:8px}.product-name{flex:1;color:var(--cf-ink);font-size:27px;font-weight:800;line-height:1.35}.product-code{display:block;margin-top:7px;color:#6c7890;font-family:monospace;font-size:18px}.product-description{display:block;margin-top:10px;color:#6c778a;font-size:21px;line-height:1.42}.card-meta{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:14px;color:#64748b;font-size:19px}.card-meta text:last-child{color:var(--cf-blue);font-weight:800}.retry-button{display:block;width:100%;margin-top:18px}
 </style>
