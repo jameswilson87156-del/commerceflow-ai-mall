@@ -312,6 +312,8 @@ describe('AI customer service workbench', () => {
     await flushPromises()
     expect(wrapper.get('[data-testid="ai-rate-limit-card"]').text()).toContain('Redis 限流正常')
     expect(wrapper.get('[data-testid="ai-rate-limit-card"]').text()).toContain('限额 5 次，剩余 4 次')
+    expect(wrapper.get('[data-testid="ai-rate-limit-inline"]').text()).toContain('本窗口限额 5 次')
+    expect(wrapper.get('[data-testid="ai-rate-limit-inline"]').text()).toContain('剩余 4 次')
   })
 
   it('keeps the question and disables sending during a 429 retry countdown without fabricating an answer', async () => {
@@ -320,7 +322,7 @@ describe('AI customer service workbench', () => {
       .mockResolvedValueOnce(jsonResponse(products))
       .mockResolvedValueOnce(jsonResponse({
         code: 'AI_RATE_LIMIT_EXCEEDED',
-        message: '请求过于频繁，请在指定时间后重试。',
+        message: '请求过于频繁，请在 2 秒后重试。',
         retryAfterSeconds: 2,
         limit: 5,
         remaining: 0,
@@ -339,10 +341,19 @@ describe('AI customer service workbench', () => {
     await flushPromises()
     expect(wrapper.text()).toContain('请求过于频繁')
     expect(wrapper.get('[data-testid="ai-rate-limit-countdown"]').text()).toContain('2 秒后')
+    expect(wrapper.get('[data-testid="ai-rate-limit-inline"]').text()).toContain('本窗口限额 5 次')
+    expect(wrapper.get('[data-testid="ai-rate-limit-inline"]').text()).toContain('剩余 0 次')
+    expect(wrapper.get('[data-testid="ai-inline-countdown"]').text()).toContain('Retry-After 2 秒')
     expect((wrapper.get('[data-testid="ai-question-input"]').element as HTMLTextAreaElement).value).toBe('库存还有吗？')
     expect(wrapper.find('.ai-message.assistant.complete').exists()).toBe(false)
     expect(wrapper.get('[data-testid="ai-send-button"]').attributes('disabled')).toBeDefined()
-    await vi.advanceTimersByTimeAsync(2000)
+    const callsBeforeDisabledRetry = fetchMock.mock.calls.length
+    await wrapper.get('.ai-message.assistant .secondary-button').trigger('click')
+    expect(fetchMock).toHaveBeenCalledTimes(callsBeforeDisabledRetry)
+    await vi.advanceTimersByTimeAsync(1000)
+    await flushPromises()
+    expect(wrapper.get('[data-testid="ai-inline-countdown"]').text()).toContain('Retry-After 1 秒')
+    await vi.advanceTimersByTimeAsync(1000)
     await flushPromises()
     expect(wrapper.find('[data-testid="ai-rate-limit-countdown"]').exists()).toBe(false)
     expect(wrapper.get('[data-testid="ai-send-button"]').attributes('disabled')).toBeUndefined()
@@ -363,7 +374,23 @@ describe('AI customer service workbench', () => {
     expect(card).toContain('限流保护暂时降级')
     expect(card).not.toContain('限额 5 次')
     expect(card).not.toMatch(/剩余\s+\d+\s+次/)
+    expect(wrapper.get('[data-testid="ai-rate-limit-inline"]').text()).toContain('限流保护暂时降级')
+    expect(wrapper.get('[data-testid="ai-rate-limit-inline"]').text()).not.toMatch(/剩余\s+\d+\s+次/)
     expect(wrapper.text()).toContain('commerceflow-mock')
+  })
+
+  it('keeps chat history in its own scroll container without changing the window position', async () => {
+    const windowScrollTo = vi.spyOn(window, 'scrollTo')
+    vi.stubGlobal('fetch', apiMock())
+    const wrapper = mount(AiCustomerServiceWorkbench)
+    await flushPromises()
+    await wrapper.get('[data-testid="ai-question-input"]').setValue('库存还有吗？')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+
+    expect(wrapper.get('[data-testid="ai-message-list"]').classes()).toContain('ai-message-list')
+    expect(windowScrollTo).not.toHaveBeenCalled()
+    windowScrollTo.mockRestore()
   })
 
   it('clears browser-only conversation when the selected SKU changes', async () => {

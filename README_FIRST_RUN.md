@@ -9,6 +9,7 @@ Java 17, Docker Desktop, Node 20+, Python 3.12+, Maven Wrapper, and PowerShell 5
 ```powershell
 Copy-Item .env.example .env
 ./scripts/start-mysql.ps1
+./scripts/start-redis.ps1
 ./mvnw.cmd -f apps/mall-api/pom.xml test
 ./mvnw.cmd -f apps/mall-api/pom.xml spring-boot:run
 ```
@@ -38,3 +39,9 @@ npm run dev
 ```
 
 The UniApp folder contains a Vite web preview for the documented user flow. It can be opened with `npm install` and `npm run dev` under `apps/mobile-app`.
+
+## Local Redis boundary
+
+The P5 Showcase Redis container is intentionally published only on `127.0.0.1:${REDIS_PORT:-6380}`. It has no demo password and is for this local rate-limit demonstration only; do not expose it to a LAN or reuse this configuration for a production deployment.
+
+`/actuator/health` keeps the Redis component visible. `/actuator/health/readiness` requires the Java process and MySQL, while allowing the documented `FAIL_OPEN` Showcase policy to keep an AI request available when the optional Redis limiter is temporarily down.

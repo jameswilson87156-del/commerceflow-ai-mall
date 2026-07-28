@@ -22,6 +22,16 @@ management:
     web:
       exposure:
         include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-components: always
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,db
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

@@ -49,6 +49,8 @@ const cooldownSeconds = ref(0)
 let cooldownTimer: ReturnType<typeof setInterval> | null = null
 const failedImages = ref(new Set<string>())
 const composer = ref<HTMLTextAreaElement | null>(null)
+const messageList = ref<HTMLElement | null>(null)
+const shouldFollowMessages = ref(true)
 
 const selections = computed(() => flattenSkus(products.value))
 const filteredSelections = computed(() => filterSkus(selections.value, {
@@ -151,6 +153,29 @@ function setQuickQuestion(value: string) {
   void nextTick(() => composer.value?.focus())
 }
 
+function formatResetTime(resetEpochSeconds: number | null): string | null {
+  if (!resetEpochSeconds) return null
+  return new Date(resetEpochSeconds * 1000).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+}
+
+function messageListIsNearBottom(): boolean {
+  const container = messageList.value
+  if (!container) return true
+  return container.scrollHeight - container.scrollTop - container.clientHeight <= 24
+}
+
+function rememberMessageScrollPosition() {
+  shouldFollowMessages.value = messageListIsNearBottom()
+}
+
+function scrollMessagesToLatest(force = false) {
+  void nextTick(() => {
+    const container = messageList.value
+    if (!container || (!force && !shouldFollowMessages.value)) return
+    container.scrollTop = container.scrollHeight
+  })
+}
+
 function clearCooldown() {
   if (cooldownTimer) clearInterval(cooldownTimer)
   cooldownTimer = null
@@ -227,14 +252,17 @@ async function sendQuestion(retryMessageId?: string) {
   let assistantId: string
   if (retryMessageId) {
     if (!messages.value.some((message) => message.id === retryMessageId)) return
+    rememberMessageScrollPosition()
     assistantId = retryMessageId
     messages.value = messages.value.map((message) => message.id === assistantId
       ? { ...message, state: 'loading', error: undefined }
       : message)
+    scrollMessagesToLatest()
   } else {
     messages.value.push({ id: `user-${clientRequestId}`, role: 'user', content: normalized, state: 'complete' })
     assistantId = `assistant-${clientRequestId}`
     messages.value.push({ id: assistantId, role: 'assistant', content: '', state: 'loading' })
+    scrollMessagesToLatest(true)
   }
 
   isSending.value = true
@@ -247,18 +275,22 @@ async function sendQuestion(retryMessageId?: string) {
       clientRequestId,
     })
     updateRateLimit(result.rateLimit)
+    rememberMessageScrollPosition()
     messages.value = messages.value.map((message) => message.id === assistantId
       ? { ...message, response: result.answer, content: result.answer.answer, state: 'complete', error: undefined }
       : message)
     question.value = ''
+    scrollMessagesToLatest()
   } catch (error) {
     if (error instanceof AiRequestError && error.status === 429) {
       updateRateLimit(error.rateLimit)
       startCooldown(error.retryAfterSeconds)
     }
+    rememberMessageScrollPosition()
     messages.value = messages.value.map((message) => message.id === assistantId
       ? { ...message, state: 'error', error: error instanceof Error ? error.message : 'AI 请求失败，请重试。' }
       : message)
+    scrollMessagesToLatest()
   } finally {
     isSending.value = false
   }
@@ -337,7 +369,31 @@ onBeforeUnmount(clearCooldown)
         <div class="ai-selected-context" v-if="selected">
           <span>{{ selected.product.name }}</span><strong>{{ selected.sku.color }} · {{ selected.sku.size }}</strong><small class="mono">{{ selected.sku.skuCode }}</small>
         </div>
-        <div v-if="switchNotice" class="ai-switch-notice" role="status">{{ switchNotice }}</div>
+        <div class="ai-chat-status-stack">
+          <div v-if="switchNotice" class="ai-switch-notice" role="status">{{ switchNotice }}</div>
+          <section v-if="rateLimit" :class="['ai-rate-limit-inline', rateLimit.mode, { 'is-throttled': rateLimit.mode === 'redis' && cooldownSeconds > 0 }]" data-testid="ai-rate-limit-inline" aria-live="polite">
+            <template v-if="rateLimit.mode === 'redis' && cooldownSeconds > 0">
+              <strong>请求过于频繁</strong>
+              <span>本窗口限额 {{ rateLimit.limit }} 次</span>
+              <span>剩余 {{ rateLimit.remaining }} 次</span>
+              <span data-testid="ai-inline-countdown">Retry-After {{ cooldownSeconds }} 秒</span>
+              <span v-if="formatResetTime(rateLimit.resetEpochSeconds)">重置时间 {{ formatResetTime(rateLimit.resetEpochSeconds) }}</span>
+            </template>
+            <template v-else-if="rateLimit.mode === 'redis'">
+              <strong>Redis 限流正常</strong>
+              <span>本窗口限额 {{ rateLimit.limit }} 次</span>
+              <span>剩余 {{ rateLimit.remaining }} 次</span>
+              <span v-if="formatResetTime(rateLimit.resetEpochSeconds)">重置时间 {{ formatResetTime(rateLimit.resetEpochSeconds) }}</span>
+            </template>
+            <template v-else-if="rateLimit.mode === 'degraded'">
+              <strong>限流保护暂时降级</strong>
+              <span>本次继续按本地 Showcase 链路处理，未展示未经证实的额度。</span>
+            </template>
+            <template v-else>
+              <strong>限流保护已关闭</strong>
+            </template>
+          </section>
+        </div>
         <div v-if="messages.length === 0" class="ai-welcome" data-testid="ai-welcome">
           <strong>从真实 SKU 事实开始</strong>
           <p>选择左侧商品或 SKU，然后询问价格、规格、库存或是否可购买。</p>
@@ -345,7 +401,7 @@ onBeforeUnmount(clearCooldown)
             <button v-for="item in quickQuestions" :key="item" type="button" :disabled="isSending" @click="setQuickQuestion(item)">{{ item }}</button>
           </div>
         </div>
-        <div v-else class="ai-message-list" aria-live="polite">
+        <div v-else ref="messageList" class="ai-message-list" data-testid="ai-message-list" aria-live="polite" @scroll="rememberMessageScrollPosition">
           <article v-for="message in messages" :key="message.id" :class="['ai-message', message.role, message.state]">
             <p class="ai-message-role">{{ message.role === 'user' ? '用户问题' : 'AI 商品客服' }}</p>
             <template v-if="message.role === 'user'"><p class="ai-message-text">{{ message.content }}</p></template>
@@ -378,7 +434,7 @@ onBeforeUnmount(clearCooldown)
           <template v-if="rateLimit?.mode === 'redis'">
             <strong>Redis 限流正常</strong>
             <p>本窗口限额 {{ rateLimit.limit }} 次，剩余 {{ rateLimit.remaining }} 次。</p>
-            <small v-if="rateLimit.resetEpochSeconds">将在 {{ new Date(rateLimit.resetEpochSeconds * 1000).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) }} 重置</small>
+            <small v-if="formatResetTime(rateLimit.resetEpochSeconds)">将在 {{ formatResetTime(rateLimit.resetEpochSeconds) }} 重置</small>
           </template>
           <template v-else-if="rateLimit?.mode === 'degraded'">
             <strong>限流保护暂时降级</strong>

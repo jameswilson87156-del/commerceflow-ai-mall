@@ -16,6 +16,7 @@ public final class RateLimitHeaders {
     public static HttpHeaders rejected(RateLimitDecision decision) {
         HttpHeaders headers = success(decision);
         headers.set("Retry-After", String.valueOf(decision.retryAfterSeconds()));
+        headers.setCacheControl("no-store");
         return headers;
     }
 

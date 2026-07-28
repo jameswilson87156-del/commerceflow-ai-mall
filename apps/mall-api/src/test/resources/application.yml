@@ -12,3 +12,14 @@ commerceflow:
   ai:
     rate-limit:
       enabled: false
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-components: always
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState,db

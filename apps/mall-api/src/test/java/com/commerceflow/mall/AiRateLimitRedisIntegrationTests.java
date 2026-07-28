@@ -73,13 +73,19 @@ class AiRateLimitRedisIntegrationTests {
                     .andExpect(header().string("Access-Control-Expose-Headers", org.hamcrest.Matchers.containsString("X-RateLimit-Mode")));
         }
 
-        mockMvc.perform(ask("127.0.0.51", 101, 10004, "request-6"))
+        var blocked = mockMvc.perform(ask("127.0.0.51", 101, 10004, "request-6"))
                 .andExpect(status().isTooManyRequests())
                 .andExpect(header().exists("Retry-After"))
+                .andExpect(header().string("Cache-Control", "no-store"))
                 .andExpect(header().string("X-RateLimit-Remaining", "0"))
                 .andExpect(jsonPath("$.code").value("AI_RATE_LIMIT_EXCEEDED"))
                 .andExpect(jsonPath("$.limit").value(5))
-                .andExpect(jsonPath("$.remaining").value(0));
+                .andExpect(jsonPath("$.remaining").value(0))
+                .andExpect(jsonPath("$.message", org.hamcrest.Matchers.matchesPattern("请求过于频繁，请在 [1-9][0-9]* 秒后重试。")))
+                .andExpect(jsonPath("$.retryAfterSeconds").isNumber())
+                .andReturn();
+        String retryAfter = blocked.getResponse().getHeader("Retry-After");
+        assertTrue(blocked.getResponse().getContentAsString().contains("\"retryAfterSeconds\":" + retryAfter));
         verify(providerClient, org.mockito.Mockito.times(5)).answer(any());
         assertEquals(5, jdbc.queryForObject("SELECT COUNT(*) FROM ai_trace", Integer.class));
     }
