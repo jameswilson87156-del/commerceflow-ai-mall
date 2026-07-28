@@ -7,6 +7,7 @@ import OrderConfirmPage from './pages/order/confirm.vue'
 import OrderResultPage from './pages/order/result.vue'
 import OrderDetailPage from './pages/order/detail.vue'
 import OrderListPage from './pages/order/list.vue'
+import AiCustomerServicePage from './pages/ai/customer-service.vue'
 import { currentHash, currentPath, startNavigationListener } from './platform/h5'
 
 const pages: Record<string, any> = {
@@ -16,7 +17,8 @@ const pages: Record<string, any> = {
   '/pages/order/confirm': OrderConfirmPage,
   '/pages/order/result': OrderResultPage,
   '/pages/order/detail': OrderDetailPage,
-  '/pages/order/list': OrderListPage
+  '/pages/order/list': OrderListPage,
+  '/pages/ai/customer-service': AiCustomerServicePage
 }
 const activePage = shallowRef<any>(CatalogPage)
 const pageKey = ref(currentHash())

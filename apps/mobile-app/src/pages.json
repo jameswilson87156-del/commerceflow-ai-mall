@@ -2,6 +2,7 @@
   "pages": [
     {"path": "pages/index/index", "style": {"navigationBarTitleText": "商品目录", "navigationBarBackgroundColor": "#f5f7fb", "navigationBarTextStyle": "black"}},
     {"path": "pages/product/detail", "style": {"navigationBarTitleText": "商品详情", "navigationBarBackgroundColor": "#f5f7fb", "navigationBarTextStyle": "black"}},
+    {"path": "pages/ai/customer-service", "style": {"navigationBarTitleText": "AI 商品客服", "navigationBarBackgroundColor": "#f5f7fb", "navigationBarTextStyle": "black"}},
     {"path": "pages/cart/index", "style": {"navigationBarTitleText": "购物车", "navigationBarBackgroundColor": "#f5f7fb", "navigationBarTextStyle": "black"}},
     {"path": "pages/order/confirm", "style": {"navigationBarTitleText": "确认订单", "navigationBarBackgroundColor": "#f5f7fb", "navigationBarTextStyle": "black"}},
     {"path": "pages/order/result", "style": {"navigationBarTitleText": "下单结果", "navigationBarBackgroundColor": "#f5f7fb", "navigationBarTextStyle": "black"}},
