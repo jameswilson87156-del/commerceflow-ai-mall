@@ -1,23 +1,55 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-const API=(import.meta as any).env?.VITE_API_BASE || 'http://localhost:8080/api'
-const products=ref<any[]>([]); const selected=ref<any|null>(null); const cart=ref<any[]>([]); const question=ref(''); const answer=ref(''); const loading=ref(false); const tab=ref('mall')
-const cartCount=computed(()=>cart.value.reduce((n,i)=>n+i.quantity,0))
-async function request(url:string, init:RequestInit={}) { const response=await fetch(url,init); return response.json() }
-async function load(){products.value=await request(`${API}/products`)}
-function add(sku:any){const item=cart.value.find(i=>i.skuId===sku.id); if(item)item.quantity++; else cart.value.push({skuId:sku.id,productName:selected.value.name,skuCode:sku.skuCode,price:sku.salePrice,quantity:1})}
-async function ask(){if(!question.value)return;loading.value=true;try{const body=await request(`${API}/ai/product-chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:question.value,userId:1})});answer.value=body.answer}finally{loading.value=false}}
-async function checkout(){if(!cart.value.length)return;const body=await request(`${API}/orders?userId=1`,{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':`mobile-${Date.now()}`},body:JSON.stringify({items:cart.value.map(i=>({skuId:i.skuId,quantity:i.quantity}))})});if(body.orderNo)cart.value=[]}
-onMounted(load)
+import { getProducts } from '../../api/catalog'
+import { resolveImageUrl, ApiError } from '../../api/runtime'
+import type { Product } from '../../api/types'
+
+const products = ref<Product[]>([])
+const state = ref<'loading' | 'ready' | 'empty' | 'error'>('loading')
+const errorMessage = ref('')
+const demoUserLabel = '本地演示用户'
+const productCount = computed(() => products.value.length)
+
+function imageUrl(path?: string | null) { return resolveImageUrl(path) }
+function lowestSku(product: Product) { return product.skus.reduce((best, sku) => Number(sku.salePrice) < Number(best.salePrice) ? sku : best, product.skus[0]) }
+function openProduct(product: Product) { uni.navigateTo({url: `/pages/product/detail?productId=${product.id}`}) }
+async function loadProducts() {
+  state.value = 'loading'
+  errorMessage.value = ''
+  try {
+    const response = await getProducts()
+    products.value = response.data
+    state.value = products.value.length ? 'ready' : 'empty'
+  } catch (error) {
+    state.value = 'error'
+    errorMessage.value = error instanceof ApiError ? error.message : '商品加载失败，请重试'
+  } finally { uni.stopPullDownRefresh() }
+}
+function retry() { loadProducts() }
+onMounted(loadProducts)
 </script>
+
 <template>
-  <view class="page">
-    <view class="header"><view><text class="kicker">COMMERCEFLOW / LOCAL MALL</text><text class="title">Good morning, Demo Buyer</text></view><view class="bag" @click="tab='cart'">Bag <text>{{cartCount}}</text></view></view>
-    <view v-if="tab==='mall'" class="body"><view class="hero"><text class="hero-kicker">ESSENTIALS, WITH CONTEXT</text><text class="hero-title">Everyday pieces, clearly explained.</text><text class="hero-copy">Ask about fit, color and live stock with an answer grounded in mall facts.</text></view><view class="section-head"><text>Featured catalog</text><text class="muted">{{products.length}} products</text></view><view class="product" v-for="p in products" :key="p.id" @click="selected=p"><view class="product-art">{{p.name.slice(0,1)}}</view><view class="product-info"><text class="product-name">{{p.name}}</text><text class="product-desc">{{p.description}}</text><view class="price">From ¥{{p.skus[0]?.salePrice}}</view></view></view><view v-if="selected" class="sheet"><view class="sheet-top"><text class="sheet-title">{{selected.name}}</text><text @click="selected=null">Close</text></view><text class="product-desc">{{selected.description}}</text><text class="section-label">Choose your variant</text><view class="sku" v-for="s in selected.skus" :key="s.id" @click="add(s)"><view><text>{{s.color}} / {{s.size}}</text><text class="muted">{{s.availableStock}} available · ¥{{s.salePrice}}</text></view><text class="add">+</text></view></view></view>
-    <view v-else-if="tab==='cart'" class="body"><view class="section-head"><text>Your bag</text><text class="muted">{{cartCount}} items</text></view><view class="cart-item" v-for="i in cart" :key="i.skuId"><view><text class="product-name">{{i.productName}}</text><text class="muted">{{i.skuCode}} · qty {{i.quantity}}</text></view><text>¥{{i.price*i.quantity}}</text></view><view v-if="!cart.length" class="empty">Your bag is ready for a product.</view><button v-if="cart.length" class="checkout" @click="checkout">Submit order <text>→</text></button><view class="support"><text class="section-label">AI product support</text><textarea v-model="question" placeholder="Is black M still available?"/><button class="ask" @click="ask">{{loading?'Checking…':'Ask with product facts'}}</button><text v-if="answer" class="answer">{{answer}}</text></view></view>
-    <view class="bottom"><text :class="{active:tab==='mall'}" @click="tab='mall'">Mall</text><text :class="{active:tab==='cart'}" @click="tab='cart'">Bag {{cartCount?`(${cartCount})`:''}}</text><text>Orders</text></view>
+  <view class="mobile-page">
+    <view class="brand-bar">
+      <view><text class="eyebrow">COMMERCEFLOW AI MALL</text><text class="page-title">商品目录</text><text class="page-subtitle">真实本地接口 · {{ demoUserLabel }}</text></view>
+      <text class="brand-mark">SHOWCASE</text>
+    </view>
+    <view class="catalog-summary panel"><text class="summary-number">{{ productCount }}</text><text class="summary-label">件在售演示商品</text><text class="muted">数据来自 GET /api/products</text></view>
+    <view class="section-title"><text>精选商品</text><text class="muted">下拉刷新</text></view>
+    <view v-if="state === 'loading'" class="panel empty-box">正在读取真实商品数据…</view>
+    <view v-else-if="state === 'error'" class="error-box"><text>{{ errorMessage }}</text><button class="secondary-button retry-button" @click="retry">重新加载</button></view>
+    <view v-else-if="state === 'empty'" class="panel empty-box">当前没有可展示的商品</view>
+    <view v-else class="product-list">
+      <view v-for="product in products" :key="product.id" class="product-card panel" @click="openProduct(product)">
+        <view v-if="product.coverImagePath" class="product-cover-wrap"><img class="product-cover" :src="imageUrl(product.coverImagePath)" /></view>
+        <view v-else class="product-cover-wrap image-fallback">暂无商品图片</view>
+        <view class="product-card-content"><view class="card-heading"><text class="product-name">{{ product.name }}</text><text :class="['tag', product.status === 'ON_SALE' ? 'tag-success' : 'tag-neutral']">{{ product.status === 'ON_SALE' ? '在售' : product.status }}</text></view><text class="product-code">{{ product.productCode }}</text><text class="product-description">{{ product.description }}</text><view class="card-meta"><text>{{ product.categoryName }}</text><text>{{ product.skus.length }} 个 SKU</text><text v-if="product.skus.length">¥{{ lowestSku(product).salePrice }} 起</text></view></view>
+      </view>
+    </view>
   </view>
 </template>
+
 <style>
-page{background:#f7f8f4;color:#18221f;font-family:Arial,sans-serif}.page{padding:38rpx 34rpx 140rpx}.header{display:flex;justify-content:space-between;align-items:flex-start}.kicker,.hero-kicker,.section-label{display:block;font-size:19rpx;letter-spacing:3rpx;color:#809088}.title{display:block;font-size:29rpx;font-weight:700;margin-top:13rpx}.bag{font-size:22rpx;color:#bb563a}.bag text{display:inline-grid;place-items:center;background:#bb563a;color:#fff;border-radius:50%;width:35rpx;height:35rpx;margin-left:7rpx;font-size:18rpx}.hero{background:#1d2926;color:#f6f7ef;border-radius:18rpx;padding:43rpx 36rpx;margin-top:40rpx}.hero-kicker{color:#a5c8b1}.hero-title{display:block;font-size:48rpx;font-weight:700;line-height:1.12;margin:22rpx 0}.hero-copy{display:block;color:#bdccc1;font-size:23rpx;line-height:1.55}.section-head{display:flex;justify-content:space-between;align-items:center;font-size:29rpx;font-weight:700;margin:43rpx 0 20rpx}.muted{display:block;color:#84918a;font-size:21rpx;font-weight:400;margin-top:9rpx}.product{display:flex;background:#fff;border:1rpx solid #e0e5de;border-radius:14rpx;padding:17rpx;margin-bottom:14rpx}.product-art{width:144rpx;height:144rpx;border-radius:10rpx;background:#e3eee7;display:grid;place-items:center;color:#3c7857;font-size:54rpx;font-weight:700}.product-info{padding:8rpx 18rpx}.product-name{display:block;font-size:25rpx;font-weight:700}.product-desc{display:block;color:#718078;font-size:21rpx;line-height:1.45;margin-top:8rpx}.price{color:#bb563a;font-size:25rpx;font-weight:700;margin-top:18rpx}.sheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:24rpx 24rpx 0 0;padding:34rpx;box-shadow:0 -10rpx 35rpx #18221f20;z-index:3}.sheet-top{display:flex;justify-content:space-between;color:#bb563a;font-size:21rpx}.sheet-title{font-size:32rpx;color:#18221f;font-weight:700}.section-label{margin-top:28rpx}.sku,.cart-item{display:flex;justify-content:space-between;align-items:center;padding:22rpx 0;border-top:1rpx solid #e5e9e3;margin-top:13rpx}.sku text{font-size:24rpx}.add{background:#bb563a;color:#fff;border-radius:50%;width:42rpx;height:42rpx;display:grid;place-items:center;font-size:34rpx}.empty{padding:80rpx 0;text-align:center;color:#84918a}.checkout,.ask{width:100%;border:0;border-radius:10rpx;padding:23rpx;background:#bb563a;color:#fff;font-size:25rpx;margin-top:26rpx}.checkout text{float:right}.support{background:#e9f2ec;border-radius:15rpx;padding:25rpx;margin-top:45rpx}.support textarea{width:100%;height:110rpx;margin-top:17rpx;background:#fff;border:1rpx solid #d9e4da;border-radius:8rpx;padding:15rpx;font-size:22rpx}.answer{display:block;color:#315c43;background:#fff;padding:20rpx;margin-top:15rpx;line-height:1.5}.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1rpx solid #e0e5de;display:flex;justify-content:space-around;padding:25rpx;color:#859189;font-size:22rpx;z-index:4}.bottom .active{color:#bb563a;font-weight:700}
+.catalog-summary{display:flex;align-items:baseline;gap:12rpx;padding:22rpx 24rpx}.summary-number{color:#2563eb;font-size:44rpx;font-weight:800}.summary-label{font-size:24rpx;font-weight:700}.catalog-summary .muted{margin-left:auto}.product-card{display:flex;gap:20rpx;padding:18rpx;margin-bottom:16rpx}.product-cover-wrap{width:190rpx;height:190rpx;flex:none;border-radius:14rpx;overflow:hidden;background:#f3f5f8}.product-cover{display:block;width:100%;height:100%}.product-card-content{min-width:0;flex:1;padding:4rpx 0}.card-heading{display:flex;align-items:flex-start;gap:10rpx}.product-name{flex:1;color:#172033;font-size:28rpx;font-weight:800;line-height:1.35}.product-code{display:block;margin-top:8rpx;color:#6c7890;font-family:monospace;font-size:19rpx}.product-description{display:block;margin-top:12rpx;color:#6c778a;font-size:22rpx;line-height:1.45}.card-meta{display:flex;flex-wrap:wrap;gap:10rpx 18rpx;margin-top:16rpx;color:#64748b;font-size:20rpx}.card-meta text:last-child{color:#2563eb;font-weight:700}.retry-button{display:block;width:100%;margin-top:18rpx}
 </style>

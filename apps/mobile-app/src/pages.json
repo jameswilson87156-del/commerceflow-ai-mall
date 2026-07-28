@@ -1,1 +1,20 @@
-{"pages":[{"path":"pages/index/index","style":{"navigationBarTitleText":"CommerceFlow AI Mall","navigationBarBackgroundColor":"#f7f8f4","navigationBarTextStyle":"black"}}],"tabBar":{"color":"#7a857e","selectedColor":"#bb563a","list":[{"pagePath":"pages/index/index","text":"Mall"},{"pagePath":"pages/index/index","text":"Orders"}]}}
+{
+  "pages": [
+    {"path": "pages/index/index", "style": {"navigationBarTitleText": "商品目录", "navigationBarBackgroundColor": "#f5f7fb", "navigationBarTextStyle": "black"}},
+    {"path": "pages/product/detail", "style": {"navigationBarTitleText": "商品详情", "navigationBarBackgroundColor": "#f5f7fb", "navigationBarTextStyle": "black"}},
+    {"path": "pages/cart/index", "style": {"navigationBarTitleText": "购物车", "navigationBarBackgroundColor": "#f5f7fb", "navigationBarTextStyle": "black"}},
+    {"path": "pages/order/confirm", "style": {"navigationBarTitleText": "确认订单", "navigationBarBackgroundColor": "#f5f7fb", "navigationBarTextStyle": "black"}},
+    {"path": "pages/order/result", "style": {"navigationBarTitleText": "下单结果", "navigationBarBackgroundColor": "#f5f7fb", "navigationBarTextStyle": "black"}},
+    {"path": "pages/order/detail", "style": {"navigationBarTitleText": "订单详情", "navigationBarBackgroundColor": "#f5f7fb", "navigationBarTextStyle": "black"}},
+    {"path": "pages/order/list", "style": {"navigationBarTitleText": "我的订单", "navigationBarBackgroundColor": "#f5f7fb", "navigationBarTextStyle": "black"}}
+  ],
+  "tabBar": {
+    "color": "#788496",
+    "selectedColor": "#2563eb",
+    "list": [
+      {"pagePath": "pages/index/index", "text": "商品"},
+      {"pagePath": "pages/cart/index", "text": "购物车"},
+      {"pagePath": "pages/order/list", "text": "订单"}
+    ]
+  }
+}
