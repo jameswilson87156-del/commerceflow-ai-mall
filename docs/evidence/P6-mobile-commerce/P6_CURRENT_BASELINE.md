@@ -3,7 +3,7 @@
 ## 审查范围
 
 - 审查日期：2026-07-29
-- 项目：`D:\workhome\commerceflow-ai-mall`
+- 项目：`<repo-root>`
 - 分支起点：`feat/p5-ai-rate-limit-final-freeze`
 - 起点 HEAD：`58792a73b8ff8b8ed95f2a1df45f552cb9b091b3`
 - 本轮分支：`feat/p6-mobile-commerce-research`
@@ -77,4 +77,3 @@ apps/mobile-app/
 ## P6A 结论
 
 移动端完成度是“可构建的单页原型”，不是完整商城。最大技术问题不是缺少更多页面，而是业务事实没有统一进入移动端：本地 cart、未接入新 AI 契约、订单入口为空、请求错误不可见、localhost 无法支持手机设备。P6B 应先建立 API wrapper、真实商品详情、服务端购物车和订单结果链路，再考虑 P6C AI 入口。
-

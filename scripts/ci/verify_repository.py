@@ -34,6 +34,12 @@ SECRET_PATTERNS = (
     re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
 )
+WINDOWS_DRIVE = r"[A-Za-z]" + r":\\"
+UNIX_HOME = r"/" + r"(?:Users|home)/"
+ABSOLUTE_LOCAL_PATH = re.compile(r"(?:" + WINDOWS_DRIVE + r"(?:Users|workhome|Temp)\\|" + UNIX_HOME + r")", re.IGNORECASE)
+PERSONAL_LAN_IP = re.compile(
+    r"(?<![\d.])(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(?![\d.])"
+)
 LINK = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 
 
@@ -91,19 +97,22 @@ def main() -> int:
             failures.append(f"mobile canonical screenshot must be 390x844: {path.name}")
     for name in tracked:
         path = ROOT / name
-        if path.suffix.lower() in {".md", ".yml", ".yaml", ".py", ".java", ".ts", ".vue", ".ps1", ".xml", ".properties"}:
-            try:
-                content = path.read_text(encoding="utf-8")
-            except UnicodeDecodeError:
-                continue
-            if any(pattern.search(content) for pattern in SECRET_PATTERNS):
-                failures.append(f"obvious secret pattern in tracked text: {name}")
+        try:
+            content = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            continue
+        if any(pattern.search(content) for pattern in SECRET_PATTERNS):
+            failures.append(f"obvious secret pattern in tracked text: {name}")
+        if ABSOLUTE_LOCAL_PATH.search(content):
+            failures.append(f"absolute local path in tracked text: {name}")
+        if PERSONAL_LAN_IP.search(content):
+            failures.append(f"personal LAN IP in tracked text: {name}")
     if failures:
         print("REPOSITORY_INTEGRITY_FAILED", file=sys.stderr)
         print("\n".join(f"- {item}" for item in failures), file=sys.stderr)
         return 1
     print("REPOSITORY_INTEGRITY_OK")
-    print("README/architecture links, canonical screenshot dimensions, tracked-file policy, freeze records, and obvious-key patterns passed.")
+    print("README/architecture links, canonical screenshot dimensions, tracked-file policy, freeze records, obvious-key patterns, and tracked-text path/PII checks passed.")
     return 0
 
 
