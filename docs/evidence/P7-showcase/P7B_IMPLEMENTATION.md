@@ -17,7 +17,7 @@ P7B adds a read-only operations overview and a coordinated local Showcase runtim
 - `scripts/showcase/start.ps1`, `status.ps1`, `stop.ps1`, and `verify.ps1` coordinate MySQL, Redis, Java, FastAPI, Admin, and optional Mobile H5.
 - Scripts store local-only state and logs under ignored `.showcase/`. Process identity requires the recorded PID, expected listening port, and command-line hint; `stop.ps1` skips mismatches.
 - The default contract is loopback ports MySQL `3307`, Redis `6380`, API `8080`, Python `8000`, Admin `5174`, Mobile H5 `5173`. All are environment-overridable. This machine had an unrelated listener on `8080`; the verified run used `MALL_API_PORT=8081` without stopping that listener.
-- CORS originates from `COMMERCEFLOW_CORS_ALLOWED_ORIGINS` / the two Showcase origins. It is a finite allowlist and exposes the four rate-limit headers.
+- CORS originates from `COMMERCEFLOW_CORS_ALLOWED_ORIGINS` / the two Showcase origins. It is a finite allowlist and exposes five public rate-limit headers: `Retry-After`, `X-RateLimit-Mode`, `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`.
 
 ## Explicit boundaries
 

@@ -6,4 +6,4 @@
 
 `verify.ps1 -IncludeMobile` passed. It checked readiness, Python health, Mock provider mode, product API, cart/order reads, overview API, the five local image responses, one normal Mock AI response with evidence and trace, and all rate-limit response headers.
 
-At final close-out `stop.ps1` will stop only recorded, identity-matching Showcase child processes and the `commerceflow-showcase` MySQL/Redis services. Its default path does not remove Docker data; `-RemoveData` requires the literal confirmation `REMOVE_DATA`.
+The final close-out exercised `stop.ps1`: it stopped only recorded, identity-matching Showcase child processes and the `commerceflow-showcase` MySQL/Redis services. The unrelated listener on port `8080` was preserved. Its default path did not remove Docker data; `-RemoveData` requires the literal confirmation `REMOVE_DATA`.
