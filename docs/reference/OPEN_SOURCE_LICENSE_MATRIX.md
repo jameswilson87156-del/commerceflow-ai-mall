@@ -1,7 +1,7 @@
 # Open-Source License Matrix
 
 **Research date:** 2026-07-26
-**Scope:** P3.1 order-image research only. The repositories below were shallow-cloned outside CommerceFlow at `D:\workhome\commerceflow-reference-research`. No reference code, SQL, screenshots, logos, or product images were imported.
+**Scope:** P3.1 order-image research only. The repositories below were shallow-cloned outside CommerceFlow at `<local-research-root>`. No reference code, SQL, screenshots, logos, or product images were imported.
 
 | Repository | Research commit | License found | Usage tier | Permitted research | Prohibited copying | Code / SQL adaptation | Image use | CommerceFlow adoption |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |

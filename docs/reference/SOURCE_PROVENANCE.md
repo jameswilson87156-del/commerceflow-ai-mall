@@ -1,6 +1,6 @@
 # Source Provenance
 
-**Research date:** 2026-07-26. All entries are comparison-only. External repositories were shallow-cloned to `D:\workhome\commerceflow-reference-research`, never copied into CommerceFlow.
+**Research date:** 2026-07-26. All entries are comparison-only. External repositories were shallow-cloned to `<local-research-root>`, never copied into CommerceFlow.
 
 | Reference project | Commit | File or module examined | License | Reference purpose |
 | --- | --- | --- | --- | --- |
