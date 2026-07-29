@@ -1,9 +1,20 @@
-# Redis Rate Limit Flow
+# Redis AI Rate Limit Flow
 
-`POST /api/ai/customer-service/ask -> HMAC-derived local identity -> Redis Lua fixed window -> decision -> Java response`.
+Only `POST /api/ai/customer-service/ask` uses Redis.
 
-- Default local policy: five accepted AI requests per 60 seconds.
-- Accepted requests carry rate-limit metadata. Rejected requests return HTTP 429, `Retry-After`, no-store semantics, and a stable body.
-- Vue and UniApp use a single parsed cooldown state for all changing 429 text and disabled send/retry controls.
-- Redis failure follows the documented Showcase `FAIL_OPEN` policy and is visible to the client/readiness contract.
-- This is not production authentication, distributed-abuse protection, or a Redis participant in MySQL order transactions.
+```mermaid
+flowchart LR
+  Request[AI ask request] --> Identity[HMAC identity digest]
+  Identity --> Lua[Redis Lua fixed window]
+  Lua -->|within 5 / 60 s| Java[Java AI service]
+  Lua -->|sixth request| Deny[429 + Retry-After]
+  Java --> Provider[FastAPI / commerceflow-mock]
+```
+
+- The Lua script performs the fixed-window count atomically. The default is five requests per sixty seconds.
+- Identity is a local HMAC digest of demo user and remote address; it is not production authentication and is not logged.
+- A denied request returns 429 plus `Retry-After`, `X-RateLimit-Mode`, `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`.
+- 429 does not call the Provider and does not create an `ai_trace` record.
+- If Redis is unavailable, the current local Mock policy is `FAIL_OPEN`; the frontend displays the degraded mode rather than inventing quota numbers.
+- Redis binds to loopback in local Compose. Aggregate health and readiness are reported separately by the Showcase runtime.
+- Redis never participates in orders, inventory, carts, idempotency, or MySQL transactions. This is not a DDoS protection claim.

@@ -13,7 +13,7 @@ Status meanings: `IMPLEMENTED` is present in source; `VERIFIED` has frozen local
 | Payment, logistics, shipment, refund | OUT_OF_SCOPE | Only `CREATED` exists. | Never show as implemented. |
 | Admin product/SKU page | IMPLEMENTED, VERIFIED | Read-only search/filter/detail/SKU inventory presentation. | P2 final evidence. |
 | Admin order evidence page | IMPLEMENTED, VERIFIED | Read-only order, snapshots, idempotency, and movement proof. | P3 final evidence. |
-| Admin operations overview | OUT_OF_SCOPE | Sidebar label has no active data-backed dashboard. | P7B decision required; no fake KPI. |
+| Admin operations overview | IMPLEMENTED, VERIFIED | Read-only MyBatis aggregate of local product/SKU/inventory/order/`ai_trace` facts and runtime boundaries. | P7B evidence and canonical overview screenshot. |
 | AI customer service | IMPLEMENTED, VERIFIED, MOCK | Java owns facts, calls FastAPI Mock, validates response, persists Java evidence/trace. | P4/P6 evidence. |
 | Remote OpenAI-compatible provider | OUT_OF_SCOPE | Placeholder/config boundary only; no real key or external acceptance. | Do not advertise as active. |
 | Java fact fallback | IMPLEMENTED, VERIFIED | Provider failure or invalid response returns a fact-bound Java fallback. | P4/P5/P6 evidence. |
@@ -23,4 +23,4 @@ Status meanings: `IMPLEMENTED` is present in source; `VERIFIED` has frozen local
 | UniApp H5 commerce and AI | IMPLEMENTED, VERIFIED | Local H5 product/cart/order/AI path is accepted. | P6 freeze. |
 | Native mobile / mini-program runtime | COMPILE_ONLY | UniApp non-H5 compilation passed. | No device/runtime claim. |
 | Authentication | MOCK | Demo login and demo user id only. | Not production auth. |
-| CI | IMPLEMENTED | GitHub Actions performs Java test, Python test, and admin/mobile builds. | Missing final matrix is P7C work. |
+| CI | IMPLEMENTED | GitHub Actions defines repository integrity, Java/MySQL/Redis, Python, Admin and Mobile jobs. | P7C workflow and local validation; remote P7C run awaits a later push. |
