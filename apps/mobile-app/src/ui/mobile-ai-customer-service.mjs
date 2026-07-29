@@ -16,6 +16,18 @@ export function createAskPayload({ userId, productId, skuId, question, clientReq
   }
 }
 
+export function pendingQuestionForAttempt(question) {
+  return String(question || '').trim()
+}
+
+export function clearQuestionAfterSuccess() {
+  return { question: '', pendingQuestion: '' }
+}
+
+export function retryQuestion(pendingQuestion) {
+  return String(pendingQuestion || '').trim()
+}
+
 export function cooldownSeconds(rateLimit, body = {}, fallbackSeconds = 1) {
   const headerValue = Number(rateLimit?.retryAfter)
   const bodyValue = Number(body?.retryAfterSeconds)

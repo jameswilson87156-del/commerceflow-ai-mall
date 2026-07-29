@@ -10,3 +10,12 @@ All screenshots are real local H5 pages at 390x844, DPR 1, zh-CN, zoom 100%, wit
 | FAIL_OPEN | `screenshots/v2/07-mobile-ai-customer-service-fail-open-real.png` | Redis stopped, degraded disclosure, no quota fabrication |
 
 Historical P6B screenshots remain unchanged.
+
+## P6C.1 final set
+
+- `screenshots/v2/07-mobile-ai-customer-service-final.png`
+- `screenshots/v2/07-mobile-ai-customer-service-429-final.png`
+- `screenshots/v2/07-mobile-ai-customer-service-fallback-final.png`
+- `screenshots/v2/07-mobile-ai-customer-service-fail-open-final.png`
+
+The 429 final screenshot preserves the normal question in both the composer and the rate-limit card. It contains no ordinal test copy and no sixth successful AI result.

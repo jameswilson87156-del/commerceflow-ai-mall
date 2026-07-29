@@ -12,11 +12,14 @@ import ProductImage from '../../components/ProductImage.vue'
 import {
   MAX_QUESTION_LENGTH,
   cooldownSeconds,
+  clearQuestionAfterSuccess,
   createAskPayload,
   createClientRequestId,
   hasRedisQuota,
   isFailOpen,
   nextCooldown,
+  pendingQuestionForAttempt,
+  retryQuestion,
   traceLabel
 } from '../../ui/mobile-ai-customer-service.mjs'
 
@@ -28,6 +31,7 @@ const selectedSku = ref<Sku | null>(null)
 const state = ref<PageState>('loading')
 const errorMessage = ref('')
 const question = ref('')
+const pendingQuestion = ref('')
 const sending = ref(false)
 const turns = ref<ChatTurn[]>([])
 const latestAnswer = ref<CustomerServiceAnswer | null>(null)
@@ -112,8 +116,10 @@ function scrollChatToLatest() {
 }
 
 function ask(rawQuestion: string) {
-  const trimmed = rawQuestion.trim()
+  const trimmed = pendingQuestionForAttempt(rawQuestion)
   if (!trimmed || !canSend.value || !selectedSku.value) return
+  pendingQuestion.value = trimmed
+  question.value = trimmed
   sending.value = true
   requestFailure.value = null
   rateLimitFailure.value = null
@@ -124,11 +130,13 @@ function ask(rawQuestion: string) {
     question: trimmed,
     clientRequestId: createClientRequestId(randomUuid)
   })
-  question.value = ''
   askCustomerService(payload).then(result => {
     updateRateLimit(result.rateLimit)
     latestAnswer.value = result.answer
     turns.value.push({ id: result.answer.traceId, question: trimmed, answer: result.answer })
+    const cleared = clearQuestionAfterSuccess()
+    question.value = cleared.question
+    pendingQuestion.value = cleared.pendingQuestion
     scrollChatToLatest()
   }).catch(error => {
     if (error instanceof ApiError && error.statusCode === 429) {
@@ -136,11 +144,11 @@ function ask(rawQuestion: string) {
       latestAnswer.value = null
       const seconds = cooldownSeconds(error.rateLimit, error.body || {})
       startCooldown(seconds)
-      rateLimitFailure.value = { question: trimmed, message: '当前请求已被 Redis 限流保护拦截，请等待倒计时结束后重试。' }
+      rateLimitFailure.value = { question: pendingQuestion.value, message: '当前请求已被 Redis 限流保护拦截，请等待倒计时结束后重试。' }
       scrollChatToLatest()
       return
     }
-    requestFailure.value = { question: trimmed, message: error instanceof ApiError ? error.message : '本地服务暂时不可用，请稍后重试。' }
+    requestFailure.value = { question: pendingQuestion.value, message: error instanceof ApiError ? error.message : '本地服务暂时不可用，请稍后重试。' }
     scrollChatToLatest()
   }).finally(() => { sending.value = false })
 }
@@ -153,17 +161,19 @@ function sendQuick(questionText: string) {
 }
 function retryFailed() {
   if (!requestFailure.value || !canSend.value) return
-  ask(requestFailure.value.question)
+  ask(retryQuestion(pendingQuestion.value))
 }
 function retryRateLimited() {
   if (!rateLimitFailure.value || !canSend.value) return
-  ask(rateLimitFailure.value.question)
+  ask(retryQuestion(pendingQuestion.value))
 }
 function goBack() { uni.navigateBack() }
 function retryLoad() { loadSelection() }
 function resetForSkuChange() {
   turns.value = []
   latestAnswer.value = null
+  question.value = ''
+  pendingQuestion.value = ''
   requestFailure.value = null
   rateLimitFailure.value = null
   clearCooldown()
@@ -215,7 +225,8 @@ onUnmounted(clearCooldown)
 
       <MobileNotice v-if="isDegraded" tone="warning" title="限流保护暂时降级" message="Redis 当前不可用，本次请求仍由本地 Java 与 Mock 链路完成；页面不会展示伪造的配额数据。" />
       <view v-if="quotaAvailable" class="quota-bar panel">
-        <text>本窗口限额 {{ rateLimit.limit }} 次</text><text>剩余 {{ rateLimit.remaining }} 次</text><text>重置 {{ resetTime() }}</text><text v-if="cooldownRemaining > 0">Retry-After {{ cooldownRemaining }} 秒</text>
+        <view class="quota-heading"><text>{{ cooldownRemaining > 0 ? '已触发限流' : 'Redis 限流正常' }}</text><text>本窗口限额 {{ rateLimit.limit }} 次</text></view>
+        <view class="quota-values"><text>剩余 <text class="quota-number">{{ rateLimit.remaining }}</text> 次</text><text>重置 {{ resetTime() }}</text><text v-if="cooldownRemaining > 0">Retry-After {{ cooldownRemaining }} 秒</text></view>
       </view>
 
       <view v-if="turns.length === 0 && !rateLimitFailure" class="quick-panel panel">
@@ -231,7 +242,7 @@ onUnmounted(clearCooldown)
         </view>
         <view v-if="sending" class="chat-bubble chat-bubble--assistant"><text>正在查询本地商品事实并调用本地 Mock...</text></view>
         <view v-if="requestFailure" class="chat-error"><text>“{{ requestFailure.question }}” 未获得回答：{{ requestFailure.message }}</text><button class="secondary-button" :disabled="!canSend" @click="retryFailed">重试请求</button></view>
-        <view v-if="rateLimitFailure" class="chat-error chat-error--rate"><text class="rate-title">请求过于频繁</text><text>{{ rateLimitFailure.message }}</text><text>{{ cooldownRemaining }} 秒后可再次发送</text><button class="secondary-button" :disabled="true" @click="retryRateLimited">{{ cooldownRemaining }} 秒后可发送</button></view>
+        <view v-if="rateLimitFailure" class="chat-error chat-error--rate"><text class="rate-title">请求过于频繁</text><text>{{ rateLimitFailure.message }}</text><text class="pending-question">待重试问题：{{ pendingQuestion }}</text><text>{{ cooldownRemaining }} 秒后可再次发送</text><button class="secondary-button" :disabled="!canSend" @click="retryRateLimited">{{ cooldownRemaining > 0 ? `${cooldownRemaining} 秒后可发送` : '重试请求' }}</button></view>
       </view>
 
       <view v-if="latestAnswer" class="ai-detail-stack">
@@ -251,4 +262,11 @@ onUnmounted(clearCooldown)
 .bottom-action.ai-composer{height:132px!important;min-height:132px!important;max-height:132px!important}
 .ai-context.panel{display:flex!important}
 .ai-context-copy{display:block}
+.quota-bar{display:flex;flex-direction:column;align-items:stretch;gap:7px}
+.quota-heading,.quota-values{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.quota-heading>text:first-child{color:var(--cf-ink);font-weight:800}
+.quota-heading>text:last-child{color:var(--cf-muted);font-size:11px;font-weight:700;white-space:nowrap}
+.quota-values{flex-wrap:wrap;color:#45627f;font-size:12px}
+.quota-number{color:var(--cf-ink);font-weight:800}
+.pending-question{padding:8px;border-radius:9px;background:rgba(255,255,255,.55);font-weight:700;overflow-wrap:anywhere}
 </style>

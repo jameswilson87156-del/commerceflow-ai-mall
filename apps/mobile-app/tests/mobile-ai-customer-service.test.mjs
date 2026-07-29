@@ -3,12 +3,15 @@ import assert from 'node:assert/strict'
 import {
   MAX_QUESTION_LENGTH,
   cooldownSeconds,
+  clearQuestionAfterSuccess,
   createAskPayload,
   createClientRequestId,
   hasRedisQuota,
   isFailOpen,
   isSupportedQuestion,
   nextCooldown,
+  pendingQuestionForAttempt,
+  retryQuestion,
   traceLabel
 } from '../src/ui/mobile-ai-customer-service.mjs'
 
@@ -26,6 +29,20 @@ test('clientRequestId 优先使用可验证的 UUID，并有安全回退', () =>
 test('问题最大长度与空白处理保持 API 边界', () => {
   assert.equal(MAX_QUESTION_LENGTH, 500)
   assert.equal(createAskPayload({ userId: 1, productId: 1, skuId: 1, question: '   ', clientRequestId: 'x' }).question, '')
+})
+
+test('发送前保存 trim 后的待重试问题，429 后输入框可复用同一文本', () => {
+  const pending = pendingQuestionForAttempt('  现在还有库存吗？  ')
+  assert.equal(pending, '现在还有库存吗？')
+  assert.equal(retryQuestion(pending), '现在还有库存吗？')
+})
+
+test('成功响应才清空输入与 pendingQuestion', () => {
+  assert.deepEqual(clearQuestionAfterSuccess(), { question: '', pendingQuestion: '' })
+})
+
+test('空 pendingQuestion 不会成为重试请求文本', () => {
+  assert.equal(retryQuestion('   '), '')
 })
 
 test('429 倒计时优先 Retry-After 响应头', () => {
