@@ -43,6 +43,10 @@ class AiCustomerServiceTests {
     void resetProviderAndFacts() {
         reset(providerClient);
         jdbc.update("DELETE FROM ai_trace");
+        jdbc.update("UPDATE inventory SET available_stock = CASE sku_id "
+                + "WHEN 10001 THEN 96 WHEN 10002 THEN 182 WHEN 10003 THEN 128 "
+                + "WHEN 10004 THEN 28 WHEN 10005 THEN 0 END "
+                + "WHERE sku_id IN (10001, 10002, 10003, 10004, 10005)");
         jdbc.update("UPDATE product SET status='ON_SALE' WHERE id IN (101,102)");
         jdbc.update("UPDATE product_sku SET status='ON_SALE' WHERE id IN (10001,10002,10003,10004,10005)");
         answered();

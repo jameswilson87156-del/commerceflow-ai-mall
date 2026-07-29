@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,9 +18,21 @@ class OperationsOverviewApiTests {
     @Autowired MockMvc mockMvc;
     @Autowired JdbcTemplate jdbc;
 
+    @BeforeEach
+    void resetShowcaseFacts() {
+        jdbc.update("DELETE FROM inventory_movement");
+        jdbc.update("DELETE FROM order_item");
+        jdbc.update("DELETE FROM orders");
+        jdbc.update("DELETE FROM cart_item");
+        jdbc.update("DELETE FROM ai_trace");
+        jdbc.update("UPDATE inventory SET available_stock = CASE sku_id "
+                + "WHEN 10001 THEN 96 WHEN 10002 THEN 182 WHEN 10003 THEN 128 "
+                + "WHEN 10004 THEN 28 WHEN 10005 THEN 0 END "
+                + "WHERE sku_id IN (10001, 10002, 10003, 10004, 10005)");
+    }
+
     @Test
     void returnsOnlyDatabaseAndConfigurationBackedShowcaseFacts() throws Exception {
-        jdbc.update("DELETE FROM ai_trace");
         mockMvc.perform(get("/api/operations/overview"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.summary.productCount").value(2))
@@ -38,7 +51,6 @@ class OperationsOverviewApiTests {
 
     @Test
     void emptyTraceReturnsZeroAndNoSensitiveRuntimeFields() throws Exception {
-        jdbc.update("DELETE FROM ai_trace");
         mockMvc.perform(get("/api/operations/overview"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.aiSummary.interactionCount").value(0))
