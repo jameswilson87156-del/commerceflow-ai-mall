@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.commerceflow.mall.operations.OperationsOverviewMapper">
+  <resultMap id="summaryMap" type="com.commerceflow.mall.operations.OperationsOverviewMapper$SummaryRow">
+    <constructor><arg column="product_count" javaType="long"/><arg column="sku_count" javaType="long"/><arg column="on_sale_product_count" javaType="long"/><arg column="available_stock_total" javaType="long"/><arg column="low_stock_sku_count" javaType="long"/><arg column="created_order_count" javaType="long"/><arg column="created_order_amount" javaType="java.math.BigDecimal"/><arg column="ai_interaction_count" javaType="long"/></constructor>
+  </resultMap>
+  <resultMap id="recentOrderMap" type="com.commerceflow.mall.operations.OperationsOverviewMapper$RecentOrderRow">
+    <constructor><arg column="order_no" javaType="String"/><arg column="status" javaType="String"/><arg column="total_amount" javaType="java.math.BigDecimal"/><arg column="currency" javaType="String"/><arg column="item_count" javaType="long"/><arg column="created_at" javaType="java.time.Instant"/></constructor>
+  </resultMap>
+  <resultMap id="lowStockMap" type="com.commerceflow.mall.operations.OperationsOverviewMapper$LowStockSkuRow">
+    <constructor><arg column="sku_id" javaType="long"/><arg column="sku_code" javaType="String"/><arg column="product_name" javaType="String"/><arg column="color" javaType="String"/><arg column="size" javaType="String"/><arg column="available_stock" javaType="int"/></constructor>
+  </resultMap>
+  <resultMap id="aiSummaryMap" type="com.commerceflow.mall.operations.OperationsOverviewMapper$AiSummaryRow">
+    <constructor><arg column="provider" javaType="String"/><arg column="provider_mode" javaType="String"/><arg column="interaction_count" javaType="long"/><arg column="answered_count" javaType="long"/><arg column="unsupported_count" javaType="long"/><arg column="fallback_count" javaType="long"/><arg column="provider_error_count" javaType="long"/><arg column="latest_interaction_at" javaType="java.time.Instant"/></constructor>
+  </resultMap>
+  <select id="summary" resultMap="summaryMap">
+    SELECT (SELECT COUNT(*) FROM product) product_count,
+           (SELECT COUNT(*) FROM product_sku) sku_count,
+           (SELECT COUNT(*) FROM product WHERE status = 'ON_SALE') on_sale_product_count,
+           COALESCE((SELECT SUM(available_stock) FROM inventory), 0) available_stock_total,
+           (SELECT COUNT(*) FROM inventory WHERE available_stock &lt; #{lowStockThreshold}) low_stock_sku_count,
+           (SELECT COUNT(*) FROM orders WHERE status = 'CREATED') created_order_count,
+           COALESCE((SELECT SUM(total_amount) FROM orders WHERE status = 'CREATED'), 0) created_order_amount,
+           (SELECT COUNT(*) FROM ai_trace) ai_interaction_count
+  </select>
+  <select id="recentOrders" resultMap="recentOrderMap">
+    SELECT o.order_no, o.status, o.total_amount, o.currency, COUNT(oi.id) item_count, o.created_at
+    FROM orders o LEFT JOIN order_item oi ON oi.order_id = o.id
+    WHERE o.status = 'CREATED'
+    GROUP BY o.id, o.order_no, o.status, o.total_amount, o.currency, o.created_at
+    ORDER BY o.created_at DESC, o.id DESC LIMIT #{limit}
+  </select>
+  <select id="lowStockSkus" resultMap="lowStockMap">
+    SELECT s.id sku_id, s.sku_code, p.name product_name, s.color, s.size, i.available_stock
+    FROM inventory i JOIN product_sku s ON s.id = i.sku_id JOIN product p ON p.id = s.product_id
+    WHERE i.available_stock &lt; #{lowStockThreshold}
+    ORDER BY i.available_stock ASC, s.id ASC LIMIT #{limit}
+  </select>
+  <select id="aiSummary" resultMap="aiSummaryMap">
+    SELECT COALESCE(MAX(provider_name), 'NONE') provider, COALESCE(MAX(provider_mode), 'NONE') provider_mode,
+           COUNT(*) interaction_count,
+           COALESCE(SUM(CASE WHEN answer_status = 'ANSWERED' THEN 1 ELSE 0 END), 0) answered_count,
+           COALESCE(SUM(CASE WHEN answer_status IN ('UNSUPPORTED_QUESTION', 'INSUFFICIENT_CONTEXT') THEN 1 ELSE 0 END), 0) unsupported_count,
+           COALESCE(SUM(CASE WHEN fallback_used = TRUE OR answer_status = 'FALLBACK_ANSWER' THEN 1 ELSE 0 END), 0) fallback_count,
+           COALESCE(SUM(CASE WHEN answer_status = 'PROVIDER_ERROR' THEN 1 ELSE 0 END), 0) provider_error_count,
+           MAX(created_at) latest_interaction_at
+    FROM ai_trace
+  </select>
+</mapper>
