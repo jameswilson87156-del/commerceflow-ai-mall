@@ -14,6 +14,9 @@ export default defineConfig(({ mode }) => {
       }]
     },
     server: {
+      host: env.VITE_MOBILE_HOST || env.MOBILE_H5_HOST || '127.0.0.1',
+      port: Number(env.VITE_MOBILE_PORT || env.MOBILE_H5_PORT || 5173),
+      strictPort: true,
       proxy: {
         '/api': { target: apiTarget, changeOrigin: true }
       }

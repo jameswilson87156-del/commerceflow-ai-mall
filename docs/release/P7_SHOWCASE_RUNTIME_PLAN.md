@@ -1,5 +1,9 @@
 # P7 Showcase Runtime Plan
 
+## Implemented P7B
+
+The planned lifecycle is implemented in `scripts/showcase/`. It uses `.showcase/processes.json` and local logs (both ignored) to identify only owned listener processes. The default URLs are Admin `http://127.0.0.1:5174`, Mobile H5 `http://127.0.0.1:5173`, Java `http://127.0.0.1:8080`, and FastAPI `http://127.0.0.1:8000`; all ports are configurable. `status.ps1` distinguishes aggregate health from readiness, reports provider/rate-limit/Flyway facts, and does not start or stop services.
+
 P7B will implement, not merely document, a controlled Windows PowerShell 5 lifecycle. P7A adds no scripts.
 
 | Planned script | Responsibility | Safety rule |

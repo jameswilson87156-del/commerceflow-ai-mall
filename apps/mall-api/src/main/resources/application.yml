@@ -37,7 +37,7 @@ springdoc:
     path: /swagger-ui.html
 commerceflow:
   cors:
-    allowed-origins: ${COMMERCEFLOW_CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:5174,http://localhost:5175,http://127.0.0.1:5173,http://127.0.0.1:5174,http://127.0.0.1:5175}
+    allowed-origins: ${COMMERCEFLOW_CORS_ALLOWED_ORIGINS:${SHOWCASE_ADMIN_ORIGIN:http://127.0.0.1:5174},${SHOWCASE_MOBILE_ORIGIN:http://127.0.0.1:5173}}
   ai-service-url: ${AI_SERVICE_URL:http://127.0.0.1:8000}
   ai-connect-timeout-ms: ${AI_CONNECT_TIMEOUT_MS:1500}
   ai-read-timeout-ms: ${AI_READ_TIMEOUT_MS:3000}
@@ -49,5 +49,10 @@ commerceflow:
       key-prefix: ${AI_RATE_LIMIT_KEY_PREFIX:commerceflow:local:ai:rate:v1}
       failure-policy: ${AI_RATE_LIMIT_FAILURE_POLICY:FAIL_OPEN}
       identity-hash-secret: ${AI_RATE_LIMIT_IDENTITY_HASH_SECRET:local-showcase-rate-limit-salt}
+  showcase:
+    data-scope: ${SHOWCASE_DATA_SCOPE:LOCAL_SHOWCASE}
+    authentication-mode: ${SHOWCASE_AUTHENTICATION_MODE:DEMO_USER}
+    mobile-runtime: ${SHOWCASE_MOBILE_RUNTIME:H5_VERIFIED}
+    non-h5-runtime: ${SHOWCASE_NON_H5_RUNTIME:COMPILE_ONLY}
 mybatis:
   mapper-locations: classpath:mappers/OrderEvidenceMapper.xml

@@ -9,7 +9,7 @@
 | `AI_PROVIDER_API_KEY` | Python | blank | Yes | Never populate or commit. | Secret manager only. |
 | `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD` | Java / Compose | localhost, `6380`, blank | Password if used | Loopback Redis; no password required for local demo. | Private network and secret management. |
 | `AI_RATE_LIMIT_*` | Java | 5 / 60 seconds / FAIL_OPEN | HMAC salt is local-only | Visible Showcase policy. | Threat-model review; do not reuse local salt. |
-| `COMMERCEFLOW_CORS_ALLOWED_ORIGINS` | Java | Vite defaults currently 5173-5175 | No | P7B must include actual admin/mobile ports. | Explicit allowlist. |
+| `COMMERCEFLOW_CORS_ALLOWED_ORIGINS` | Java | `127.0.0.1:5174,127.0.0.1:5173` | No | Explicit Admin/Mobile H5 loopback origins; override as one comma-separated allowlist. | Explicit allowlist. |
 | `VITE_API_BASE`, `VITE_MOBILE_API_BASE_URL` | Vue / UniApp | local API or `/api` | No | Must point at local Java API. | Environment-specific public origin. |
 | `VITE_DEMO_USER_ID` | UniApp | `1` | No | Demo identity, not login. | Replace with authentication/session design. |
 

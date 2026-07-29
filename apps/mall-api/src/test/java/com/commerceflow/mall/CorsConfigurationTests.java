@@ -25,7 +25,11 @@ class CorsConfigurationTests {
             .andExpect(status().isOk())
             .andExpect(header().string("Access-Control-Allow-Origin", "http://localhost:5176"))
             .andExpect(header().string("Access-Control-Allow-Methods", org.hamcrest.Matchers.containsString("GET")))
-            .andExpect(header().string("Access-Control-Expose-Headers", org.hamcrest.Matchers.containsString("Retry-After")));
+            .andExpect(header().string("Access-Control-Expose-Headers", org.hamcrest.Matchers.containsString("Retry-After")))
+            .andExpect(header().string("Access-Control-Expose-Headers", org.hamcrest.Matchers.containsString("X-RateLimit-Limit")))
+            .andExpect(header().string("Access-Control-Expose-Headers", org.hamcrest.Matchers.containsString("X-RateLimit-Remaining")))
+            .andExpect(header().string("Access-Control-Expose-Headers", org.hamcrest.Matchers.containsString("X-RateLimit-Reset")))
+            .andExpect(header().string("Access-Control-Expose-Headers", org.hamcrest.Matchers.containsString("X-RateLimit-Mode")));
     }
 
     @Test
