@@ -69,6 +69,7 @@ Redis 429 与 FAIL_OPEN 是技术证据，见 [Canonical 截图索引](docs/show
 
 `Product -> SKU -> Inventory` 是当前商品事实。提交订单时服务端接收 `Idempotency-Key`，聚合同一 SKU，执行带库存条件的原子 `UPDATE`，写入 `orders`、`order_item` 快照和 `inventory_movement`，并在一个 MySQL 事务中提交。重复的同 Key 同请求返回原订单；同 Key 不同请求返回 `409`。详见 [订单事务链路](docs/architecture/ORDER_TRANSACTION_FLOW.md)。
 
+> **订单可靠性证据：** 使用真实 MySQL 8.4 覆盖库存竞争、并发幂等、Key 冲突、事务回滚与重复 SKU 聚合；本地独立数据库连续三次通过。详见 [Order Reliability Evidence V1](docs/evidence/order-reliability-v1/README.md)。这不是生产负载或吞吐量声明。
 ### AI 商品客服
 
 前端仅发送 `userId`、`productId`、`skuId`、`question`、`clientRequestId`。Java 从 MySQL 加载业务事实、构造 Evidence、调用 FastAPI，再校验结构化回答并保存最小化 Trace 摘要。Python 不写业务数据库、不回调 Java、不编造库存；不可用时 Java 使用事实约束 fallback。详见 [AI 事实链路](docs/architecture/AI_GROUNDED_ANSWER_FLOW.md)。

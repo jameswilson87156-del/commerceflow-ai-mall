@@ -1,0 +1,314 @@
+Order Reliability Evidence V1 - baseline full Java regression
+Started at: 2026-07-29T19:30:11.7482300Z
+
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ---------------------< com.commerceflow:mall-api >----------------------
+[INFO] Building commerceflow-mall-api 0.1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- enforcer:3.5.0:enforce (enforce) @ mall-api ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ mall-api ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 11 resources from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.13.0:compile (default-compile) @ mall-api ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ mall-api ---
+[INFO] Copying 1 resource from src\test\resources to target\test-classes
+[INFO]
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ mall-api ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO]
+[INFO] --- surefire:3.5.3:test (default-test) @ mall-api ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.commerceflow.mall.AiCustomerServiceTests
+03:30:29.826 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.commerceflow.mall.AiCustomerServiceTests]: AiCustomerServiceTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+03:30:29.953 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.commerceflow.mall.MallApiApplication for test class com.commerceflow.mall.AiCustomerServiceTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.5)
+
+2026-07-30T03:30:30.313+08:00  INFO 11196 --- [           main] c.c.mall.AiCustomerServiceTests          : Starting AiCustomerServiceTests using Java 17.0.19 with PID 11196 (started by [local-user] in [worktree]\apps\mall-api)
+2026-07-30T03:30:30.313+08:00  INFO 11196 --- [           main] c.c.mall.AiCustomerServiceTests          : No active profile set, falling back to 1 default profile: "default"
+2026-07-30T03:30:31.782+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-07-30T03:30:31.782+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-07-30T03:30:31.829+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 16 ms. Found 0 Redis repository interfaces.
+2026-07-30T03:30:39.018+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-30T03:30:39.488+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:commerceflow user=SA
+2026-07-30T03:30:39.488+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-30T03:30:39.582+08:00  INFO 11196 --- [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:commerceflow (H2 2.3)
+2026-07-30T03:30:39.602+08:00  WARN 11196 --- [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: H2 2.3.232 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.224.
+2026-07-30T03:30:39.709+08:00  INFO 11196 --- [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-07-30T03:30:39.723+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.058s)
+2026-07-30T03:30:39.739+08:00  INFO 11196 --- [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-07-30T03:30:39.865+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-07-30T03:30:39.960+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - commerceflow schema"
+2026-07-30T03:30:40.071+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - demo data"
+2026-07-30T03:30:40.150+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - localize showcase catalog"
+2026-07-30T03:30:40.214+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - add showcase product images"
+2026-07-30T03:30:40.279+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - add inventory movement evidence"
+2026-07-30T03:30:40.324+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - enforce unique order inventory movement"
+2026-07-30T03:30:40.324+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "7 - add order item image snapshot"
+2026-07-30T03:30:40.356+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "8 - extend ai trace for customer service"
+2026-07-30T03:30:40.452+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 8 migrations to schema "public", now at version v8 (execution time 00:00.327s)
+2026-07-30T03:30:50.163+08:00  INFO 11196 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-07-30T03:30:50.165+08:00  INFO 11196 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-07-30T03:30:50.177+08:00  INFO 11196 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-07-30T03:30:50.197+08:00  INFO 11196 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 29 ms
+2026-07-30T03:30:50.374+08:00  INFO 11196 --- [           main] c.c.mall.AiCustomerServiceTests          : Started AiCustomerServiceTests in 20.319 seconds (process running for 21.129)
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 21.87 s -- in com.commerceflow.mall.AiCustomerServiceTests
+[INFO] Running com.commerceflow.mall.AiRateLimitRedisIntegrationTests
+2026-07-30T03:30:51.607+08:00  INFO 11196 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commerceflow.mall.AiRateLimitRedisIntegrationTests]: AiRateLimitRedisIntegrationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-07-30T03:30:51.614+08:00  INFO 11196 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commerceflow.mall.MallApiApplication for test class com.commerceflow.mall.AiRateLimitRedisIntegrationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.5)
+
+2026-07-30T03:30:51.662+08:00  INFO 11196 --- [           main] c.c.m.AiRateLimitRedisIntegrationTests   : Starting AiRateLimitRedisIntegrationTests using Java 17.0.19 with PID 11196 (started by [local-user] in [worktree]\apps\mall-api)
+2026-07-30T03:30:51.662+08:00  INFO 11196 --- [           main] c.c.m.AiRateLimitRedisIntegrationTests   : No active profile set, falling back to 1 default profile: "default"
+2026-07-30T03:30:52.195+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-07-30T03:30:52.195+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-07-30T03:30:52.214+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 8 ms. Found 0 Redis repository interfaces.
+2026-07-30T03:30:52.337+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-07-30T03:30:52.337+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection conn10: url=jdbc:h2:mem:commerceflow user=SA
+2026-07-30T03:30:52.337+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-07-30T03:30:52.337+08:00  INFO 11196 --- [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:commerceflow (H2 2.3)
+2026-07-30T03:30:52.337+08:00  WARN 11196 --- [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: H2 2.3.232 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.224.
+2026-07-30T03:30:52.370+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.018s)
+2026-07-30T03:30:52.374+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 8
+2026-07-30T03:30:52.374+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-07-30T03:30:52.803+08:00  INFO 11196 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-07-30T03:30:52.803+08:00  INFO 11196 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-07-30T03:30:52.803+08:00  INFO 11196 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-07-30T03:30:52.822+08:00  INFO 11196 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 19 ms
+2026-07-30T03:30:52.859+08:00  INFO 11196 --- [           main] c.c.m.AiRateLimitRedisIntegrationTests   : Started AiRateLimitRedisIntegrationTests in 1.245 seconds (process running for 23.622)
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.536 s -- in com.commerceflow.mall.AiRateLimitRedisIntegrationTests
+[INFO] Running com.commerceflow.mall.CartApiTests
+2026-07-30T03:30:55.142+08:00  INFO 11196 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commerceflow.mall.CartApiTests]: CartApiTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-07-30T03:30:55.155+08:00  INFO 11196 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commerceflow.mall.MallApiApplication for test class com.commerceflow.mall.CartApiTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.5)
+
+2026-07-30T03:30:55.190+08:00  INFO 11196 --- [           main] com.commerceflow.mall.CartApiTests       : Starting CartApiTests using Java 17.0.19 with PID 11196 (started by [local-user] in [worktree]\apps\mall-api)
+2026-07-30T03:30:55.190+08:00  INFO 11196 --- [           main] com.commerceflow.mall.CartApiTests       : No active profile set, falling back to 1 default profile: "default"
+2026-07-30T03:30:55.754+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-07-30T03:30:55.754+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-07-30T03:30:55.765+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 9 ms. Found 0 Redis repository interfaces.
+2026-07-30T03:30:55.879+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2026-07-30T03:30:55.881+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection conn20: url=jdbc:h2:mem:commerceflow user=SA
+2026-07-30T03:30:55.881+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2026-07-30T03:30:55.883+08:00  INFO 11196 --- [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:commerceflow (H2 2.3)
+2026-07-30T03:30:55.883+08:00  WARN 11196 --- [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: H2 2.3.232 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.224.
+2026-07-30T03:30:55.893+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.006s)
+2026-07-30T03:30:55.895+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 8
+2026-07-30T03:30:55.895+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-07-30T03:30:56.285+08:00  INFO 11196 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-07-30T03:30:56.285+08:00  INFO 11196 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-07-30T03:30:56.285+08:00  INFO 11196 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-07-30T03:30:56.285+08:00  INFO 11196 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-07-30T03:30:56.315+08:00  INFO 11196 --- [           main] com.commerceflow.mall.CartApiTests       : Started CartApiTests in 1.16 seconds (process running for 27.083)
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.283 s -- in com.commerceflow.mall.CartApiTests
+[INFO] Running com.commerceflow.mall.CatalogApiTests
+2026-07-30T03:30:56.435+08:00  INFO 11196 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commerceflow.mall.CatalogApiTests]: CatalogApiTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-07-30T03:30:56.435+08:00  INFO 11196 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commerceflow.mall.MallApiApplication for test class com.commerceflow.mall.CatalogApiTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.079 s -- in com.commerceflow.mall.CatalogApiTests
+[INFO] Running com.commerceflow.mall.CorsConfigurationTests
+2026-07-30T03:30:56.504+08:00  INFO 11196 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commerceflow.mall.CorsConfigurationTests]: CorsConfigurationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-07-30T03:30:56.520+08:00  INFO 11196 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commerceflow.mall.MallApiApplication for test class com.commerceflow.mall.CorsConfigurationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.5)
+
+2026-07-30T03:30:56.580+08:00  INFO 11196 --- [           main] c.c.mall.CorsConfigurationTests          : Starting CorsConfigurationTests using Java 17.0.19 with PID 11196 (started by [local-user] in [worktree]\apps\mall-api)
+2026-07-30T03:30:56.580+08:00  INFO 11196 --- [           main] c.c.mall.CorsConfigurationTests          : No active profile set, falling back to 1 default profile: "default"
+2026-07-30T03:30:57.093+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-07-30T03:30:57.093+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-07-30T03:30:57.099+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 5 ms. Found 0 Redis repository interfaces.
+2026-07-30T03:30:57.168+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Starting...
+2026-07-30T03:30:57.168+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-4 - Added connection conn30: url=jdbc:h2:mem:commerceflow user=SA
+2026-07-30T03:30:57.168+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Start completed.
+2026-07-30T03:30:57.168+08:00  INFO 11196 --- [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:commerceflow (H2 2.3)
+2026-07-30T03:30:57.168+08:00  WARN 11196 --- [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: H2 2.3.232 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.224.
+2026-07-30T03:30:57.183+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.005s)
+2026-07-30T03:30:57.185+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 8
+2026-07-30T03:30:57.185+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-07-30T03:30:57.506+08:00  INFO 11196 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-07-30T03:30:57.506+08:00  INFO 11196 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-07-30T03:30:57.510+08:00  INFO 11196 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-07-30T03:30:57.510+08:00  INFO 11196 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 4 ms
+2026-07-30T03:30:57.554+08:00  INFO 11196 --- [           main] c.c.mall.CorsConfigurationTests          : Started CorsConfigurationTests in 1.018 seconds (process running for 28.317)
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.132 s -- in com.commerceflow.mall.CorsConfigurationTests
+[INFO] Running com.commerceflow.mall.HealthReadinessTests
+2026-07-30T03:30:57.636+08:00  INFO 11196 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commerceflow.mall.HealthReadinessTests]: HealthReadinessTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-07-30T03:30:57.640+08:00  INFO 11196 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commerceflow.mall.MallApiApplication for test class com.commerceflow.mall.HealthReadinessTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.5)
+
+2026-07-30T03:30:57.663+08:00  INFO 11196 --- [           main] c.c.mall.HealthReadinessTests            : Starting HealthReadinessTests using Java 17.0.19 with PID 11196 (started by [local-user] in [worktree]\apps\mall-api)
+2026-07-30T03:30:57.663+08:00  INFO 11196 --- [           main] c.c.mall.HealthReadinessTests            : No active profile set, falling back to 1 default profile: "default"
+2026-07-30T03:30:58.003+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-07-30T03:30:58.003+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-07-30T03:30:58.010+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 4 ms. Found 0 Redis repository interfaces.
+2026-07-30T03:30:58.077+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Starting...
+2026-07-30T03:30:58.077+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-5 - Added connection conn40: url=jdbc:h2:mem:commerceflow user=SA
+2026-07-30T03:30:58.077+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Start completed.
+2026-07-30T03:30:58.077+08:00  INFO 11196 --- [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:commerceflow (H2 2.3)
+2026-07-30T03:30:58.077+08:00  WARN 11196 --- [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: H2 2.3.232 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.224.
+2026-07-30T03:30:58.077+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.004s)
+2026-07-30T03:30:58.093+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 8
+2026-07-30T03:30:58.093+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-07-30T03:30:58.389+08:00  INFO 11196 --- [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-07-30T03:30:58.389+08:00  INFO 11196 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-07-30T03:30:58.392+08:00  INFO 11196 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-07-30T03:30:58.395+08:00  INFO 11196 --- [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 6 ms
+2026-07-30T03:30:58.411+08:00  INFO 11196 --- [           main] c.c.mall.HealthReadinessTests            : Started HealthReadinessTests in 0.771 seconds (process running for 29.175)
+2026-07-30T03:30:58.757+08:00  WARN 11196 --- [oundedElastic-1] o.s.b.a.d.r.RedisReactiveHealthIndicator : Redis health check failed
+
+org.springframework.data.redis.RedisConnectionFailureException: Unable to connect to Redis
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory$ExceptionTranslatingConnectionProvider.translateException(LettuceConnectionFactory.java:1858) ~[spring-data-redis-3.4.5.jar:3.4.5]
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory$ExceptionTranslatingConnectionProvider.getConnection(LettuceConnectionFactory.java:1789) ~[spring-data-redis-3.4.5.jar:3.4.5]
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory$SharedConnection.getNativeConnection(LettuceConnectionFactory.java:1586) ~[spring-data-redis-3.4.5.jar:3.4.5]
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory$SharedConnection.lambda$getConnection$0(LettuceConnectionFactory.java:1566) ~[spring-data-redis-3.4.5.jar:3.4.5]
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory.doInLock(LettuceConnectionFactory.java:1527) ~[spring-data-redis-3.4.5.jar:3.4.5]
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory$SharedConnection.getConnection(LettuceConnectionFactory.java:1563) ~[spring-data-redis-3.4.5.jar:3.4.5]
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory.getSharedReactiveConnection(LettuceConnectionFactory.java:1274) ~[spring-data-redis-3.4.5.jar:3.4.5]
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory.getReactiveConnection(LettuceConnectionFactory.java:1149) ~[spring-data-redis-3.4.5.jar:3.4.5]
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory.getReactiveConnection(LettuceConnectionFactory.java:120) ~[spring-data-redis-3.4.5.jar:3.4.5]
+	at reactor.core.publisher.MonoSupplier.call(MonoSupplier.java:67) ~[reactor-core-3.7.5.jar:3.7.5]
+	at reactor.core.publisher.FluxSubscribeOnCallable$CallableSubscribeOnSubscription.run(FluxSubscribeOnCallable.java:228) ~[reactor-core-3.7.5.jar:3.7.5]
+	at reactor.core.scheduler.SchedulerTask.call(SchedulerTask.java:68) ~[reactor-core-3.7.5.jar:3.7.5]
+	at reactor.core.scheduler.SchedulerTask.call(SchedulerTask.java:28) ~[reactor-core-3.7.5.jar:3.7.5]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264) ~[na:na]
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+Caused by: io.lettuce.core.RedisConnectionException: Unable to connect to 127.0.0.1/<unresolved>:6399
+	at io.lettuce.core.RedisConnectionException.create(RedisConnectionException.java:63) ~[lettuce-core-6.4.2.RELEASE.jar:6.4.2.RELEASE/f4dfb40]
+	at io.lettuce.core.RedisConnectionException.create(RedisConnectionException.java:41) ~[lettuce-core-6.4.2.RELEASE.jar:6.4.2.RELEASE/f4dfb40]
+	at io.lettuce.core.AbstractRedisClient.getConnection(AbstractRedisClient.java:354) ~[lettuce-core-6.4.2.RELEASE.jar:6.4.2.RELEASE/f4dfb40]
+	at io.lettuce.core.RedisClient.connect(RedisClient.java:219) ~[lettuce-core-6.4.2.RELEASE.jar:6.4.2.RELEASE/f4dfb40]
+	at org.springframework.data.redis.connection.lettuce.StandaloneConnectionProvider.lambda$getConnection$1(StandaloneConnectionProvider.java:112) ~[spring-data-redis-3.4.5.jar:3.4.5]
+	at java.base/java.util.Optional.orElseGet(Optional.java:364) ~[na:na]
+	at org.springframework.data.redis.connection.lettuce.StandaloneConnectionProvider.getConnection(StandaloneConnectionProvider.java:112) ~[spring-data-redis-3.4.5.jar:3.4.5]
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory$ExceptionTranslatingConnectionProvider.getConnection(LettuceConnectionFactory.java:1787) ~[spring-data-redis-3.4.5.jar:3.4.5]
+	... 16 common frames omitted
+Caused by: io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: getsockopt: /127.0.0.1:6399
+Caused by: java.net.ConnectException: Connection refused: getsockopt
+	at java.base/sun.nio.ch.Net.pollConnect(Native Method) ~[na:na]
+	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:684) ~[na:na]
+	at java.base/sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:946) ~[na:na]
+	at io.netty.channel.socket.nio.NioSocketChannel.doFinishConnect(NioSocketChannel.java:336) ~[netty-transport-4.1.119.Final.jar:4.1.119.Final]
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.finishConnect(AbstractNioChannel.java:339) ~[netty-transport-4.1.119.Final.jar:4.1.119.Final]
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:784) ~[netty-transport-4.1.119.Final.jar:4.1.119.Final]
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:732) ~[netty-transport-4.1.119.Final.jar:4.1.119.Final]
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:658) ~[netty-transport-4.1.119.Final.jar:4.1.119.Final]
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:562) ~[netty-transport-4.1.119.Final.jar:4.1.119.Final]
+	at io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:998) ~[netty-common-4.1.119.Final.jar:4.1.119.Final]
+	at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74) ~[netty-common-4.1.119.Final.jar:4.1.119.Final]
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30) ~[netty-common-4.1.119.Final.jar:4.1.119.Final]
+	at java.base/java.lang.Thread.run(Thread.java:840) ~[na:na]
+
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.289 s -- in com.commerceflow.mall.HealthReadinessTests
+[INFO] Running com.commerceflow.mall.MallApiApplicationTests
+2026-07-30T03:30:58.927+08:00  INFO 11196 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commerceflow.mall.MallApiApplicationTests]: MallApiApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-07-30T03:30:58.929+08:00  INFO 11196 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commerceflow.mall.MallApiApplication for test class com.commerceflow.mall.MallApiApplicationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.5)
+
+2026-07-30T03:30:58.948+08:00  INFO 11196 --- [           main] c.c.mall.MallApiApplicationTests         : Starting MallApiApplicationTests using Java 17.0.19 with PID 11196 (started by [local-user] in [worktree]\apps\mall-api)
+2026-07-30T03:30:58.948+08:00  INFO 11196 --- [           main] c.c.mall.MallApiApplicationTests         : No active profile set, falling back to 1 default profile: "default"
+2026-07-30T03:30:59.379+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-07-30T03:30:59.379+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-07-30T03:30:59.387+08:00  INFO 11196 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 5 ms. Found 0 Redis repository interfaces.
+2026-07-30T03:30:59.455+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Starting...
+2026-07-30T03:30:59.455+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-6 - Added connection conn50: url=jdbc:h2:mem:commerceflow user=SA
+2026-07-30T03:30:59.455+08:00  INFO 11196 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Start completed.
+2026-07-30T03:30:59.455+08:00  INFO 11196 --- [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:commerceflow (H2 2.3)
+2026-07-30T03:30:59.455+08:00  WARN 11196 --- [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: H2 2.3.232 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.224.
+2026-07-30T03:30:59.455+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.005s)
+2026-07-30T03:30:59.455+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 8
+2026-07-30T03:30:59.455+08:00  INFO 11196 --- [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-07-30T03:30:59.805+08:00  INFO 11196 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-07-30T03:30:59.823+08:00  INFO 11196 --- [           main] c.c.mall.MallApiApplicationTests         : Started MallApiApplicationTests in 0.894 seconds (process running for 30.587)
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.910 s -- in com.commerceflow.mall.MallApiApplicationTests
+[INFO] Running com.commerceflow.mall.OperationsOverviewApiTests
+2026-07-30T03:30:59.842+08:00  INFO 11196 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commerceflow.mall.OperationsOverviewApiTests]: OperationsOverviewApiTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-07-30T03:30:59.844+08:00  INFO 11196 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commerceflow.mall.MallApiApplication for test class com.commerceflow.mall.OperationsOverviewApiTests
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.396 s -- in com.commerceflow.mall.OperationsOverviewApiTests
+[INFO] Running com.commerceflow.mall.OrderFlowTests
+2026-07-30T03:31:00.237+08:00  INFO 11196 --- [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.commerceflow.mall.OrderFlowTests]: OrderFlowTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-07-30T03:31:00.237+08:00  INFO 11196 --- [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.commerceflow.mall.MallApiApplication for test class com.commerceflow.mall.OrderFlowTests
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.271 s -- in com.commerceflow.mall.OrderFlowTests
+[INFO] Running com.commerceflow.mall.OrderReliabilityMySqlTests
+[WARNING] Tests run: 5, Failures: 0, Errors: 0, Skipped: 5, Time elapsed: 0.001 s -- in com.commerceflow.mall.OrderReliabilityMySqlTests
+[INFO] Running com.commerceflow.mall.RateLimitUnitTests
+2026-07-30T03:31:01.050+08:00  WARN 11196 --- [           main] c.c.m.ai.ratelimit.RedisAiRateLimiter    : AI rate-limit storage unavailable; applying configured policy FAIL_OPEN
+2026-07-30T03:31:01.068+08:00  WARN 11196 --- [           main] c.c.m.ai.ratelimit.RedisAiRateLimiter    : AI rate-limit storage unavailable; applying configured policy FAIL_CLOSED
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.553 s -- in com.commerceflow.mall.RateLimitUnitTests
+[INFO]
+[INFO] Results:
+[INFO]
+[WARNING] Tests run: 50, Failures: 0, Errors: 0, Skipped: 5
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  34.366 s
+[INFO] Finished at: 2026-07-30T03:31:01+08:00
+[INFO] ------------------------------------------------------------------------
+
+--- stderr ---
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+Exit Code: 1
+Finished at: 2026-07-29T19:31:02.4824758Z

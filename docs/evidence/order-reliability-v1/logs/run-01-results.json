@@ -1,0 +1,10 @@
+{
+  "database": "MySQL 8.4",
+  "scenarios": {
+    "inventory_competition": {"requestCount": 50, "createdOrders": 10, "inventoryInsufficient": 40, "finalStock": 0, "orders": 10, "orderItems": 10, "inventoryMovements": 10, "movementSequenceContinuous": true},
+    "concurrent_idempotency": {"requestCount": 20, "physicalOrders": 1, "orderItems": 1, "inventoryMovements": 1, "stockDecrease": 1, "distinctOrderNumbers": 1, "inProgressResponses": 19, "sequentialReplayReturnsOriginal": true},
+    "key_reuse_conflict": {"firstOrderCreated": true, "rejectionCode": "IDEMPOTENCY_KEY_REUSED", "httpStatusEquivalent": 409, "orders": 1, "orderItems": 1, "inventoryMovements": 1, "stockChangedAfterConflict": false},
+    "transaction_rollback": {"rejectionCode": "INVENTORY_INSUFFICIENT", "skuAStockRestored": true, "skuBStockUnchanged": true, "orders": 0, "orderItems": 0, "inventoryMovements": 0, "partialWrites": false},
+    "duplicate_sku_aggregation": {"requestedLineQuantities": "2+3", "aggregatedQuantity": 5, "finalStock": 5, "orderItems": 1, "inventoryMovements": 1, "stockBeforeMinusAfter": 5}
+  }
+}
