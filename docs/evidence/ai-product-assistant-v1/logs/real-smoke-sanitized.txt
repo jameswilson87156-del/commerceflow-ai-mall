@@ -1,0 +1,8 @@
+AI1.3 final synthetic smoke through Java -> FastAPI -> adapter: attempted once.
+Configuration source: SHARED_PORTFOLIO.
+Adapter: CHAT_COMPLETIONS.
+Protocol compatible: true.
+Remote outcome category: SUCCESS.
+Strict schema, intent consistency, complete claims, grounded renderer, Evidence, and Trace checks: passed.
+Fallback used: false.
+No retry was performed. No provider endpoint, identity, model, credential, authorization material, raw upstream payload, or local absolute path is recorded.

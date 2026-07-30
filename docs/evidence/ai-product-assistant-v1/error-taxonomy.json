@@ -1,0 +1,26 @@
+{
+  "sources": [
+    "JAVA_TO_FASTAPI",
+    "REMOTE_PROVIDER",
+    "PROVIDER_RESPONSE_VALIDATION",
+    "PROVIDER_CONFIGURATION"
+  ],
+  "codes": [
+    {"code": "JAVA_FASTAPI_TIMEOUT", "secretSafe": true},
+    {"code": "JAVA_FASTAPI_UNAVAILABLE", "secretSafe": true},
+    {"code": "REMOTE_PROVIDER_TIMEOUT", "secretSafe": true},
+    {"code": "REMOTE_PROVIDER_UNAVAILABLE", "secretSafe": true},
+    {"code": "REMOTE_PROVIDER_AUTH_REJECTED", "secretSafe": true},
+    {"code": "REMOTE_PROVIDER_NOT_FOUND", "secretSafe": true},
+    {"code": "REMOTE_PROVIDER_RATE_LIMITED", "secretSafe": true},
+    {"code": "REMOTE_PROVIDER_SERVER_ERROR", "secretSafe": true},
+    {"code": "REMOTE_PROVIDER_HTTP_ERROR", "secretSafe": true},
+    {"code": "PROVIDER_INVALID_JSON", "secretSafe": true},
+    {"code": "PROVIDER_INVALID_SCHEMA", "secretSafe": true},
+    {"code": "PROVIDER_FACT_MISMATCH", "secretSafe": true},
+    {"code": "PROVIDER_INVALID_RESPONSE", "secretSafe": true},
+    {"code": "PROVIDER_CONFIGURATION_ERROR", "secretSafe": true},
+    {"code": "PROVIDER_PROTOCOL_UNSUPPORTED", "secretSafe": true},
+    {"code": "PROVIDER_MODE_UNSUPPORTED", "secretSafe": true}
+  ]
+}

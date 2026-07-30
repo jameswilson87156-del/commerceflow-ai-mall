@@ -24,12 +24,14 @@ public class AiService {
     private final CustomerServiceProviderClient providerClient;
     private final AiTraceRepository traces;
     private final AiRateLimiter rateLimiter;
+    private final AiFallbackProperties fallbackProperties;
 
-    public AiService(CatalogRepository catalog, CustomerServiceProviderClient providerClient, AiTraceRepository traces, AiRateLimiter rateLimiter) {
+    public AiService(CatalogRepository catalog, CustomerServiceProviderClient providerClient, AiTraceRepository traces, AiRateLimiter rateLimiter, AiFallbackProperties fallbackProperties) {
         this.catalog = catalog;
         this.providerClient = providerClient;
         this.traces = traces;
         this.rateLimiter = rateLimiter;
+        this.fallbackProperties = fallbackProperties;
     }
 
     public AiModels.CustomerServiceAnswer ask(AiModels.CustomerServiceAskRequest rawRequest) {
@@ -79,7 +81,7 @@ public class AiService {
             stageStarted = System.nanoTime();
             validatePythonResponse(response, traceId);
             if (providerReportedError) {
-                outcome = fallback(request.question(), facts, "AI_PROVIDER_ERROR", "AI 服务未返回可用回答，已由 Java 基于当前商品事实生成说明。");
+                outcome = fallbackOrThrow(request.question(), facts, "PROVIDER_INVALID_RESPONSE", "AI 服务未返回可用回答，已由 Java 基于当前商品事实生成说明。");
             } else {
                 outcome = new ProviderOutcome(response.answer(), response.answerStatus(), response.provider(), false, response.warning(), null);
             }
@@ -90,20 +92,15 @@ public class AiService {
                     elapsedMs(stageStarted),
                     outcome.fallbackUsed() ? "已校验提供方状态并应用本地边界" : "Java 已校验状态、提供方与回答内容"));
         } catch (AiProviderClientException ex) {
-            String errorCode = switch (ex.kind()) {
-                case TIMEOUT -> "AI_SERVICE_TIMEOUT";
-                case UNAVAILABLE -> "AI_SERVICE_UNAVAILABLE";
-                case INVALID_RESPONSE -> "AI_INVALID_RESPONSE";
-                case PROVIDER_ERROR -> "AI_PROVIDER_ERROR";
-            };
+            String errorCode = ex.safeErrorCode();
             steps.add(step("PROVIDER_COMPLETED", "FALLBACK", "AI 服务已降级", elapsedMs(providerStarted), errorCode));
             stageStarted = System.nanoTime();
-            outcome = fallback(request.question(), facts, errorCode, "AI 服务暂时不可用，以下回答由 Java 基于当前商品事实生成。");
+            outcome = fallbackOrThrow(request.question(), facts, errorCode, "AI 服务暂时不可用，以下回答由 Java 基于当前商品事实生成。");
             steps.add(step("RESPONSE_VALIDATED", "FALLBACK", "已生成降级结果", elapsedMs(stageStarted), "提供方响应未通过本地可用性校验"));
         } catch (InvalidProviderResponseException ex) {
             stageStarted = System.nanoTime();
-            outcome = fallback(request.question(), facts, "AI_INVALID_RESPONSE", "AI 服务返回格式无效，以下回答由 Java 基于当前商品事实生成。");
-            steps.add(step("RESPONSE_VALIDATED", "FALLBACK", "已生成降级结果", elapsedMs(stageStarted), "AI_INVALID_RESPONSE"));
+            outcome = fallbackOrThrow(request.question(), facts, "PROVIDER_INVALID_RESPONSE", "AI 服务返回格式无效，以下回答由 Java 基于当前商品事实生成。");
+            steps.add(step("RESPONSE_VALIDATED", "FALLBACK", "已生成降级结果", elapsedMs(stageStarted), "PROVIDER_INVALID_RESPONSE"));
         }
 
         stageStarted = System.nanoTime();
@@ -165,6 +162,12 @@ public class AiService {
         return value == null || value.isBlank();
     }
 
+    private ProviderOutcome fallbackOrThrow(String question, AiModels.BusinessFacts facts, String errorCode, String warning) {
+        if (!fallbackProperties.enabled()) {
+            throw new CommerceException("AI_SERVICE_UNAVAILABLE", "AI provider is unavailable.");
+        }
+        return fallback(question, facts, errorCode, warning);
+    }
     private ProviderOutcome fallback(String question, AiModels.BusinessFacts facts, String errorCode, String warning) {
         FallbackQuestionType questionType = classifyFallbackQuestion(question);
         if (questionType == FallbackQuestionType.UNSUPPORTED) {

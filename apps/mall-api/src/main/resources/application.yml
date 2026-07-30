@@ -40,8 +40,9 @@ commerceflow:
     allowed-origins: ${COMMERCEFLOW_CORS_ALLOWED_ORIGINS:${SHOWCASE_ADMIN_ORIGIN:http://127.0.0.1:5174},${SHOWCASE_MOBILE_ORIGIN:http://127.0.0.1:5173}}
   ai-service-url: ${AI_SERVICE_URL:http://127.0.0.1:8000}
   ai-connect-timeout-ms: ${AI_CONNECT_TIMEOUT_MS:1500}
-  ai-read-timeout-ms: ${AI_READ_TIMEOUT_MS:3000}
+  ai-read-timeout-ms: ${AI_READ_TIMEOUT_MS:15000}
   ai:
+    fallback-enabled: ${COMMERCEFLOW_AI_FALLBACK_ENABLED:${PORTFOLIO_AI_FALLBACK_ENABLED:${AI_PROVIDER_FALLBACK_ENABLED:true}}}
     rate-limit:
       enabled: ${AI_RATE_LIMIT_ENABLED:true}
       limit: ${AI_RATE_LIMIT_LIMIT:5}
