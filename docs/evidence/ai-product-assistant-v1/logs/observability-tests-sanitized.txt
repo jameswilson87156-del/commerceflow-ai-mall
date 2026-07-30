@@ -1,0 +1,9 @@
+AI1.1 local observability verification
+
+Python offline tests: 38 passed; one dependency deprecation warning.
+Java tests: 59 run, 0 failures, 0 errors, 5 conditionally skipped MySQL-only reliability tests.
+
+Local Java stubs verified Java-to-FastAPI unavailable and typed FastAPI failure classification. Python MockTransport verified authentication rejection, endpoint-not-found, rate-limit, server-error, unavailable, timeout, invalid JSON, invalid schema, and fact mismatch classifications.
+
+Real provider calls during AI1.1: 0.
+No provider value, authorization material, endpoint, raw response, or exception body was recorded.

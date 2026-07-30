@@ -127,12 +127,28 @@ class AiCustomerServiceTests {
         reset(providerClient);
         when(providerClient.answer(any())).thenThrow(new AiProviderClientException(AiProviderClientException.Kind.TIMEOUT, "timeout"));
         var timeout = service.ask(request(101, 10004, "库存？"));
-        assertFallback(timeout, "AI_SERVICE_TIMEOUT");
+        assertFallback(timeout, "JAVA_FASTAPI_TIMEOUT");
 
         reset(providerClient);
         when(providerClient.answer(any())).thenThrow(new AiProviderClientException(AiProviderClientException.Kind.UNAVAILABLE, "offline"));
         var unavailable = service.ask(request(101, 10004, "库存？"));
-        assertFallback(unavailable, "AI_SERVICE_UNAVAILABLE");
+        assertFallback(unavailable, "JAVA_FASTAPI_UNAVAILABLE");
+    }
+
+    @Test
+    void typedRemoteAndValidationFailuresPersistOnlyTheirSafeCodes() {
+        for (String safeCode : List.of("REMOTE_PROVIDER_UNAVAILABLE", "REMOTE_PROVIDER_AUTH_REJECTED",
+                "REMOTE_PROVIDER_NOT_FOUND", "REMOTE_PROVIDER_RATE_LIMITED", "PROVIDER_INVALID_SCHEMA", "PROVIDER_FACT_MISMATCH")) {
+            reset(providerClient);
+            AiProviderClientException.FailureSource source = safeCode.startsWith("REMOTE_")
+                    ? AiProviderClientException.FailureSource.REMOTE_PROVIDER
+                    : AiProviderClientException.FailureSource.PROVIDER_RESPONSE_VALIDATION;
+            when(providerClient.answer(any())).thenThrow(new AiProviderClientException(
+                    AiProviderClientException.Kind.INVALID_RESPONSE, source, safeCode, "fixed safe message", null));
+            var answer = service.ask(request(101, 10004, "SKU 编码是什么？"));
+            assertFallback(answer, safeCode);
+            assertFalse(answer.warning().contains("fixed safe message"));
+        }
     }
 
     @Test
@@ -141,21 +157,21 @@ class AiCustomerServiceTests {
         when(providerClient.answer(any())).thenThrow(new AiProviderClientException(AiProviderClientException.Kind.UNAVAILABLE, "offline"));
 
         var price = service.ask(request(101, 10004, "这个商品多少钱？"));
-        assertFallback(price, "AI_SERVICE_UNAVAILABLE");
+        assertFallback(price, "JAVA_FASTAPI_UNAVAILABLE");
         assertTrue(price.answer().contains("¥129.00"));
         assertFalse(price.answer().contains("当前库存"));
 
         var specification = service.ask(request(101, 10004, "颜色和尺码是什么？"));
-        assertFallback(specification, "AI_SERVICE_UNAVAILABLE");
+        assertFallback(specification, "JAVA_FASTAPI_UNAVAILABLE");
         assertTrue(specification.answer().contains("灰色 L"));
         assertTrue(specification.answer().contains("T-SHIRT-GRAY-L"));
 
         var skuCode = service.ask(request(101, 10004, "SKU 编码是什么？"));
-        assertFallback(skuCode, "AI_SERVICE_UNAVAILABLE");
+        assertFallback(skuCode, "JAVA_FASTAPI_UNAVAILABLE");
         assertEquals("该 SKU 编码为 T-SHIRT-GRAY-L。", skuCode.answer());
 
         var stock = service.ask(request(101, 10004, "现在还有库存吗？"));
-        assertFallback(stock, "AI_SERVICE_UNAVAILABLE");
+        assertFallback(stock, "JAVA_FASTAPI_UNAVAILABLE");
         assertTrue(stock.answer().contains("当前库存为 28 件"));
     }
 
@@ -213,21 +229,21 @@ class AiCustomerServiceTests {
         when(providerClient.answer(any())).thenAnswer(invocation -> new AiModels.PythonCustomerServiceResponse(
                 "wrong-trace", "有效回答", AiModels.AnswerStatus.ANSWERED, new AiModels.Provider("commerceflow-mock", AiModels.ProviderMode.MOCK, null), null));
         var wrongTrace = service.ask(request(101, 10004, "库存？"));
-        assertFallback(wrongTrace, "AI_INVALID_RESPONSE");
+        assertFallback(wrongTrace, "PROVIDER_INVALID_RESPONSE");
 
         reset(providerClient);
         when(providerClient.answer(any())).thenAnswer(invocation -> new AiModels.PythonCustomerServiceResponse(
                 invocation.<AiModels.PythonCustomerServiceRequest>getArgument(0).traceId(), "", AiModels.AnswerStatus.ANSWERED,
                 new AiModels.Provider("commerceflow-mock", AiModels.ProviderMode.MOCK, null), null));
         var blankAnswer = service.ask(request(101, 10004, "库存？"));
-        assertFallback(blankAnswer, "AI_INVALID_RESPONSE");
+        assertFallback(blankAnswer, "PROVIDER_INVALID_RESPONSE");
 
         reset(providerClient);
         when(providerClient.answer(any())).thenAnswer(invocation -> new AiModels.PythonCustomerServiceResponse(
                 invocation.<AiModels.PythonCustomerServiceRequest>getArgument(0).traceId(), "provider fallback", AiModels.AnswerStatus.ANSWERED,
                 new AiModels.Provider("commerceflow-mock", AiModels.ProviderMode.FALLBACK, null), null));
         var impersonatedFallback = service.ask(request(101, 10004, "库存？"));
-        assertFallback(impersonatedFallback, "AI_INVALID_RESPONSE");
+        assertFallback(impersonatedFallback, "PROVIDER_INVALID_RESPONSE");
     }
 
     @Test
@@ -236,7 +252,7 @@ class AiCustomerServiceTests {
         when(providerClient.answer(any())).thenAnswer(invocation -> responseFor(
                 invocation.getArgument(0, AiModels.PythonCustomerServiceRequest.class), "provider error", AiModels.AnswerStatus.PROVIDER_ERROR));
         var answer = service.ask(request(101, 10004, "库存？"));
-        assertFallback(answer, "AI_PROVIDER_ERROR");
+        assertFallback(answer, "PROVIDER_INVALID_RESPONSE");
     }
 
     @Test

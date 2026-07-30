@@ -1,6 +1,8 @@
+import asyncio
+
 from fastapi.testclient import TestClient
 
-from app.main import app
+from app.main import app, provider_failure
 from app.providers import CommerceFlowMockProvider, ProviderFailure, ProviderRouter
 
 client = TestClient(app)
@@ -40,7 +42,7 @@ def post(question: str) -> dict:
 
 def test_health_reports_the_default_local_mock_provider() -> None:
     body = client.get("/health").json()
-    assert body == {"status": "UP", "provider": "commerceflow-mock", "providerMode": "MOCK"}
+    assert body == {"status": "UP", "provider": "commerceflow-mock", "providerMode": "MOCK", "configSource": "MOCK_DEFAULT", "adapter": "NONE", "protocolCompatible": True}
 
 
 def test_price_answer_is_grounded_and_chinese() -> None:
@@ -126,6 +128,13 @@ def test_provider_mode_rejects_unknown_configuration() -> None:
     try:
         router.answer(CustomerServiceRequest.model_validate(payload()))
     except ProviderFailure as exc:
-        assert exc.code == "PROVIDER_MODE_INVALID"
+        assert exc.code == "PROVIDER_CONFIGURATION_ERROR"
     else:
         raise AssertionError("Expected invalid provider mode to fail")
+
+
+def test_provider_failure_handler_uses_fixed_message_instead_of_exception_text() -> None:
+    response = asyncio.run(provider_failure(None, ProviderFailure("REMOTE_PROVIDER_AUTH_REJECTED", "sensitive upstream detail")))
+    body = response.body.decode("utf-8")
+    assert "REMOTE_PROVIDER_AUTH_REJECTED" in body
+    assert "sensitive upstream detail" not in body

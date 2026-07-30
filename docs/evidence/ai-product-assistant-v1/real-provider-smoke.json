@@ -1,0 +1,18 @@
+{
+  "status": "AI_PRODUCT_ASSISTANT_REAL_SMOKE_PASS",
+  "dataScope": "SYNTHETIC_DEMO",
+  "questionType": "SKU_CODE",
+  "configSource": "SHARED_PORTFOLIO",
+  "adapter": "CHAT_COMPLETIONS",
+  "remoteCallAttempted": true,
+  "remoteCallCount": 1,
+  "remoteCallSucceeded": true,
+  "httpStatusCategory": "SUCCESS",
+  "responseSchemaValidated": true,
+  "intentConsistencyValidated": true,
+  "factClaimsMatched": true,
+  "groundedRendererUsed": true,
+  "fallbackUsed": false,
+  "retryPerformed": false,
+  "secretValuesRecorded": false
+}
