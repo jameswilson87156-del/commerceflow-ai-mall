@@ -1,0 +1,267 @@
+Run ID: run-01
+Command: .\mvnw.cmd -f apps\mall-api\pom.xml -Dtest=OrderReliabilityMySqlTests test
+Working directory: .
+Started at: 2026-07-30T05:26:52.5014124Z
+--- stdout ---
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ---------------------< com.commerceflow:mall-api >----------------------
+[INFO] Building commerceflow-mall-api 0.1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- enforcer:3.5.0:enforce (enforce) @ mall-api ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ mall-api ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 11 resources from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.13.0:compile (default-compile) @ mall-api ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ mall-api ---
+[INFO] Copying 1 resource from src\test\resources to target\test-classes
+[INFO]
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ mall-api ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO]
+[INFO] --- surefire:3.5.3:test (default-test) @ mall-api ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.commerceflow.mall.OrderReliabilityMySqlTests
+13:27:10.053 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.commerceflow.mall.OrderReliabilityMySqlTests]: OrderReliabilityMySqlTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+13:27:10.190 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.commerceflow.mall.MallApiApplication for test class com.commerceflow.mall.OrderReliabilityMySqlTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.5)
+
+2026-07-30T13:27:10.691+08:00  INFO 1792 --- [           main] c.c.mall.OrderReliabilityMySqlTests      : Starting OrderReliabilityMySqlTests using Java 17.0.19 with PID 1792 (started by [local-user] in [worktree]
+2026-07-30T13:27:10.692+08:00  INFO 1792 --- [           main] c.c.mall.OrderReliabilityMySqlTests      : No active profile set, falling back to 1 default profile: "default"
+2026-07-30T13:27:12.070+08:00  INFO 1792 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-07-30T13:27:12.072+08:00  INFO 1792 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-07-30T13:27:12.113+08:00  INFO 1792 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 22 ms. Found 0 Redis repository interfaces.
+2026-07-30T13:27:12.928+08:00  INFO 1792 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-30T13:27:13.182+08:00  INFO 1792 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@100eeedc
+2026-07-30T13:27:13.184+08:00  INFO 1792 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-30T13:27:13.259+08:00  INFO 1792 --- [           main] org.flywaydb.core.FlywayExecutor         : Database: [isolated-mysql-connection-redacted] (MySQL 8.4)
+2026-07-30T13:27:13.313+08:00  WARN 1792 --- [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: MySQL 8.4 is newer than this version of Flyway and support has not been tested. The latest supported version of MySQL is 8.1.
+2026-07-30T13:27:13.354+08:00  INFO 1792 --- [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table `order_reliability`.`flyway_schema_history` does not exist yet
+2026-07-30T13:27:13.360+08:00  INFO 1792 --- [           main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.032s)
+2026-07-30T13:27:13.390+08:00  INFO 1792 --- [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table `order_reliability`.`flyway_schema_history` ...
+2026-07-30T13:27:13.545+08:00  INFO 1792 --- [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `order_reliability`: << Empty Schema >>
+2026-07-30T13:27:13.562+08:00  INFO 1792 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "1 - commerceflow schema"
+2026-07-30T13:27:14.273+08:00  INFO 1792 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "2 - demo data"
+2026-07-30T13:27:14.368+08:00  INFO 1792 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "3 - localize showcase catalog"
+2026-07-30T13:27:14.419+08:00  INFO 1792 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "4 - add showcase product images"
+2026-07-30T13:27:14.574+08:00  INFO 1792 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "5 - add inventory movement evidence"
+2026-07-30T13:27:14.993+08:00  INFO 1792 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "6 - enforce unique order inventory movement"
+2026-07-30T13:27:15.052+08:00  INFO 1792 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "7 - add order item image snapshot"
+2026-07-30T13:27:15.209+08:00  INFO 1792 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "8 - extend ai trace for customer service"
+2026-07-30T13:27:16.350+08:00  INFO 1792 --- [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 8 migrations to schema `order_reliability`, now at version v8 (execution time 00:02.469s)
+2026-07-30T13:27:18.492+08:00  INFO 1792 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-07-30T13:27:18.568+08:00  INFO 1792 --- [           main] c.c.mall.OrderReliabilityMySqlTests      : Started OrderReliabilityMySqlTests in 8.219 seconds (process running for 9.199)
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.40 s -- in com.commerceflow.mall.OrderReliabilityMySqlTests
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  13.409 s
+[INFO] Finished at: 2026-07-30T13:27:20+08:00
+[INFO] ------------------------------------------------------------------------
+--- stderr ---
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+Exit Code: 0
+Finished at: 2026-07-30T05:27:20.9888069Z
+Run ID: run-02
+Command: .\mvnw.cmd -f apps\mall-api\pom.xml -Dtest=OrderReliabilityMySqlTests test
+Working directory: .
+Started at: 2026-07-30T05:27:21.5692239Z
+--- stdout ---
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ---------------------< com.commerceflow:mall-api >----------------------
+[INFO] Building commerceflow-mall-api 0.1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- enforcer:3.5.0:enforce (enforce) @ mall-api ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ mall-api ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 11 resources from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.13.0:compile (default-compile) @ mall-api ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ mall-api ---
+[INFO] Copying 1 resource from src\test\resources to target\test-classes
+[INFO]
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ mall-api ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO]
+[INFO] --- surefire:3.5.3:test (default-test) @ mall-api ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.commerceflow.mall.OrderReliabilityMySqlTests
+13:27:38.687 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.commerceflow.mall.OrderReliabilityMySqlTests]: OrderReliabilityMySqlTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+13:27:38.863 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.commerceflow.mall.MallApiApplication for test class com.commerceflow.mall.OrderReliabilityMySqlTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.5)
+
+2026-07-30T13:27:39.387+08:00  INFO 3088 --- [           main] c.c.mall.OrderReliabilityMySqlTests      : Starting OrderReliabilityMySqlTests using Java 17.0.19 with PID 3088 (started by [local-user] in [worktree]
+2026-07-30T13:27:39.387+08:00  INFO 3088 --- [           main] c.c.mall.OrderReliabilityMySqlTests      : No active profile set, falling back to 1 default profile: "default"
+2026-07-30T13:27:40.798+08:00  INFO 3088 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-07-30T13:27:40.801+08:00  INFO 3088 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-07-30T13:27:40.851+08:00  INFO 3088 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 18 ms. Found 0 Redis repository interfaces.
+2026-07-30T13:27:42.099+08:00  INFO 3088 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-30T13:27:42.449+08:00  INFO 3088 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@277bc3a5
+2026-07-30T13:27:42.453+08:00  INFO 3088 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-30T13:27:42.555+08:00  INFO 3088 --- [           main] org.flywaydb.core.FlywayExecutor         : Database: [isolated-mysql-connection-redacted] (MySQL 8.4)
+2026-07-30T13:27:42.657+08:00  WARN 3088 --- [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: MySQL 8.4 is newer than this version of Flyway and support has not been tested. The latest supported version of MySQL is 8.1.
+2026-07-30T13:27:42.716+08:00  INFO 3088 --- [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table `order_reliability`.`flyway_schema_history` does not exist yet
+2026-07-30T13:27:42.726+08:00  INFO 3088 --- [           main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.048s)
+2026-07-30T13:27:42.765+08:00  INFO 3088 --- [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table `order_reliability`.`flyway_schema_history` ...
+2026-07-30T13:27:42.957+08:00  INFO 3088 --- [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `order_reliability`: << Empty Schema >>
+2026-07-30T13:27:43.006+08:00  INFO 3088 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "1 - commerceflow schema"
+2026-07-30T13:27:43.769+08:00  INFO 3088 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "2 - demo data"
+2026-07-30T13:27:43.836+08:00  INFO 3088 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "3 - localize showcase catalog"
+2026-07-30T13:27:43.935+08:00  INFO 3088 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "4 - add showcase product images"
+2026-07-30T13:27:44.142+08:00  INFO 3088 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "5 - add inventory movement evidence"
+2026-07-30T13:27:44.588+08:00  INFO 3088 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "6 - enforce unique order inventory movement"
+2026-07-30T13:27:44.662+08:00  INFO 3088 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "7 - add order item image snapshot"
+2026-07-30T13:27:44.833+08:00  INFO 3088 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "8 - extend ai trace for customer service"
+2026-07-30T13:27:46.058+08:00  INFO 3088 --- [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 8 migrations to schema `order_reliability`, now at version v8 (execution time 00:02.650s)
+2026-07-30T13:27:48.861+08:00  INFO 3088 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-07-30T13:27:48.993+08:00  INFO 3088 --- [           main] c.c.mall.OrderReliabilityMySqlTests      : Started OrderReliabilityMySqlTests in 9.954 seconds (process running for 11.117)
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 14.14 s -- in com.commerceflow.mall.OrderReliabilityMySqlTests
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  17.832 s
+[INFO] Finished at: 2026-07-30T13:27:52+08:00
+[INFO] ------------------------------------------------------------------------
+--- stderr ---
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+Exit Code: 0
+Finished at: 2026-07-30T05:27:53.6343423Z
+Run ID: run-03
+Command: .\mvnw.cmd -f apps\mall-api\pom.xml -Dtest=OrderReliabilityMySqlTests test
+Working directory: .
+Started at: 2026-07-30T05:27:54.0808282Z
+--- stdout ---
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ---------------------< com.commerceflow:mall-api >----------------------
+[INFO] Building commerceflow-mall-api 0.1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- enforcer:3.5.0:enforce (enforce) @ mall-api ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ mall-api ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 11 resources from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.13.0:compile (default-compile) @ mall-api ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ mall-api ---
+[INFO] Copying 1 resource from src\test\resources to target\test-classes
+[INFO]
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ mall-api ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO]
+[INFO] --- surefire:3.5.3:test (default-test) @ mall-api ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.commerceflow.mall.OrderReliabilityMySqlTests
+13:28:08.521 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.commerceflow.mall.OrderReliabilityMySqlTests]: OrderReliabilityMySqlTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+13:28:08.651 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.commerceflow.mall.MallApiApplication for test class com.commerceflow.mall.OrderReliabilityMySqlTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.5)
+
+2026-07-30T13:28:09.055+08:00  INFO 30588 --- [           main] c.c.mall.OrderReliabilityMySqlTests      : Starting OrderReliabilityMySqlTests using Java 17.0.19 with PID 30588 (started by [local-user] in [worktree]
+2026-07-30T13:28:09.056+08:00  INFO 30588 --- [           main] c.c.mall.OrderReliabilityMySqlTests      : No active profile set, falling back to 1 default profile: "default"
+2026-07-30T13:28:10.363+08:00  INFO 30588 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-07-30T13:28:10.363+08:00  INFO 30588 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-07-30T13:28:10.418+08:00  INFO 30588 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 29 ms. Found 0 Redis repository interfaces.
+2026-07-30T13:28:12.577+08:00  INFO 30588 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-30T13:28:12.810+08:00  INFO 30588 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@20890a1a
+2026-07-30T13:28:12.813+08:00  INFO 30588 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-30T13:28:12.876+08:00  INFO 30588 --- [           main] org.flywaydb.core.FlywayExecutor         : Database: [isolated-mysql-connection-redacted] (MySQL 8.4)
+2026-07-30T13:28:12.953+08:00  WARN 30588 --- [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: MySQL 8.4 is newer than this version of Flyway and support has not been tested. The latest supported version of MySQL is 8.1.
+2026-07-30T13:28:13.000+08:00  INFO 30588 --- [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table `order_reliability`.`flyway_schema_history` does not exist yet
+2026-07-30T13:28:13.008+08:00  INFO 30588 --- [           main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.038s)
+2026-07-30T13:28:13.056+08:00  INFO 30588 --- [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table `order_reliability`.`flyway_schema_history` ...
+2026-07-30T13:28:13.218+08:00  INFO 30588 --- [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `order_reliability`: << Empty Schema >>
+2026-07-30T13:28:13.272+08:00  INFO 30588 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "1 - commerceflow schema"
+2026-07-30T13:28:14.001+08:00  INFO 30588 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "2 - demo data"
+2026-07-30T13:28:14.075+08:00  INFO 30588 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "3 - localize showcase catalog"
+2026-07-30T13:28:14.143+08:00  INFO 30588 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "4 - add showcase product images"
+2026-07-30T13:28:14.312+08:00  INFO 30588 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "5 - add inventory movement evidence"
+2026-07-30T13:28:14.719+08:00  INFO 30588 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "6 - enforce unique order inventory movement"
+2026-07-30T13:28:14.781+08:00  INFO 30588 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "7 - add order item image snapshot"
+2026-07-30T13:28:14.939+08:00  INFO 30588 --- [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `order_reliability` to version "8 - extend ai trace for customer service"
+2026-07-30T13:28:16.126+08:00  INFO 30588 --- [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 8 migrations to schema `order_reliability`, now at version v8 (execution time 00:02.497s)
+2026-07-30T13:28:21.535+08:00  INFO 30588 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-07-30T13:28:21.734+08:00  INFO 30588 --- [           main] c.c.mall.OrderReliabilityMySqlTests      : Started OrderReliabilityMySqlTests in 12.962 seconds (process running for 13.801)
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 15.61 s -- in com.commerceflow.mall.OrderReliabilityMySqlTests
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  18.244 s
+[INFO] Finished at: 2026-07-30T13:28:24+08:00
+[INFO] ------------------------------------------------------------------------
+--- stderr ---
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+Exit Code: 0
+Finished at: 2026-07-30T05:28:25.0090110Z

@@ -89,6 +89,41 @@ jobs:
         if: failure()
         run: cat "$RUNNER_TEMP/commerceflow-api.log" || true
 
+  order-reliability:
+    name: Order reliability on MySQL 8.4
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: order_reliability_ci
+          MYSQL_USER: commerceflow
+          MYSQL_PASSWORD: commerceflow_demo
+          MYSQL_ROOT_PASSWORD: root_demo
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost -ucommerceflow -pcommerceflow_demo"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      ORDER_RELIABILITY_MYSQL_ENABLED: 'true'
+      ORDER_RELIABILITY_DB_URL: jdbc:mysql://localhost:3306/order_reliability_ci?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      ORDER_RELIABILITY_DB_USERNAME: commerceflow
+      ORDER_RELIABILITY_DB_PASSWORD: commerceflow_demo
+    defaults:
+      run:
+        working-directory: apps/mall-api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Order reliability on MySQL 8.4
+        run: mvn -Dtest=OrderReliabilityMySqlTests test
   python-ai-service:
     runs-on: ubuntu-latest
     defaults:
