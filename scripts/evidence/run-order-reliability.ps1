@@ -80,7 +80,7 @@ function Write-EvidenceDocuments([object[]]$Runs, [string]$Status) {
         "- Stability status: $Status.",
         "- Completed isolated runs: $($Runs.Count).",
         '- Detailed machine-readable counts: `results.json`.',
-        '- Full command output: `logs/01-baseline-java-tests.log` and `logs/02-real-mysql-order-reliability.log`.',
+        '- Full command output: `logs/01-baseline-java-tests.txt` and `logs/02-real-mysql-order-reliability.txt`.',
         '',
         '## Boundaries',
         '- Redis is not part of order or inventory correctness.',
@@ -120,7 +120,7 @@ if (-not (Get-Command docker -ErrorAction SilentlyContinue)) { throw 'Docker is 
 & docker version --format '{{.Server.Version}}' *> $null
 if ($LASTEXITCODE -ne 0) { throw 'Docker daemon is not available for the Phase O1 isolated MySQL evidence runner.' }
 
-$combinedLog = Join-Path $logRoot '02-real-mysql-order-reliability.log'
+$combinedLog = Join-Path $logRoot '02-real-mysql-order-reliability.txt'
 Remove-Item -LiteralPath $combinedLog -Force -ErrorAction SilentlyContinue
 $previous = @{}
 $variableNames = @('ORDER_RELIABILITY_MYSQL_ENABLED','ORDER_RELIABILITY_DB_URL','ORDER_RELIABILITY_DB_USERNAME','ORDER_RELIABILITY_DB_PASSWORD','ORDER_RELIABILITY_RESULTS_FILE')
@@ -133,7 +133,7 @@ try {
         $container = 'commerceflow-order-reliability-' + [Guid]::NewGuid().ToString('N').Substring(0,12)
         $stdout = Join-Path $env:TEMP ('commerceflow-o1-' + $runId + '-out.log')
         $stderr = Join-Path $env:TEMP ('commerceflow-o1-' + $runId + '-err.log')
-        $runLog = Join-Path $logRoot ('02-real-mysql-order-reliability-' + $runId + '.log')
+        $runLog = Join-Path $logRoot ('02-real-mysql-order-reliability-' + $runId + '.txt')
         $resultCopy = Join-Path $logRoot ($runId + '-results.json')
         $started = Get-Date
         $exitCode = -1

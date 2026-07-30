@@ -25,8 +25,8 @@ Verify local MySQL order, inventory, idempotency, duplicate-SKU aggregation, and
 ## Stability result
 
 - Three consecutive isolated MySQL runs completed with exit code 0; per-run results are recorded in `results.json`.
-- `logs/02-real-mysql-order-reliability.log` contains the MySQL test command output, with three individual run logs.
-- The final normal Java regression command completed successfully; `logs/03-final-java-tests.log` records the prior sanitized successful regression evidence.
+- `logs/02-real-mysql-order-reliability.txt` contains the MySQL test command output, with three individual run logs.
+- The final normal Java regression command completed successfully; `logs/03-final-java-tests.txt` records the prior sanitized successful regression evidence.
 
 ## Boundaries
 
