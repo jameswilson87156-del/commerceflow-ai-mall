@@ -1,5 +1,11 @@
 # Phase 0-B Handoff
 
+## 2026-09-07 — LOCAL_RELEASE_CANDIDATE_COMMITTED
+
+- 已在独立分支 `release/commerceflow-local-20260907` 形成本地候选提交 `14fa84833524c7081c2607410c57b8bcfe647858`（`release: assemble CommerceFlow staging candidate`）。提交包含源码、测试、部署 Compose/Caddy/Nginx 模板、文档和不含真实凭据的 `.env.example`；本地 `application-local.yml`、真实 `.env`、构建产物与临时回归目录仍保留在工作区，未删除或覆盖。
+- 该提交只代表本地发布候选：没有 `git push`、没有合并远端 `main`、没有 Docker up/down、云资源、DNS、证书、数据库或公网操作。候选代码提交相对 `origin/main` 为 ahead 1 / behind 2；随后仅增加了本条记录，推送前仍需单独审阅远端差异并取得明确授权。
+- 候选提交基于本轮 `LOCAL_PASS` 结果；Redis 集成实跑仍为 `PENDING`，云端资源/Secret/OIDC/RDS/Tair/DNS/ICP/TLS 与公网 staging 仍为 `BLOCKED`/`STAGING_PENDING`。
+
 ## 2026-09-07 — RELEASE_CANDIDATE_LOCAL_REAUDIT
 
 - 本次只做本地发布前复验；工作区原有修改和未跟踪文件均保留，没有执行 commit、push、Docker up/down、DNS、证书、云资源或数据库操作。

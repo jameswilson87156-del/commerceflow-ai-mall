@@ -1,11 +1,17 @@
 # TODO / Remaining Phase 0-B Follow-up
 
+## 2026-09-07 — LOCAL_RELEASE_CANDIDATE_COMMITTED
+
+- [x] `LOCAL_PASS`：在 `release/commerceflow-local-20260907` 形成候选提交 `14fa84833524c7081c2607410c57b8bcfe647858`；源码、测试、部署模板、文档和安全 `.env.example` 已纳入，真实 `.env`、本地运行配置、构建产物和临时目录未纳入且保留。
+- [ ] `BLOCKED`：候选代码提交与 `origin/main` 的 ahead 1 / behind 2 差异需在推送前单独审阅；未执行 push、merge、云资源、DNS、证书、数据库或公网 staging。
+- [ ] `PENDING`：恢复本机 Redis `127.0.0.1:6380` 后重跑 5 条 `AiRateLimitRedisIntegrationTests`。
+
 ## 2026-09-07 — RELEASE_CANDIDATE_LOCAL_REAUDIT
 
 - [x] `LOCAL_PASS`：Python 11/11、Admin 46/46、H5 36/36；Admin/H5/UniApp 生产构建成功；三份前端生产依赖审计为 0 high/critical；Compose 普通/TLS 静态配置和正向隔离 fixture 通过。
 - [x] `LOCAL_PASS`：Java 完整 `mvn -B test package` 为 91 条、0 failures、0 errors、5 skipped、JAR 构建成功；Redis 不可用时测试按前置条件跳过，清理误报已修复。
 - [ ] `PENDING`：恢复本机 Redis `127.0.0.1:6380` 后重跑 5 条 `AiRateLimitRedisIntegrationTests`；当前 Docker daemon 未运行，不自动启动或安装服务。
-- [ ] `BLOCKED`/`STAGING_PENDING`：干净 release commit、镜像 digest/SBOM、阿里云资源/Secret/OIDC/RDS/Tair/DNS/ICP/TLS 和公网 staging；等待独立资源与用户确认。
+- [ ] `BLOCKED`/`STAGING_PENDING`：镜像 digest/SBOM、阿里云资源/Secret/OIDC/RDS/Tair/DNS/ICP/TLS 和公网 staging；等待独立资源与用户确认。
 
 ## 2026-09-05 — STAGING_PHASE_A_AUDIT
 
