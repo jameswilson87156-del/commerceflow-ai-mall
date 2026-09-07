@@ -25,7 +25,7 @@ try {
     $started += Start-ShowcaseProcess 'python' 'py' "-3 -m uvicorn app.main:app --app-dir services/ai-service --host 127.0.0.1 --port $pythonPort" $script:ShowcaseRoot 'uvicorn app.main:app' $pythonPort
     Wait-ShowcaseHttp "http://127.0.0.1:$pythonPort/health" $WaitTimeoutSeconds
     $started[-1] = Update-ShowcaseListenerEntry $started[-1]
-    $env:VITE_ADMIN_PORT=$adminPort; $env:VITE_ADMIN_HOST='127.0.0.1'; $env:VITE_ADMIN_DEV_API_TARGET="http://127.0.0.1:$apiPort"; $started += Start-ShowcaseProcess 'admin' 'npm.cmd' 'run dev -- --host 127.0.0.1' (Join-Path $script:ShowcaseRoot 'apps/admin-web') 'admin-web' $adminPort
+    $env:VITE_ADMIN_PORT=$adminPort; $env:VITE_ADMIN_HOST='127.0.0.1'; $env:VITE_ADMIN_DEV_API_TARGET="http://127.0.0.1:$apiPort"; $env:VITE_API_BASE="http://127.0.0.1:$apiPort/api"; $started += Start-ShowcaseProcess 'admin' 'npm.cmd' 'run dev -- --host 127.0.0.1' (Join-Path $script:ShowcaseRoot 'apps/admin-web') 'admin-web' $adminPort
     Wait-ShowcaseHttp "http://127.0.0.1:$adminPort" $WaitTimeoutSeconds
     $started[-1] = Update-ShowcaseListenerEntry $started[-1]
     if ($IncludeMobile) { $env:VITE_MOBILE_PORT=$mobilePort; $env:VITE_MOBILE_HOST='127.0.0.1'; $env:VITE_MOBILE_DEV_API_TARGET="http://127.0.0.1:$apiPort"; $started += Start-ShowcaseProcess 'mobile' 'npm.cmd' 'run dev -- --host 127.0.0.1' (Join-Path $script:ShowcaseRoot 'apps/mobile-app') 'mobile-app' $mobilePort; Wait-ShowcaseHttp "http://127.0.0.1:$mobilePort" $WaitTimeoutSeconds; $started[-1] = Update-ShowcaseListenerEntry $started[-1] }

@@ -6,15 +6,25 @@ Java 17, Docker Desktop, Node 20+, Python 3.12+, Maven Wrapper, and PowerShell 5
 
 ## Start
 
+For the shortest reproducible local run, prefer the controlled Showcase lifecycle script:
+
 ```powershell
 Copy-Item .env.example .env
+powershell -NoProfile -File .\scripts\showcase\start.ps1 -IncludeMobile
+```
+
+The script starts MySQL, Redis, Java, FastAPI Mock, Admin, and (with `-IncludeMobile`) the H5 preview. It fails closed when an expected port is occupied by an unknown process. If port 8080 is already occupied, set `$env:MALL_API_PORT = "8081"` in the current PowerShell session before running it. The script passes the selected API port to the Admin and Mobile dev servers.
+
+The copied `.env` deliberately selects `DEMO` with explicit local consumer and Operator identities (`1` and `9001`). This is a Showcase fixture, not a login session or production RBAC. The mobile flow uses `/api/v1/me/...`; the Admin flow uses `/api/v1/operator/...`. To exercise a no-identity or staging-like boundary, use the corresponding Spring profile/configuration instead of adding a query parameter.
+
+For a manual Java-only run, start the dependencies, run the tests, and then start the API:
+
+```powershell
 ./scripts/start-mysql.ps1
 ./scripts/start-redis.ps1
 ./mvnw.cmd -f apps/mall-api/pom.xml test
 ./mvnw.cmd -f apps/mall-api/pom.xml spring-boot:run
 ```
-
-If port 8080 is already occupied, use `./mvnw.cmd -f apps/mall-api/pom.xml spring-boot:run -Dspring-boot.run.arguments=--server.port=8081` and set `VITE_API_BASE=http://localhost:8081/api` for the frontends.
 
 In another terminal:
 
@@ -30,6 +40,8 @@ services/ai-service/.venv/Scripts/pip install -r services/ai-service/requirement
 services/ai-service/.venv/Scripts/python -m uvicorn app.main:app --app-dir services/ai-service --port 8000
 ```
 
+On Windows, use the `py -3` launcher shown above. Some installations do not provide a working `python` command because the Microsoft Store app alias is enabled instead.
+
 Start the admin web:
 
 ```powershell
@@ -38,7 +50,7 @@ npm install
 npm run dev
 ```
 
-The UniApp folder contains a Vite web preview for the documented user flow. It can be opened with `npm install` and `npm run dev` under `apps/mobile-app`.
+The UniApp folder contains a Vite H5 preview for the documented user flow. It can be opened with `npm install` and `npm run dev` under `apps/mobile-app`; H5 is browser-verified at `390×844`, while non-H5 targets are compile-only evidence.
 
 ## Local Redis boundary
 

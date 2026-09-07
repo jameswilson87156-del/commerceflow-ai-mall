@@ -1,0 +1,26 @@
+.git
+.github
+.env
+.env.*
+.playwright-cli
+.showcase
+output
+**/node_modules
+**/target
+**/dist
+**/.venv
+**/__pycache__
+**/.pytest_cache
+screenshots
+*.log
+
+# Runtime secrets must never enter a Docker build context.
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/application-local.yml
+**/application-local.yaml
+**/application-local.properties

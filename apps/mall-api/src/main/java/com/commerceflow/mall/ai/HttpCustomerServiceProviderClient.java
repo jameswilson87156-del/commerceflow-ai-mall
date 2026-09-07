@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
@@ -17,6 +18,7 @@ import org.springframework.web.client.RestClientResponseException;
 
 /** Bounded Java-to-Python client. It maps only typed, sanitized provider failures. */
 @Component
+@ConditionalOnProperty(prefix = "commerceflow.ai.provider", name = "mode", havingValue = "FASTAPI", matchIfMissing = true)
 public class HttpCustomerServiceProviderClient implements CustomerServiceProviderClient {
     private final RestClient client;
     private final ObjectMapper objectMapper;
@@ -25,7 +27,7 @@ public class HttpCustomerServiceProviderClient implements CustomerServiceProvide
             ObjectMapper objectMapper,
             @Value("${commerceflow.ai-service-url:http://127.0.0.1:8000}") String baseUrl,
             @Value("${commerceflow.ai-connect-timeout-ms:1500}") int connectTimeoutMs,
-            @Value("${commerceflow.ai-read-timeout-ms:3000}") int readTimeoutMs) {
+            @Value("${commerceflow.ai-read-timeout-ms:15000}") int readTimeoutMs) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(Duration.ofMillis(connectTimeoutMs));
         requestFactory.setReadTimeout(Duration.ofMillis(readTimeoutMs));

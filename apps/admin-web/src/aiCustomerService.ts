@@ -1,7 +1,6 @@
 import { formatMoney, stockLabel, stockState, type Product, type Sku, type StockState } from './catalog'
+import { API_BASE, adminAccessStateMessage, authorizedRequestInit, classifyAdminAccess, type AdminAccessState } from './adminApi'
 
-export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api'
-export const DEMO_USER_ID = 1
 export const MAX_QUESTION_LENGTH = 500
 
 export type LoadState = 'loading' | 'ready' | 'empty' | 'error'
@@ -12,7 +11,6 @@ export type SelectedSku = {
 }
 
 export type AskRequest = {
-  userId: number
   productId: number
   skuId: number
   question: string
@@ -95,6 +93,7 @@ export class AiRequestError extends Error {
     public readonly code: string | null,
     public readonly retryAfterSeconds: number | null,
     public readonly rateLimit: RateLimitMetadata,
+    public readonly accessState: AdminAccessState = classifyAdminAccess(status),
   ) {
     super(message)
   }
@@ -107,6 +106,14 @@ export type SkuFilters = {
 }
 
 let fallbackCounter = 0
+const noRateLimit: RateLimitMetadata = { mode: 'disabled', limit: null, remaining: null, resetEpochSeconds: null }
+
+function oidcRequestError(error: unknown): AiRequestError | null {
+  if (error instanceof Error && error.message.startsWith('OIDC')) {
+    return new AiRequestError(error.message, 401, 'OIDC_CALLBACK_FAILED', null, noRateLimit, 'unauthorized')
+  }
+  return null
+}
 
 export function flattenSkus(products: Product[]): SelectedSku[] {
   return products.flatMap((product) => product.skus.map((sku) => ({ product, sku })))
@@ -183,22 +190,34 @@ async function responseError(response: Response): Promise<AiRequestError> {
     ? body.retryAfterSeconds
     : null
   const retryAfterSeconds = retryAfterFromHeader ?? retryAfterFromBody
-  const message = typeof body?.message === 'string' ? body.message : `请求失败（HTTP ${response.status}）`
-  return new AiRequestError(message, response.status, typeof body?.code === 'string' ? body.code : null, retryAfterSeconds, readRateLimitMetadata(response))
+  const accessState = classifyAdminAccess(response.status)
+  const message = response.status === 429
+    ? (typeof body?.message === 'string' ? body.message : `请求失败（HTTP ${response.status}）`)
+    : response.status === 401 || response.status === 403 || response.status === 404 || response.status >= 500
+      ? adminAccessStateMessage(accessState)
+      : (typeof body?.message === 'string' ? body.message : `请求失败（HTTP ${response.status}）`)
+  return new AiRequestError(message, response.status, typeof body?.code === 'string' ? body.code : null, retryAfterSeconds, readRateLimitMetadata(response), accessState)
 }
 
 export async function requestProducts(): Promise<Product[]> {
-  const response = await fetch(`${API_BASE}/products`)
+  let response: Response
+  try { response = await fetch(`${API_BASE}/products`, await authorizedRequestInit()) }
+  catch (error) { throw oidcRequestError(error) ?? new AiRequestError(adminAccessStateMessage('backend-unavailable'), 0, null, null, noRateLimit, 'backend-unavailable') }
   if (!response.ok) throw await responseError(response)
   return response.json() as Promise<Product[]>
 }
 
 export async function askCustomerService(request: AskRequest): Promise<AskCustomerServiceResult> {
-  const response = await fetch(`${API_BASE}/ai/customer-service/ask`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(request),
-  })
+  let response: Response
+  try {
+    response = await fetch(`${API_BASE}/v1/operator/ai/customer-service/ask`, await authorizedRequestInit({
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }))
+  } catch (error) {
+    throw oidcRequestError(error) ?? new AiRequestError(adminAccessStateMessage('backend-unavailable'), 0, null, null, noRateLimit, 'backend-unavailable')
+  }
   if (!response.ok) throw await responseError(response)
   return { answer: await response.json() as CustomerServiceAnswer, rateLimit: readRateLimitMetadata(response) }
 }

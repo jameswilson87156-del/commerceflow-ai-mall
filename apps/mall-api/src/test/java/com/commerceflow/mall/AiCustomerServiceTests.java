@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.commerceflow.mall.ai.AiModels;
 import com.commerceflow.mall.ai.AiProviderClientException;
+import com.commerceflow.mall.ai.AiProviderProperties;
 import com.commerceflow.mall.ai.AiService;
 import com.commerceflow.mall.ai.CustomerServiceProviderClient;
 import com.commerceflow.mall.core.CommerceException;
@@ -35,6 +36,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 class AiCustomerServiceTests {
     @Autowired AiService service;
+    @Autowired AiProviderProperties providerProperties;
     @Autowired JdbcTemplate jdbc;
     @Autowired MockMvc mockMvc;
     @MockitoBean CustomerServiceProviderClient providerClient;
@@ -42,6 +44,7 @@ class AiCustomerServiceTests {
     @BeforeEach
     void resetProviderAndFacts() {
         reset(providerClient);
+        providerProperties.setFallbackEnabled(true);
         jdbc.update("DELETE FROM ai_trace");
         jdbc.update("UPDATE inventory SET available_stock = CASE sku_id "
                 + "WHEN 10001 THEN 96 WHEN 10002 THEN 182 WHEN 10003 THEN 128 "
@@ -50,6 +53,21 @@ class AiCustomerServiceTests {
         jdbc.update("UPDATE product SET status='ON_SALE' WHERE id IN (101,102)");
         jdbc.update("UPDATE product_sku SET status='ON_SALE' WHERE id IN (10001,10002,10003,10004,10005)");
         answered();
+    }
+
+    @Test
+    void surfacesProviderErrorWhenLocalFallbackIsDisabled() {
+        providerProperties.setFallbackEnabled(false);
+        reset(providerClient);
+        when(providerClient.answer(any())).thenThrow(new AiProviderClientException(
+                AiProviderClientException.Kind.PROVIDER_ERROR, "upstream rejected the request"));
+
+        var answer = service.ask(request(101, 10004, "灰色 L 码现在还有库存吗？"));
+
+        assertEquals(AiModels.AnswerStatus.PROVIDER_ERROR, answer.answerStatus());
+        assertFalse(answer.fallbackUsed());
+        assertTrue(answer.warning().contains("未启用本地降级"));
+        assertEquals(1, count("SELECT COUNT(*) FROM ai_trace WHERE trace_id=?", answer.traceId()));
     }
 
     @Test
@@ -285,8 +303,8 @@ class AiCustomerServiceTests {
     }
 
     @Test
-    void cleanTestDatabaseAppliesFlywayV8() {
-        assertEquals(8, jdbc.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE AND version IS NOT NULL", Integer.class));
+    void cleanTestDatabaseAppliesAllFlywayMigrations() {
+        assertEquals(11, jdbc.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE AND version IS NOT NULL", Integer.class));
         assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE LOWER(TABLE_NAME)='ai_trace' AND LOWER(COLUMN_NAME)='question_summary'", Integer.class));
     }
 

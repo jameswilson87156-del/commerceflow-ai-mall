@@ -1,8 +1,34 @@
 {
   "name": "commerceflow-mobile-app",
   "private": true,
-  "scripts": {"dev": "vite", "build": "vite build", "build:uni": "uni build", "test": "node --test tests/runtime-helpers.test.mjs tests/mobile-commerce-policy.test.mjs tests/mobile-ai-customer-service.test.mjs"},
-  "dependencies": {"@dcloudio/uni-app": "3.0.0-alpha-5020120260710001", "vue": "3.5.13"},
-  "devDependencies": {"@dcloudio/vite-plugin-uni": "3.0.0-alpha-5020120260710001", "typescript": "^5.8.3", "vite": "5.2.8"},
-  "overrides": {"@vue/shared": "3.5.13"}
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:uni": "uni build",
+    "test": "node --test tests/runtime-helpers.test.mjs tests/mobile-commerce-policy.test.mjs tests/mobile-ai-customer-service.test.mjs"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0-alpha-5020520260829001",
+    "vue": "3.5.13"
+  },
+  "devDependencies": {
+    "@dcloudio/vite-plugin-uni": "3.0.0-alpha-5020520260829001",
+    "typescript": "^5.8.3",
+    "vite": "5.4.21"
+  },
+  "overrides": {
+    "@vue/shared": "3.5.13",
+    "@babel/core": "7.29.7",
+    "@intlify/core-base": "9.14.5",
+    "@intlify/message-compiler": "9.14.5",
+    "@intlify/message-resolver": "9.1.11",
+    "@intlify/runtime": "9.1.10",
+    "@intlify/shared": "9.14.5",
+    "@intlify/vue-devtools": "9.14.1",
+    "adm-zip": "0.6.0",
+    "esbuild": "0.25.12",
+    "nanoid": "3.3.18",
+    "postcss": "8.5.23",
+    "postcss-selector-parser": "6.1.3"
+  }
 }

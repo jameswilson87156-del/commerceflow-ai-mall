@@ -1,3 +1,5 @@
+import { fetchAdminJson } from './adminApi'
+
 export type OrderItemSnapshot = {
   productNameSnapshot: string
   skuCodeSnapshot: string
@@ -58,4 +60,16 @@ export function requestResultLabel(result: string): string {
 
 export function formatOrderTime(value: string): string {
   return new Intl.DateTimeFormat('zh-CN', { dateStyle: 'medium', timeStyle: 'medium', hour12: false }).format(new Date(value))
+}
+
+export function fetchOperatorOrders(): Promise<OrderSummary[]> {
+  return fetchAdminJson<OrderSummary[]>('/v1/operator/orders')
+}
+
+export function fetchOperatorOrder(orderNo: string): Promise<OrderSummary> {
+  return fetchAdminJson<OrderSummary>(`/v1/operator/orders/${encodeURIComponent(orderNo)}`)
+}
+
+export function fetchOperatorOrderEvidence(orderNo: string): Promise<OrderExecutionEvidence> {
+  return fetchAdminJson<OrderExecutionEvidence>(`/v1/operator/orders/${encodeURIComponent(orderNo)}/execution-evidence`)
 }

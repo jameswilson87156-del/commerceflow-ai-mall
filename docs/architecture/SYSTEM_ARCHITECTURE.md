@@ -10,8 +10,11 @@ flowchart TB
   Catalog --> Mysql[(MySQL 8.4 + Flyway)]
   Api --> Jdbc[JDBC transactional writes]
   Api --> Mybatis[MyBatis read-only evidence and operations aggregates]
-  Api --> FastApi[FastAPI internal customer-service endpoint]
+  Api --> Provider[CustomerServiceProvider adapter]
+  Provider --> FastApi[FastAPI internal endpoint]
+  Provider --> External[OpenAI-compatible / DeepSeek / OpenAI]
   FastApi --> Mock[commerceflow-mock]
+  Api --> Outbox[(Transactional Outbox)]
   Api --> Redis[(Redis 8.0.2)]
   Redis --> Lua[Lua fixed-window limiter]
 ```
@@ -19,7 +22,8 @@ flowchart TB
 ## Ownership and boundaries
 
 - Java owns `businessFacts`, Evidence, Trace persistence, orders, inventory, idempotency and fallback.
-- FastAPI receives constrained facts and returns a structured suggestion. It has no business database access and never calls Java back.
+- The Provider adapter receives constrained facts and returns a structured suggestion. FastAPI has no business database access and never calls Java back; external Provider keys stay server-side.
 - MyBatis is limited to evidence and operations read aggregation. JDBC remains the order/inventory write path.
 - Redis only limits the AI endpoint. It is not a cart, order, inventory, session, cache, or transaction authority.
+- Outbox rows are written with the order transaction; no worker or external consumer is claimed until the staging phase adds one.
 - The running mobile evidence is H5. Other UniApp targets are compilation evidence only.

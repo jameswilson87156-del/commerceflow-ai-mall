@@ -1,8 +1,10 @@
 # CommerceFlow AI Mall
 
+> 2026-09-05 第一阶段部署审计：当前总状态 **BLOCKED**。最新 Java 91/91（无跳过）、Python 11/11、Admin 46/46、H5 36/36、应用生产构建、配置守卫、空库 schema-only 初始化及 Compose 静态检查为 **LOCAL_PASS**。共享 OIDC 源码、Demo 迁移种子、容器化 RDS/Tair 接线、Admin/H5 client 隔离和跨项目 smoke 来源问题已完成本地整改；Docker registry、云资源、真实 Secret/OIDC、DNS/ICP/TLS 及公网验收仍 **STAGING_PENDING** 或 **BLOCKED**。详见 [本项目审计与部署计划](docs/release/STAGING_AUDIT_PLAN_20260905.md)。Compose 语法通过不代表可直接部署。
+
 **电商与 AI 客服协同平台**，用于展示 Java 后端、AI 应用、Vue 管理端与 UniApp H5 的一条可本地重建的 Showcase 链路。
 
-> `LOCAL SHOWCASE` · `commerceflow-mock` 确定性 Mock · `H5_VERIFIED` · 非 H5 仅编译通过
+> `LOCAL SHOWCASE` · `commerceflow-mock` 确定性 Mock · `CNY_ONLY` · `H5_VERIFIED` · 非 H5 仅编译通过
 
 这是本地求职展示项目，不是生产系统。Codex 对 Showcase 实现有实质贡献；代码所有权差距与后续学习重构计划如实记录在 [OWNERSHIP_GAPS](docs/career/OWNERSHIP_GAPS.md)。
 
@@ -22,11 +24,13 @@
 | 已实现且有本地证据 | 明确未实现或不应声称 |
 | --- | --- |
 | 商品、SKU、库存、购物车、订单快照、库存变动、幂等 | 支付、物流、退款、地址、优惠券 |
-| Java 事实驱动 AI 客服、Java fallback、Evidence、Trace | 外部大模型调用、真实 API Key、真实客户数据 |
+| Java 事实驱动 AI 客服、Java fallback、Evidence、Trace；价格与订单只支持 CNY；GPT/DeepSeek 兼容 Provider 适配边界和本地协议测试 | 真实外部模型调用、真实 API Key 验收、真实客户数据 |
 | Redis 5 次 / 60 秒 Lua 限流、429、FAIL_OPEN Showcase 边界 | 生产认证、DDoS 防护、高并发或商业运营结论 |
 | Admin 真实本地 API 页面；UniApp H5 浏览器验收 | 原生设备、微信小程序、Android 或 iOS 运行时验收 |
 
-当前无真实注册登录；`userId=1` 是演示用户。订单状态只有 `CREATED`。Redis 身份摘要不是生产认证，`FAIL_OPEN` 只适用于当前 Mock Showcase。
+当前默认仍是本地 Demo，不会伪装成真实注册登录；但 OIDC/JWT Resource Server、消费者身份映射、Operator 角色边界以及 Admin/H5 的 Authorization Code + PKCE 适配已经实现，staging profile 会关闭 Demo 身份和 legacy 路由。仓库根目录的 `.env.example` 仍显式开启本地 Demo 用户和 Demo Operator，基础 Spring 配置本身不创建任何默认身份；`/api/v1/me/...` 由 `CurrentUserPort` 派生消费者范围，`/api/v1/operator/...` 由独立 `OperatorScope` 授权跨用户管理读取。旧 `/api` 兼容链路仅在显式 LOCAL/DEMO 模式开启，不能作为公网权限边界。订单状态只有 `CREATED`。Redis 身份摘要不是生产认证，`FAIL_OPEN` 只适用于当前 Mock Showcase。真实 IdP、真实模型账号和公网服务器尚未在本工作区完成连接，执行边界见 [真实认证、Provider 与部署说明](docs/REAL_AUTH_PROVIDER_DEPLOYMENT.md)。
+
+金额合同固定为 CNY：商品 SKU、购物车、订单和订单明细都使用 `CNY`。Java 订单服务拒绝非 CNY SKU，Flyway V9 又在 `product_sku`、`orders` 和 `order_item` 上补齐数据库约束；这不是对多币种结算能力的宣称。
 
 ## 系统架构
 
@@ -37,12 +41,17 @@ flowchart LR
   J --> M[(MySQL + Flyway)]
   J -->|只读证据与运营聚合| MB[MyBatis]
   J -->|订单与库存事务写入| JD[JDBC]
-  J -->|受限 businessFacts| P[FastAPI]
+  J -->|受限 businessFacts| P[CustomerServiceProvider adapter]
   P --> MP[commerceflow-mock]
+  P --> EX[Optional OpenAI-compatible / DeepSeek]
   J --> R[(Redis Lua 限流)]
 ```
 
 完整图与字段关系见 [架构文档](docs/architecture/README.md)。
+
+后端演进按 E0～E4 推进，并补充 Phase 0-B 接口边界收口：E0 展示版契约冻结、消费者/Operator 身份边界、E1 Showcase 用户作用域、E2 订单端口/事务 Outbox 写入基础、E3 Provider/低基数指标基础和 E4 staging 部署资产。E4 目前只代表可审查、可配置的部署骨架和环境校验，不代表真实身份、备份恢复、公网 DNS/证书、真实供应商运行或已经上线；这些边界仍按 [后端下一阶段设计](docs/design/BACKEND_NEXT_PHASE_DESIGN.md) 独立验收。
+
+E4 的部署资产已经放在 [staging 设计与运行说明](docs/design/BACKEND_E4_STAGING.md)：默认只绑定本机 edge 端口，MySQL/Redis/FastAPI/API 均在私有 Docker 网络中；启动前校验会拒绝占位密码或 Demo 身份。未完成真实 IdP、DNS、证书、备份恢复和公网发布前，不要直接开放链接。
 
 ## 关键页面
 
@@ -63,20 +72,30 @@ flowchart LR
 
 Redis 429 与 FAIL_OPEN 是技术证据，见 [Canonical 截图索引](docs/showcase/CANONICAL_SCREENSHOTS.md)，不占用 README 主视觉。
 
+### 前端重做与真实浏览器验收
+
+2026-09-03 的前端重做已将 H5 调整为商品图优先的轻量 storefront，将 Admin 调整为证据优先的运营工作台；真实截图、页面状态、viewport、控制台检查和限制项集中记录在 [前端重做验收记录](docs/evidence/frontend-redesign/README.md)。只读审查和逐页规格见 [前端现状审查](docs/design/FRONTEND_CURRENT_AUDIT.md) 与 [前端页面规格](docs/design/FRONTEND_PAGE_SPECS.md)。
+
+本轮真实浏览器截图入口：
+
+| Admin 1366×768 | H5 390×844 |
+| --- | --- |
+| [Overview](docs/evidence/frontend-redesign/screenshots/admin-overview-1366.png) · [Product/SKU](docs/evidence/frontend-redesign/screenshots/admin-product-sku-1366.png) · [Order Evidence](docs/evidence/frontend-redesign/screenshots/admin-order-evidence-1366.png) · [AI Workbench](docs/evidence/frontend-redesign/screenshots/admin-ai-workbench-1366.png) | [Product List](docs/evidence/frontend-redesign/screenshots/mobile-product-list-390.png) · [Product Detail](docs/evidence/frontend-redesign/screenshots/mobile-product-detail-390.png) · [Cart](docs/evidence/frontend-redesign/screenshots/mobile-cart-390.png) · [Order Confirm](docs/evidence/frontend-redesign/screenshots/mobile-order-confirm-390.png) · [Order Result](docs/evidence/frontend-redesign/screenshots/mobile-order-result-390.png) · [Order Detail](docs/evidence/frontend-redesign/screenshots/mobile-order-detail-390.png) · [AI](docs/evidence/frontend-redesign/screenshots/mobile-ai-390.png) |
+
 ## 核心链路
 
 ### 商品、订单与库存
 
-`Product -> SKU -> Inventory` 是当前商品事实。提交订单时服务端接收 `Idempotency-Key`，聚合同一 SKU，执行带库存条件的原子 `UPDATE`，写入 `orders`、`order_item` 快照和 `inventory_movement`，并在一个 MySQL 事务中提交。重复的同 Key 同请求返回原订单；同 Key 不同请求返回 `409`。详见 [订单事务链路](docs/architecture/ORDER_TRANSACTION_FLOW.md)。
+`Product -> SKU -> Inventory` 是当前商品事实。提交订单时服务端接收 `Idempotency-Key`，聚合同一 SKU，按 SKU ID 稳定排序完成锁定与扣减，执行带库存条件的原子 `UPDATE`，写入 `orders`、`order_item` 快照和 `inventory_movement`，并在一个 MySQL 事务中提交。重复的同 Key 同请求返回原订单；同 Key 不同请求返回 `409`。详见 [订单事务链路](docs/architecture/ORDER_TRANSACTION_FLOW.md)。
 
 > **订单可靠性证据：** 使用真实 MySQL 8.4 覆盖库存竞争、并发幂等、Key 冲突、事务回滚与重复 SKU 聚合；本地独立数据库连续三次通过。详见 [Order Reliability Evidence V1](docs/evidence/order-reliability-v1/README.md)。这不是生产负载或吞吐量声明。
 ### AI 商品客服
 
-前端仅发送 `userId`、`productId`、`skuId`、`question`、`clientRequestId`。Java 从 MySQL 加载业务事实、构造 Evidence、调用 FastAPI，再校验结构化回答并保存最小化 Trace 摘要。Python 不写业务数据库、不回调 Java、不编造库存；不可用时 Java 使用事实约束 fallback。详见 [AI 事实链路](docs/architecture/AI_GROUNDED_ANSWER_FLOW.md)。
+消费者前端只发送 `productId`、`skuId`、`question`、`clientRequestId`，不发送 `userId`；管理端 AI 使用独立 Operator 路径，也不接受消费者 `userId`。Java 从 MySQL 加载业务事实、构造 Evidence，通过 `CustomerServiceProvider` 选择 FastAPI 或 OpenAI-compatible 适配器，再校验结构化回答并保存最小化 Trace 摘要。Provider 不写业务数据库、不回调 Java、不编造库存；不可用时 Java 使用事实约束 fallback。详见 [AI 事实链路](docs/architecture/AI_GROUNDED_ANSWER_FLOW.md)、[Phase 0-B 边界设计](docs/design/PHASE_0B_API_BOUNDARY_AUTHORIZATION.md) 和 [E3 Provider 设计](docs/design/BACKEND_E3_PROVIDER_OBSERVABILITY.md)。
 
 ### Redis 限流
 
-仅 `POST /api/ai/customer-service/ask` 受 Redis Lua 固定窗口保护，默认 5 次 / 60 秒。第 6 次返回 429 与 `Retry-After`；429 不调用 Provider、不写 AI Trace。Redis 不参与订单、库存、购物车或 MySQL 事务。详见 [Redis 限流链路](docs/architecture/REDIS_RATE_LIMIT_FLOW.md)。
+消费者 `POST /api/v1/me/ai/customer-service/ask` 与管理端 `POST /api/v1/operator/ai/customer-service/ask` 受 Redis Lua 固定窗口保护，默认 5 次 / 60 秒。第 6 次返回 429 与 `Retry-After`；429 不调用 Provider、不写 AI Trace。Redis 不参与订单、库存、购物车或 MySQL 事务。详见 [Redis 限流链路](docs/architecture/REDIS_RATE_LIMIT_FLOW.md)。
 
 ## 快速启动
 
@@ -92,6 +111,7 @@ powershell -NoProfile -File .\scripts\showcase\start.ps1 -IncludeMobile
 ```powershell
 powershell -NoProfile -File .\scripts\showcase\status.ps1
 powershell -NoProfile -File .\scripts\showcase\verify.ps1 -IncludeMobile
+powershell -NoProfile -File .\scripts\showcase\verify.ps1 -IncludeMobile -IncludeOrderSmoke -IncludeRateLimitSmoke
 powershell -NoProfile -File .\scripts\showcase\stop.ps1
 ```
 
@@ -101,9 +121,9 @@ powershell -NoProfile -File .\scripts\showcase\stop.ps1
 
 ## 测试与 CI
 
-GitHub Actions 设有五个清晰职责：`repository-integrity`、`java-backend`、`python-ai-service`、`admin-web`、`mobile-app`。Java job 使用真实 MySQL 8.4 与 Redis 8.0.2，并进行 Flyway V1–V8 概览 smoke；Python 固定 Mock Provider；前端不依赖已运行的 Java 服务。
+GitHub Actions 设有五个清晰职责：`repository-integrity`、`java-backend`、`python-ai-service`、`admin-web`、`mobile-app`。Java job 使用真实 MySQL 8.4 与 Redis 8.0.2，并进行 Flyway V1–V10 概览 smoke；Python 固定 Mock Provider；Provider 兼容协议使用本地 fixture 测试，不调用外部模型；前端不依赖已运行的 Java 服务。
 
-当前本地验收摘要与精确数量见 [P7C 测试结果](docs/evidence/P7-showcase/P7C_TEST_RESULTS.md)。CI 不调用外部 AI、不读取真实密钥、不部署、不发布镜像。
+当前本地验收矩阵与精确数量见 [当前验收矩阵](docs/evidence/ACCEPTANCE_MATRIX.md)、[前端重做验收记录](docs/evidence/frontend-redesign/README.md) 和 [P7C 测试结果](docs/evidence/P7-showcase/P7C_TEST_RESULTS.md)。CI 不调用外部 AI、不读取真实密钥、不部署、不发布镜像。
 
 ## 演示顺序
 
@@ -123,6 +143,7 @@ services/ai-service/ FastAPI 与 commerceflow-mock
 scripts/showcase/    安全的本地生命周期脚本
 docs/architecture/   系统、请求链路与数据模型
 docs/evidence/       阶段验收与冻结证据
+docs/design/         设计审查、页面规格与事实边界
 screenshots/v2/      真实运行截图
 ```
 

@@ -8,18 +8,18 @@ This matrix is the implementation baseline for future design references. It inte
 | --- | --- | --- | --- | --- |
 | Demo login | Implemented | `POST /api/auth/demo-login` | `userId`, `username`, `displayName` | May show `Demo Buyer`; do not show auth tokens, roles, or account settings |
 | Product list | Implemented | `GET /api/products` | `id`, `name`, `description`, `categoryName`, nested `skus` | Real catalog cards and table rows are allowed |
-| Product detail | Implemented in API | `GET /api/products/{productId}` | Same product and SKU fields | Frontends can show a real detail view; current UniApp uses the list response instead |
+| Product detail | Implemented and used by H5 | `GET /api/products/{productId}` | Same product and SKU fields | UniApp detail page reloads the authoritative detail endpoint and selects a real SKU |
 | SKU | Implemented as nested read data | Product APIs | `id`, `skuCode`, `color`, `size`, `salePrice`, `currency`, `availableStock` | Real variant selection and stock label are allowed |
 | Inventory deduction | Implemented in order transaction | Java `OrderService` and `inventory` table | `availableStock` before/after only if separately queried; zero affected rows means insufficient or changed stock | Show outcome, not an unqueried audit timeline |
-| Cart read/add | Implemented in Java | `GET /api/cart?userId=1`, `POST /api/cart/items?userId=1` | Cart item ID, SKU, product name, SKU code, attributes, unit price, quantity, available stock | API supports a persistent cart view; current UniApp does not use it |
-| Order submit | Implemented | `POST /api/orders?userId=1` with `Idempotency-Key` | `orderNo`, amount, currency, `CREATED`, timestamps, order item snapshots | Success screen can show the real order number and amount |
-| Order list/detail | Implemented in Java | `GET /api/orders?userId=1`, `GET /api/orders/{orderNo}` | order number, amount, currency, status, created time, product/SKU/attribute/price/quantity snapshots | Vue order table is real; a detailed panel still needs frontend work |
+| Cart read/add | Implemented and used by H5 | Consumer `GET/POST/PUT/DELETE /api/v1/me/cart...` via `CurrentUserPort` | Cart item ID, SKU, product name, SKU code, attributes, unit price, quantity, available stock | H5 reads and mutates the persistent server-scoped cart; no client `userId` |
+| Order submit | Implemented | Consumer `POST /api/v1/me/orders` with `Idempotency-Key` | `orderNo`, amount, currency, `CREATED`, timestamps, order item snapshots | Success screen can show the real order number and amount for the current consumer scope |
+| Order list/detail | Implemented and used by both clients | Consumer `GET /api/v1/me/orders...`; Operator `GET /api/v1/operator/orders...` | order number, amount, currency, status, created time, product/SKU/attribute/price/quantity snapshots | Admin evidence page uses OperatorScope; H5 result/detail uses CurrentUserPort |
 | Idempotency | Implemented and tested | HTTP Header `Idempotency-Key` plus MySQL unique constraint | Replay result, in-progress conflict, key-reuse conflict | Can be explained in an order detail or interview evidence panel; not as a visible user KPI |
-| AI product support | Implemented backend; Vue workbench deferred to P4C | `POST /api/ai/customer-service/ask` | selected product/SKU, typed answer status, provider, Java Evidence, safe facts, compact Trace | A future panel must select a real SKU and render plain text only |
+| AI product support | Implemented in Java, FastAPI, Vue, and UniApp H5 | Consumer `POST /api/v1/me/ai/customer-service/ask`; Operator `POST /api/v1/operator/ai/customer-service/ask` | selected product/SKU, typed answer status, provider, Java Evidence, safe facts, compact Trace | Both frontends select a real SKU and render provider, Evidence, Trace, loading, error, and rate-limit states; identity scope is server-derived |
 | Java-owned business facts | Implemented internally | Java to Python `POST /internal/ai/customer-service/answer` | question, product/SKU identity/status/image, `unitPrice` decimal string, currency, stock, snippets, queried time | Java is the sole fact source; Python cannot add Evidence or query MySQL |
-| AI provider fallback | Implemented | Bounded Java call plus Java fact fallback | `FALLBACK_ANSWER`, `java-fact-fallback`, warning, safe error code | State can be shown in a future support response, not as a fake reliability percentage |
+| AI provider fallback | Implemented | Bounded Java call plus Java fact fallback | `FALLBACK_ANSWER`, `java-fact-fallback`, warning, safe error code | Current Admin and H5 support pages show the fallback state; no reliability percentage is claimed |
 | AI product copy | Not implemented | None | None | Design-only future reference; no runtime screenshot |
-| Trace detail | Write-only for now | extended `ai_trace` table | correlation ids, fact selection ids, safe question category, answer/provider/fallback/latency/error summary | Future page; still requires a dedicated read API and DTO |
+| Trace detail | Current-response read model implemented; history out of scope | response from the versioned consumer/Operator AI endpoints plus extended `ai_trace` table | correlation ids, fact selection ids, safe question category, answer/provider/fallback/latency/error summary | Admin and H5 render the returned current Trace; no history/search claim |
 | AI history | Not implemented | None | None | Do not show conversation list or completion rate |
 | Product/SKU management writes | Not implemented | None | None | Current Catalog view is read-only, not an admin CRUD claim |
 | Categories | Read-only through product response | `categoryName` nested in products | category name | Do not show a category management screen |
@@ -32,16 +32,16 @@ This matrix is the implementation baseline for future design references. It inte
 
 | Surface | Existing UI | API-backed today | Gap to call it a complete design reference |
 | --- | --- | --- | --- |
-| Vue Overview | KPI cards, catalog signal, recent orders, AI signal | Products and orders are live; stock is computed locally | No aggregate metrics, trend API, latest activity, or trace read API |
-| Vue Catalog | Read-only table | Product API is live | No filters, pagination, write actions, or SKU detail panel |
-| Vue Orders | Read-only table | Order list is live | No order detail page, inventory deduction evidence, or status transitions |
-| Vue AI Support | Sidebar label only | P4B backend is live but no Vue request surface yet | P4C must add real SKU selection, messages, loading/error/retry, Evidence, and Trace rendering |
+| Vue Overview | KPI cards, catalog signal, recent orders, AI signal | Operations overview API is live and backed by MySQL/`ai_trace`/runtime configuration | No date-window trend API or trace-history search |
+| Vue Catalog | Read-only search/filter/detail/SKU view | Product API is live | No pagination or write actions; this is not CRUD management |
+| Vue Orders | Read-only list plus evidence detail | Order list/detail/evidence APIs are live | No status transitions or fulfillment operations; those remain out of scope |
+| Vue AI Support | Real SKU selection and single-round workbench | Customer-service API is live | No AI history/search or remote-provider acceptance |
 | Vue AI Copy Desk | Label and prompt shell | It currently reuses product chat, which is not copy generation | Requires a dedicated backend contract before it may appear in a runtime screenshot |
 | Vue Trace Explorer | Label and prompt shell | No trace read call | Requires trace detail endpoint and evidence renderer |
-| UniApp Mall | Catalog list | Product list is live | Demo login call and product detail endpoint are not used by the page |
-| UniApp Product sheet | Local sheet and SKU add | SKU values originate from product list | Needs a real route or dedicated detail state for a stable reference image |
-| UniApp Bag | Local array | Order submit is live; cart API is not used | Needs persisted cart read, confirmation state, success screen, and order navigation |
-| UniApp Orders | Bottom label only | No call | Requires order list/detail view before a runtime screenshot can claim it |
+| UniApp Mall | Catalog list | Product list is live | Catalog uses the configured `Local Demo Fixture` or `Real Backend` label; any consumer mutation still requires `/api/v1/me` identity |
+| UniApp Product sheet | API-backed detail and SKU add | Product detail, SKU and cart APIs are live | H5 route verified; native runtime remains compile-only |
+| UniApp Bag | Persistent server cart | Cart read/add/update/delete APIs are live | H5 checkout and order result are verified; payment is out of scope |
+| UniApp Orders | Real order list/detail/result pages | Order list/detail APIs are live | H5 order result/detail verified; native runtime remains compile-only |
 
 ## API Gap Register
 
@@ -51,7 +51,7 @@ The following interfaces are design prerequisites, not tasks to silently assume 
 2. An order aggregation endpoint if a trend chart or pending-work KPI is desired.
 3. A trace detail endpoint that reads `ai_trace` and returns parsed evidence, risk, and business facts without exposing unrelated privacy data.
 4. A dedicated AI copy endpoint and DTO if AI Copy Desk becomes an actual feature.
-5. A persistent frontend cart/order-success flow if UniApp is expected to demonstrate a multi-screen order journey.
+5. Native device runtime acceptance if UniApp is expected to make an Android/iOS/mini-program runtime claim.
 6. Product/SKU write APIs only if the admin design is changed from read-only catalog inspection to management.
 
 Until an item has an implemented API, it stays `FUTURE_SCOPE` or `REMOVE` in screenshot plans.

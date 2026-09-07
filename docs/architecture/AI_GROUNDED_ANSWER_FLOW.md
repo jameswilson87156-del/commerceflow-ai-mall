@@ -5,13 +5,13 @@ sequenceDiagram
   participant F as Admin or UniApp
   participant J as Java AI service
   participant M as MySQL
-  participant P as FastAPI
-  participant X as commerceflow-mock
+  participant P as Provider adapter
+  participant X as FastAPI / OpenAI-compatible
   F->>J: userId, productId, skuId, question, clientRequestId
   J->>M: load Product / SKU / Inventory
   J->>J: construct businessFacts and Evidence
   J->>P: structured internal request
-  P->>X: deterministic fact-bound answer
+  P->>X: constrained protocol request
   X-->>P: structured answer suggestion
   P-->>J: provider result
   J->>J: validate response or create Java fallback
@@ -21,12 +21,12 @@ sequenceDiagram
 
 1. The client sends only `userId`, `productId`, `skuId`, `question`, and `clientRequestId`.
 2. Java reads product facts from MySQL and creates authoritative `businessFacts` plus seven Evidence items.
-3. Java calls FastAPI; Python receives no direct database credential or unrelated personal information.
-4. `commerceflow-mock` is deterministic and relies on supplied facts. No external model is invoked in the local Showcase.
+3. Java calls the selected Provider adapter. In the default Showcase it reaches FastAPI and `commerceflow-mock`; external mode uses the server-side OpenAI-compatible adapter.
+4. `commerceflow-mock` is deterministic and relies on supplied facts. No external model is invoked in the local Showcase unless the external mode is explicitly configured with a runtime secret.
 5. Java validates trace id, provider metadata, status and bounded answer content. It persists a privacy-minimized category summary, not the raw provider payload, API key, prompt or stack trace.
 6. If Python is unavailable, times out, or returns invalid data, Java returns a fact-bound `java-fact-fallback`. Unsupported questions remain unsupported rather than invented.
 
-There is no Java -> Python -> Java network loop. Python never writes Product, Inventory, Cart or Order data and does not become a business fact source.
+There is no Java -> Python -> Java network loop. Python, FastAPI, and any external Provider never write Product, Inventory, Cart or Order data and never become a business fact source; Java remains the owner of those facts.
 ## AI1 configuration and remote-adapter boundary
 
 - Mock remains the default when no project, shared, or legacy provider configuration is valid.

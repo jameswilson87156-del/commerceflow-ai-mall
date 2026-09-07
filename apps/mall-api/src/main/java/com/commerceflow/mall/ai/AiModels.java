@@ -33,6 +33,22 @@ public final class AiModels {
             String clientRequestId) {
     }
 
+    /** Request shape for /api/v1/me/ai; the user is derived from the server scope. */
+    public record ScopedCustomerServiceAskRequest(
+            Long productId,
+            Long skuId,
+            String question,
+            String clientRequestId) {
+    }
+
+    /** Request shape for /api/v1/operator/ai; the actor is derived from OperatorScope. */
+    public record OperatorCustomerServiceAskRequest(
+            Long productId,
+            Long skuId,
+            String question,
+            String clientRequestId) {
+    }
+
     public record BusinessFacts(
             String question,
             long productId,

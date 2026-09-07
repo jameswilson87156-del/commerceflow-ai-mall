@@ -1,7 +1,7 @@
 # CommerceFlow Data Dictionary
 
-**Source of truth for this document:** Flyway migrations V1-V7 on the P3.1 implementation branch.
-**Scope:** Current local Showcase schema. V7 adds the implemented `order_item.image_path_snapshot` field.
+**Source of truth for this document:** Flyway migrations V1-V10 on the current implementation branch.
+**Scope:** Current local Showcase schema. V7 adds the implemented `order_item.image_path_snapshot` field, V9 enforces the CNY-only money contract and positive order-item quantities, and V10 adds the pending transactional Outbox foundation.
 
 ## `user_account` - 用户演示账户
 
@@ -57,7 +57,7 @@ Responsibility: purchasable variant and current SKU asset. Primary key: `id BIGI
 | `color` | VARCHAR(60), no | Variant color |
 | `size` | VARCHAR(40), no | Variant size |
 | `sale_price` | DECIMAL(19,2), no | Current sale price |
-| `currency` | VARCHAR(10), no, `CNY` | Price currency |
+| `currency` | VARCHAR(10), no, `CNY`; V9 check requires `CNY` | Price currency |
 | `status` | VARCHAR(20), no | SKU sale state |
 | `image_path` | VARCHAR(255), yes | Current approved SKU asset path |
 
@@ -99,7 +99,7 @@ Responsibility: successful creation result and idempotency record. Primary key: 
 | `idempotency_key` | VARCHAR(120), no | HTTP request idempotency identity |
 | `request_fingerprint` | VARCHAR(128), no | Request-body conflict comparison digest |
 | `total_amount` | DECIMAL(19,2), no | BigDecimal-backed order total |
-| `currency` | VARCHAR(10), no | Order currency |
+| `currency` | VARCHAR(10), no; V9 check requires `CNY` | Order currency |
 | `status` | VARCHAR(30), no | P3 currently uses `CREATED` only |
 | `created_at` | TIMESTAMP, no, current timestamp | Successful creation time |
 
@@ -122,7 +122,7 @@ Responsibility: immutable business snapshots for each order line. Primary key: `
 | `size_snapshot` | VARCHAR(40), yes | Historical size |
 | `image_path_snapshot` | VARCHAR(255), yes | Asset path captured at successful order creation; `NULL` is supported for pre-V7 orders |
 | `unit_price` | DECIMAL(19,2), no | Historical unit price |
-| `quantity` | INT, no | Purchased quantity |
+| `quantity` | INT, no; V9 check requires `> 0` | Purchased quantity |
 
 Boundary: this records a local path, not an immutable binary, CDN version, or asset lifecycle. The P3 page renders only this snapshot path and does not join the current SKU image as a fallback.
 
@@ -174,3 +174,24 @@ Responsibility: AI response/evidence trace. Primary key: `id BIGINT`; unique: `t
 | `evidence_json` | VARCHAR(4000), no | Evidence payload |
 | `status` | VARCHAR(30), no | Trace result state |
 | `created_at` | TIMESTAMP, no, current timestamp | Trace creation time |
+
+## `outbox_event` - 事务 Outbox 事件
+
+Responsibility: store a business event in the same database transaction as its order write so a later worker can deliver it without losing the event between a commit and a publish attempt. Primary key: `id BIGINT`; unique: `event_id`; indexes: pending scheduling and aggregate lookup. Source: CommerceFlow原创, structure compared with transactional-outbox references.
+
+| Field | Type / null / default | Meaning |
+| --- | --- | --- |
+| `id` | BIGINT, no, auto increment | Internal event row id |
+| `event_id` | VARCHAR(120), no, unique | Deterministic event identity |
+| `aggregate_type` | VARCHAR(80), no | Current aggregate category, `ORDER` |
+| `aggregate_id` | VARCHAR(80), no | Current order number |
+| `event_type` | VARCHAR(120), no | Current event, `ORDER_CREATED` |
+| `payload_json` | VARCHAR(4000), no | Bounded serialized event facts |
+| `status` | VARCHAR(20), no, `PENDING` | Delivery lifecycle placeholder |
+| `attempts` | INT, no, `0` | Future delivery-attempt counter |
+| `available_at` | TIMESTAMP, no, current timestamp | Earliest future delivery time |
+| `last_error` | VARCHAR(500), yes | Bounded delivery error summary |
+| `created_at` | TIMESTAMP, no, current timestamp | Event creation time |
+| `published_at` | TIMESTAMP, yes | Future successful-delivery time |
+
+Boundary: E2 only appends a `PENDING` `ORDER_CREATED` event. There is no broker, worker, notification side effect, retry scheduler, or claim that an external consumer has received the event yet.

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -14,8 +15,11 @@ import com.commerceflow.mall.core.CommerceException;
 import com.commerceflow.mall.order.OrderEvidenceMapper;
 import com.commerceflow.mall.order.OrderService;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -205,6 +209,28 @@ class OrderFlowTests {
     }
 
     @Test
+    void multiSkuOrderPreservesRequestOrderInStoredSnapshots() {
+        var request = new ApiModels.OrderRequest(List.of(
+                new ApiModels.OrderLineRequest(10004L, 1),
+                new ApiModels.OrderLineRequest(10003L, 1)));
+
+        var order = service.submit(1, key("lock-order"), request);
+
+        assertEquals(10004L, jdbc.queryForObject(
+                "SELECT sku_id FROM inventory_movement WHERE order_no=? ORDER BY id LIMIT 1",
+                Long.class,
+                order.orderNo()));
+        assertEquals(10004L, jdbc.queryForObject(
+                "SELECT sku_id FROM order_item WHERE order_id=(SELECT id FROM orders WHERE order_no=?) ORDER BY id LIMIT 1",
+                Long.class,
+                order.orderNo()));
+        assertEquals(10003L, jdbc.queryForObject(
+                "SELECT sku_id FROM order_item WHERE order_id=(SELECT id FROM orders WHERE order_no=?) ORDER BY id LIMIT 1 OFFSET 1",
+                Long.class,
+                order.orderNo()));
+    }
+
+    @Test
     void legacyOrderWithNullImageSnapshotRemainsReadable() {
         String orderNo = "LEGACY" + UUID.randomUUID().toString().replace("-", "");
         jdbc.update("INSERT INTO orders(order_no,user_id,idempotency_key,request_fingerprint,total_amount,currency,status) VALUES (?,?,?,?,?,?,?)", orderNo, 1L, key("legacy"), "legacy-fingerprint", new BigDecimal("129.00"), "CNY", "CREATED");
@@ -217,8 +243,101 @@ class OrderFlowTests {
     }
 
     @Test
-    void cleanTestDatabaseAppliedAllMigrationsThroughP4TraceStorage() {
-        assertEquals(8, count("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE AND version IS NOT NULL"));
+    void nestedOrderLineValidationRejectsZeroQuantityBeforeAnyTransactionWrite() throws Exception {
+        String key = key("nested-validation");
+        int before = stock(10004);
+
+        mockMvc.perform(post("/api/orders")
+                .param("userId", "1")
+                .header("Idempotency-Key", key)
+                .contentType("application/json")
+                .content("{\"items\":[{\"skuId\":10004,\"quantity\":0}]}"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+
+        assertEquals(before, stock(10004));
+        assertEquals(0, count("SELECT COUNT(*) FROM orders WHERE idempotency_key=?", key));
+    }
+
+    @Test
+    void orderRequiresBoundedIdempotencyKeyAndRejectsMissingOrOversizedValues() throws Exception {
+        mockMvc.perform(post("/api/orders")
+                .param("userId", "1")
+                .contentType("application/json")
+                .content("{\"items\":[{\"skuId\":10004,\"quantity\":1}]}"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("IDEMPOTENCY_KEY_REQUIRED"));
+
+        mockMvc.perform(post("/api/orders")
+                .param("userId", "1")
+                .header("Idempotency-Key", "x".repeat(121))
+                .contentType("application/json")
+                .content("{\"items\":[{\"skuId\":10004,\"quantity\":1}]}"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("IDEMPOTENCY_KEY_INVALID"));
+    }
+
+    @Test
+    void unknownUserCannotCreateAnOrder() throws Exception {
+        mockMvc.perform(post("/api/orders")
+                .param("userId", "99999")
+                .header("Idempotency-Key", key("unknown-user"))
+                .contentType("application/json")
+                .content("{\"items\":[{\"skuId\":10004,\"quantity\":1}]}"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.code").value("USER_NOT_FOUND"));
+    }
+
+    @Test
+    void anOffSaleParentProductCannotBeOrderedThroughItsOnSaleSku() throws Exception {
+        String key = key("off-sale-parent");
+        int before = stock(10004);
+        jdbc.update("UPDATE product SET status='OFF_SALE' WHERE id=101");
+        try {
+            mockMvc.perform(post("/api/orders")
+                    .param("userId", "1")
+                    .header("Idempotency-Key", key)
+                    .contentType("application/json")
+                    .content("{\"items\":[{\"skuId\":10004,\"quantity\":1}]}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("SKU_NOT_FOUND"));
+        } finally {
+            jdbc.update("UPDATE product SET status='ON_SALE' WHERE id=101");
+        }
+        assertEquals(before, stock(10004));
+        assertEquals(0, count("SELECT COUNT(*) FROM orders WHERE idempotency_key=?", key));
+    }
+
+    @Test
+    void concurrentDifferentIdempotencyKeysNeverCreateNegativeStock() throws Exception {
+        int requestCount = 12;
+        int before = stock(10004);
+        var pool = Executors.newFixedThreadPool(requestCount);
+        try {
+            List<Callable<ApiModels.OrderSummary>> tasks = new ArrayList<>();
+            for (int index = 0; index < requestCount; index++) {
+                int requestIndex = index;
+                tasks.add(() -> service.submit(1, key("concurrent-" + requestIndex), request(10004, 1)));
+            }
+            long successCount = pool.invokeAll(tasks).stream().map(future -> {
+                try {
+                    future.get();
+                    return true;
+                } catch (Exception ex) {
+                    return false;
+                }
+            }).filter(Boolean::booleanValue).count();
+            assertEquals(requestCount, successCount);
+        } finally {
+            pool.shutdownNow();
+        }
+        assertEquals(before - requestCount, stock(10004));
+        assertTrue(stock(10004) >= 0);
+    }
+
+    @Test
+    void cleanTestDatabaseAppliedAllMigrationsThroughCnyContract() {
+        assertEquals(11, count("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE AND version IS NOT NULL"));
     }
 
     private ApiModels.OrderRequest request(long skuId, int quantity) {

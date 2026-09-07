@@ -15,9 +15,9 @@ import {
   traceLabel
 } from '../src/ui/mobile-ai-customer-service.mjs'
 
-test('请求体只提交已锁定的五个字段，不带前端事实', () => {
-  assert.deepEqual(createAskPayload({ userId: 1, productId: 101, skuId: 10004, question: '  有库存吗？ ', clientRequestId: 'mobile-test' }), {
-    userId: 1, productId: 101, skuId: 10004, question: '有库存吗？', clientRequestId: 'mobile-test'
+test('请求体只提交已锁定的四个字段，不带 userId 或前端事实', () => {
+  assert.deepEqual(createAskPayload({ userId: 999, productId: 101, skuId: 10004, question: '  有库存吗？ ', clientRequestId: 'mobile-test' }), {
+    productId: 101, skuId: 10004, question: '有库存吗？', clientRequestId: 'mobile-test'
   })
 })
 

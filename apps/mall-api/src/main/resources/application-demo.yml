@@ -1,0 +1,19 @@
+spring:
+  config:
+    activate:
+      on-profile: demo
+
+commerceflow:
+  showcase:
+    # This profile is intentionally an explicit local/demo fixture, not production auth.
+    mode: DEMO
+    data-scope: LOCAL_SHOWCASE
+    authentication-mode: ${SHOWCASE_AUTHENTICATION_MODE:DEMO_USER}
+    demo-user-id: ${SHOWCASE_DEMO_USER_ID:1}
+    demo-username: ${SHOWCASE_DEMO_USERNAME:demo@commerceflow.local}
+    demo-display-name: ${SHOWCASE_DEMO_DISPLAY_NAME:Demo Shopper}
+    operator-authentication-mode: ${SHOWCASE_OPERATOR_AUTHENTICATION_MODE:DEMO_OPERATOR}
+    demo-operator-id: ${SHOWCASE_DEMO_OPERATOR_ID:9001}
+    demo-operator-username: ${SHOWCASE_DEMO_OPERATOR_USERNAME:operator@commerceflow.local}
+    demo-operator-display-name: ${SHOWCASE_DEMO_OPERATOR_DISPLAY_NAME:Showcase Operator}
+    legacy-api-enabled: ${COMMERCEFLOW_LEGACY_API_ENABLED:true}

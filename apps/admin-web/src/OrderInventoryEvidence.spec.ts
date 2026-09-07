@@ -52,7 +52,7 @@ describe('OrderInventoryEvidence', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse([])))
     const wrapper = mount(OrderInventoryEvidence)
     await flushPromises()
-    expect(wrapper.get('[data-testid="order-empty"]').text()).toContain('当前用户没有已创建订单')
+    expect(wrapper.get('[data-testid="order-empty"]').text()).toContain('当前 Operator 范围没有已创建订单')
   })
 
   it('renders an error state and retries the order API', async () => {
@@ -78,7 +78,7 @@ describe('OrderInventoryEvidence', () => {
     expect(wrapper.get('[data-testid="order-thumbnail-CF2001"]').attributes('src')).toBe('/assets/products/product-tshirt-gray.png')
     expect(wrapper.get('[data-testid="order-thumbnail-CF2001-TOTE-BEIGE-ONE"]').attributes('src')).toBe('/assets/products/product-tote-beige.png')
     expect(wrapper.get('[data-testid="order-CF2001"]').text()).toContain('共 2 件')
-    expect(wrapper.get('[data-testid="order-list-total"]').text()).toContain('共 2 笔真实演示订单')
+    expect(wrapper.get('[data-testid="order-list-total"]').text()).toContain('共 2 笔服务端订单')
     expect(wrapper.get('[data-testid="order-item-image-T-SHIRT-GRAY-L"]').attributes('src')).toBe('/assets/products/product-tshirt-gray.png')
     expect(wrapper.get('[data-testid="order-item-image-TOTE-BEIGE-ONE"]').attributes('src')).toBe('/assets/products/product-tote-beige.png')
     expect(wrapper.get('[data-testid="movement-item-image-T-SHIRT-GRAY-L"]').attributes('src')).toBe('/assets/products/product-tshirt-gray.png')
@@ -109,7 +109,7 @@ describe('OrderInventoryEvidence', () => {
     await flushPromises()
 
     expect(wrapper.get('[data-testid="order-item-image-T-SHIRT-WHITE-S"]').attributes('src')).toBe('/assets/products/product-tshirt-white.png')
-    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/orders/CF2002/execution-evidence'))
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/api/v1/operator/orders/CF2002/execution-evidence'))).toBe(true)
   })
 
   it('shows the missing-image state for a legacy null snapshot', async () => {

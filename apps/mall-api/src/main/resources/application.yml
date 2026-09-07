@@ -41,8 +41,33 @@ commerceflow:
   ai-service-url: ${AI_SERVICE_URL:http://127.0.0.1:8000}
   ai-connect-timeout-ms: ${AI_CONNECT_TIMEOUT_MS:1500}
   ai-read-timeout-ms: ${AI_READ_TIMEOUT_MS:15000}
+  auth:
+    # SHOWCASE keeps the existing local/demo adapter. OIDC is mandatory for
+    # staging/production and fails closed when issuer-uri is not configured.
+    mode: ${COMMERCEFLOW_AUTH_MODE:SHOWCASE}
+    issuer-uri: ${COMMERCEFLOW_AUTH_ISSUER_URI:}
+    audience: ${COMMERCEFLOW_AUTH_AUDIENCE:}
+    roles-claim: ${COMMERCEFLOW_AUTH_ROLES_CLAIM:roles}
+    principal-claim: ${COMMERCEFLOW_AUTH_PRINCIPAL_CLAIM:sub}
+    username-claim: ${COMMERCEFLOW_AUTH_USERNAME_CLAIM:email}
+    display-name-claim: ${COMMERCEFLOW_AUTH_DISPLAY_NAME_CLAIM:name}
+    user-id-claim: ${COMMERCEFLOW_AUTH_USER_ID_CLAIM:}
+    operator-id-claim: ${COMMERCEFLOW_AUTH_OPERATOR_ID_CLAIM:}
+    operator-roles: ${COMMERCEFLOW_AUTH_OPERATOR_ROLES:operator,admin}
+    auto-provision-users: ${COMMERCEFLOW_AUTH_AUTO_PROVISION_USERS:false}
   ai:
     fallback-enabled: ${COMMERCEFLOW_AI_FALLBACK_ENABLED:${PORTFOLIO_AI_FALLBACK_ENABLED:${AI_PROVIDER_FALLBACK_ENABLED:true}}}
+    provider:
+      mode: ${COMMERCEFLOW_AI_PROVIDER:FASTAPI}
+      base-url: ${COMMERCEFLOW_AI_BASE_URL:${AI_SERVICE_URL:http://127.0.0.1:8000}}
+      model: ${COMMERCEFLOW_AI_MODEL:}
+      api-key: ${COMMERCEFLOW_AI_API_KEY:}
+      path: ${COMMERCEFLOW_AI_PATH:/v1/chat/completions}
+      connect-timeout-ms: ${COMMERCEFLOW_AI_CONNECT_TIMEOUT_MS:1500}
+      read-timeout-ms: ${COMMERCEFLOW_AI_READ_TIMEOUT_MS:8000}
+      max-retries: ${COMMERCEFLOW_AI_MAX_RETRIES:1}
+      fallback-enabled: ${COMMERCEFLOW_AI_FALLBACK_ENABLED:true}
+      provider-name: ${COMMERCEFLOW_AI_PROVIDER_NAME:openai-compatible}
     rate-limit:
       enabled: ${AI_RATE_LIMIT_ENABLED:true}
       limit: ${AI_RATE_LIMIT_LIMIT:5}
@@ -51,8 +76,19 @@ commerceflow:
       failure-policy: ${AI_RATE_LIMIT_FAILURE_POLICY:FAIL_OPEN}
       identity-hash-secret: ${AI_RATE_LIMIT_IDENTITY_HASH_SECRET:local-showcase-rate-limit-salt}
   showcase:
-    data-scope: ${SHOWCASE_DATA_SCOPE:LOCAL_SHOWCASE}
-    authentication-mode: ${SHOWCASE_AUTHENTICATION_MODE:DEMO_USER}
+    # Safe base defaults: no implicit customer/operator identity and no legacy API.
+    # Local/demo startup must opt in explicitly through .env or application-demo.yml.
+    mode: ${SHOWCASE_MODE:LOCAL}
+    data-scope: ${SHOWCASE_DATA_SCOPE:LOCAL}
+    authentication-mode: ${SHOWCASE_AUTHENTICATION_MODE:NONE}
+    demo-user-id: ${SHOWCASE_DEMO_USER_ID:0}
+    demo-username: ${SHOWCASE_DEMO_USERNAME:demo@commerceflow.local}
+    demo-display-name: ${SHOWCASE_DEMO_DISPLAY_NAME:Demo Shopper}
+    operator-authentication-mode: ${SHOWCASE_OPERATOR_AUTHENTICATION_MODE:NONE}
+    demo-operator-id: ${SHOWCASE_DEMO_OPERATOR_ID:0}
+    demo-operator-username: ${SHOWCASE_DEMO_OPERATOR_USERNAME:operator@commerceflow.local}
+    demo-operator-display-name: ${SHOWCASE_DEMO_OPERATOR_DISPLAY_NAME:Showcase Operator}
+    legacy-api-enabled: ${COMMERCEFLOW_LEGACY_API_ENABLED:false}
     mobile-runtime: ${SHOWCASE_MOBILE_RUNTIME:H5_VERIFIED}
     non-h5-runtime: ${SHOWCASE_NON_H5_RUNTIME:COMPILE_ONLY}
 mybatis:

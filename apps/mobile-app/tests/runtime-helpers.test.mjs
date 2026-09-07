@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { classifyHttpFailure } from '../src/api/failure-policy.mjs'
 import { addCents, createClientIdempotencyKey, formatCents, joinUrl, normalizeBaseUrl } from '../src/api/runtime-helpers.mjs'
 
 test('normalizes an empty API base to the relative API path', () => {
@@ -31,4 +32,12 @@ test('creates non-empty idempotency keys with a random component', () => {
 
 test('does not create payment, shipment, or fake order statuses in helpers', () => {
   assert.equal(Object.keys({CREATED: true}).join(','), 'CREATED')
+})
+
+test('classifies consumer API failures without a Mock fallback', () => {
+  assert.equal(classifyHttpFailure(401), 'unauthorized')
+  assert.equal(classifyHttpFailure(403), 'forbidden')
+  assert.equal(classifyHttpFailure(500), 'backend-unavailable')
+  assert.equal(classifyHttpFailure(0), 'backend-unavailable')
+  assert.equal(classifyHttpFailure(422), 'request-failed')
 })

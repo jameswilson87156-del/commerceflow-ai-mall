@@ -7,6 +7,11 @@ import {
   isDecodedImage,
   isPurchasableSku
 } from '../src/ui/mobile-commerce-policy.mjs'
+import {
+  filterAndSortProducts,
+  getCatalogCategories,
+  normalizeCatalogQuery
+} from '../src/ui/mobile-catalog-policy.mjs'
 
 test('库存阈值集中为 10', () => {
   assert.equal(LOW_STOCK_THRESHOLD, 10)
@@ -58,4 +63,31 @@ test('未完成加载的图片不能视为有效', () => {
 
 test('自然尺寸为零的图片不能视为有效', () => {
   assert.equal(isDecodedImage({ complete: true, naturalWidth: 0, naturalHeight: 0 }), false)
+})
+
+const catalogProducts = [
+  { id: 1, productCode: 'PROD-1001', name: '经典白 T 恤', description: '轻盈棉质日常上衣', categoryName: '服装', skus: [{ salePrice: '129.00' }] },
+  { id: 2, productCode: 'PROD-1002', name: '原色帆布袋', description: '耐用通勤收纳', categoryName: '配件', skus: [{ salePrice: '89.00' }] },
+  { id: 3, productCode: 'PROD-1003', name: '深海蓝 T 恤', description: '柔软棉质日常上衣', categoryName: '服装', skus: [{ salePrice: '159.00' }] }
+]
+
+test('商品搜索词会去除首尾空格并按中文小写归一化', () => {
+  assert.equal(normalizeCatalogQuery('  T 恤  '), 't 恤')
+})
+
+test('分类只来自真实商品响应并保留全部入口', () => {
+  assert.deepEqual(getCatalogCategories(catalogProducts), ['全部', '服装', '配件'])
+})
+
+test('目录筛选同时支持分类和商品信息搜索', () => {
+  assert.deepEqual(
+    filterAndSortProducts(catalogProducts, { category: '服装', query: '蓝' }).map(product => product.id),
+    [3]
+  )
+})
+
+test('价格排序不改变原始商品数组', () => {
+  const sorted = filterAndSortProducts(catalogProducts, { sort: 'price-asc' })
+  assert.deepEqual(sorted.map(product => product.id), [2, 1, 3])
+  assert.deepEqual(catalogProducts.map(product => product.id), [1, 2, 3])
 })

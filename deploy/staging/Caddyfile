@@ -1,0 +1,13 @@
+{$STAGING_ADMIN_HOST} {
+    email {$ACME_EMAIL}
+    encode gzip
+    header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    reverse_proxy edge:8080
+}
+
+{$STAGING_MOBILE_HOST} {
+    email {$ACME_EMAIL}
+    encode gzip
+    header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    reverse_proxy edge:8080
+}

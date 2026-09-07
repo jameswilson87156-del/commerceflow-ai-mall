@@ -1,5 +1,6 @@
 package com.commerceflow.mall.operations;
 
+import com.commerceflow.mall.ai.AiProviderProperties;
 import com.commerceflow.mall.ai.ratelimit.RateLimitProperties;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -15,11 +16,14 @@ public class OperationsOverviewService {
     private final OperationsOverviewMapper mapper;
     private final ShowcaseRuntimeProperties runtime;
     private final RateLimitProperties rateLimit;
+    private final AiProviderProperties aiProvider;
 
-    public OperationsOverviewService(OperationsOverviewMapper mapper, ShowcaseRuntimeProperties runtime, RateLimitProperties rateLimit) {
+    public OperationsOverviewService(OperationsOverviewMapper mapper, ShowcaseRuntimeProperties runtime, RateLimitProperties rateLimit,
+                                     AiProviderProperties aiProvider) {
         this.mapper = mapper;
         this.runtime = runtime;
         this.rateLimit = rateLimit;
+        this.aiProvider = aiProvider;
     }
 
     @Transactional(readOnly = true)
@@ -35,7 +39,7 @@ public class OperationsOverviewService {
                 mapper.lowStockSkus(LOW_STOCK_THRESHOLD, LOW_STOCK_LIMIT).stream()
                         .map(row -> new OperationsOverviewDto.LowStockSku(row.skuId(), row.skuCode(), row.productName(), row.color(), row.size(), row.availableStock(), stockLevel(row.availableStock()))).toList(),
                 new OperationsOverviewDto.AiSummary(ai.provider(), ai.providerMode(), ai.interactionCount(), ai.answeredCount(), ai.unsupportedCount(), ai.fallbackCount(), ai.providerErrorCount(), ai.latestInteractionAt()),
-                new OperationsOverviewDto.RuntimeBoundary(runtime.getDataScope(), runtime.getAuthenticationMode(), "MOCK", "CREATED_ONLY",
+                new OperationsOverviewDto.RuntimeBoundary(runtime.getDataScope(), runtime.getAuthenticationMode(), aiProvider.runtimeMode(), "CREATED_ONLY",
                         "REDIS_LUA_FIXED_WINDOW", rateLimit.getLimit(), rateLimit.getWindowSeconds(), rateLimit.getFailurePolicy().name(),
                         runtime.getMobileRuntime(), runtime.getNonH5Runtime()),
                 Instant.now());

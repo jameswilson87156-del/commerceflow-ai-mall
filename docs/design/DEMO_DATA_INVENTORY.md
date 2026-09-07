@@ -2,7 +2,7 @@
 
 ## Seed Data
 
-Flyway V2 creates the initial account/catalog. V3 localizes the labels and V4 is the current Showcase catalog baseline: two on-sale products, five on-sale SKUs, approved local image paths, and normal/low/out-of-stock values. These are the stable facts a design reference may use after a clean V1-V8 rebuild.
+Flyway V2 creates the initial account/catalog. V3 localizes the labels and V4 is the current Showcase catalog baseline: two on-sale products, five on-sale SKUs, approved local image paths, and normal/low/out-of-stock values. V9 adds database enforcement for the CNY-only order contract and positive order quantities. V10 adds an empty transactional Outbox table; it does not add Demo business data. These are the stable facts a design reference may use after a clean V1-V10 rebuild.
 
 | Entity | ID | Value |
 | --- | ---: | --- |

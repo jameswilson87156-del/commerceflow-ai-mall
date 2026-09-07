@@ -11,7 +11,7 @@ function Invoke-OrderRequest {
   )
 
   try {
-    $response = Invoke-WebRequest -UseBasicParsing -Method Post -Uri "$ApiBase/orders?userId=1" -ContentType 'application/json' -Headers @{ 'Idempotency-Key' = $Key } -Body $Body
+    $response = Invoke-WebRequest -UseBasicParsing -Method Post -Uri "$ApiBase/v1/me/orders" -ContentType 'application/json' -Headers @{ 'Idempotency-Key' = $Key } -Body $Body
     return [PSCustomObject]@{ Status = [int]$response.StatusCode; Body = ($response.Content | ConvertFrom-Json) }
   } catch {
     $webResponse = $_.Exception.Response
@@ -47,9 +47,9 @@ Assert-Result ($secondary.Status -eq 200) 'Secondary order was not created.'
 $tertiary = Invoke-OrderRequest -Key 'p3-demo-tertiary' -Body '{"items":[{"skuId":10004,"quantity":1}]}'
 Assert-Result ($tertiary.Status -eq 200) 'Tertiary order was not created.'
 
-$orders = Invoke-RestMethod -Uri "$ApiBase/orders?userId=1"
+$orders = Invoke-RestMethod -Uri "$ApiBase/v1/me/orders"
 Assert-Result ($orders.Count -eq 3) 'Only the three successful requests should create order rows.'
-$evidence = Invoke-RestMethod -Uri "$ApiBase/orders/$($primary.Body.orderNo)/execution-evidence"
+$evidence = Invoke-RestMethod -Uri "$ApiBase/v1/me/orders/$($primary.Body.orderNo)/execution-evidence"
 Assert-Result ($evidence.inventoryMovements.Count -eq 1) 'Primary order does not have exactly one inventory movement.'
 
 [PSCustomObject]@{
