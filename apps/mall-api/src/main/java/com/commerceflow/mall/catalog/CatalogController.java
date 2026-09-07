@@ -1,11 +1,12 @@
 package com.commerceflow.mall.catalog;
 
 import com.commerceflow.mall.api.ApiModels;
+import com.commerceflow.mall.api.CommerceApiContract;
 import java.util.List;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping(CommerceApiContract.PRODUCTS_PATH)
 public class CatalogController {
     private final CatalogRepository repository;
     public CatalogController(CatalogRepository repository) { this.repository = repository; }

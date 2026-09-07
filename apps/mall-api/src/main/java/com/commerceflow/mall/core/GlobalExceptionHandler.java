@@ -8,6 +8,7 @@ import com.commerceflow.mall.ai.ratelimit.RateLimitUnavailableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -40,6 +41,10 @@ public class GlobalExceptionHandler {
     }
 
     private HttpStatus statusFor(String code) {
+        if (code.equals("UNAUTHENTICATED") || code.equals("USER_SCOPE_UNAVAILABLE")
+                || code.equals("OPERATOR_UNAUTHENTICATED")) return HttpStatus.UNAUTHORIZED;
+        if (code.equals("OPERATOR_FORBIDDEN")) return HttpStatus.FORBIDDEN;
+        if (code.equals("LEGACY_ENDPOINT_DISABLED")) return HttpStatus.NOT_FOUND;
         if (code.endsWith("_NOT_FOUND")) return HttpStatus.NOT_FOUND;
         if (code.contains("IN_PROGRESS") || code.contains("REUSED")) return HttpStatus.CONFLICT;
         if (code.equals("AI_SERVICE_UNAVAILABLE")) return HttpStatus.SERVICE_UNAVAILABLE;
@@ -50,5 +55,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<?> validation(MethodArgumentNotValidException ex) {
         return ResponseEntity.badRequest().body(Map.of("code", "VALIDATION_ERROR", "message", "Request validation failed"));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    ResponseEntity<?> missingParameter(MissingServletRequestParameterException ex) {
+        return ResponseEntity.badRequest().body(Map.of("code", "VALIDATION_ERROR", "message", "Required request parameter is missing"));
     }
 }

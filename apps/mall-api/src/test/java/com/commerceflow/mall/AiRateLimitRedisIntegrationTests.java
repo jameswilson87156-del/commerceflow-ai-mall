@@ -20,9 +20,15 @@ import com.commerceflow.mall.ai.ratelimit.AiRateLimiter;
 import com.commerceflow.mall.ai.ratelimit.RateLimitDecision;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +36,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest(properties = {
@@ -38,19 +46,38 @@ import org.springframework.test.web.servlet.MockMvc;
         "commerceflow.ai.rate-limit.enabled=true",
         "commerceflow.ai.rate-limit.limit=5",
         "commerceflow.ai.rate-limit.window-seconds=60",
-        "commerceflow.ai.rate-limit.key-prefix=commerceflow:test:ai:rate:v1",
         "commerceflow.ai.rate-limit.failure-policy=FAIL_OPEN"})
 @AutoConfigureMockMvc
 class AiRateLimitRedisIntegrationTests {
+    private static final String TEST_KEY_PREFIX =
+            "commerceflow:test:ai:rate:v1-" + UUID.randomUUID().toString().replace("-", "");
+
     @Autowired MockMvc mockMvc;
     @Autowired StringRedisTemplate redis;
     @Autowired org.springframework.jdbc.core.JdbcTemplate jdbc;
     @Autowired AiRateLimiter limiter;
     @MockitoBean CustomerServiceProviderClient providerClient;
+    private boolean redisAvailable;
+
+    @DynamicPropertySource
+    static void registerIsolatedRedisPrefix(DynamicPropertyRegistry registry) {
+        registry.add("commerceflow.ai.rate-limit.key-prefix", () -> TEST_KEY_PREFIX);
+    }
+
+    private void requireLocalRedis() {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress("127.0.0.1", 6380), 250);
+            redisAvailable = true;
+        } catch (IOException unavailable) {
+            redisAvailable = false;
+            Assumptions.assumeTrue(false, "Redis integration tests require Redis at 127.0.0.1:6380; start docker compose before running them.");
+        }
+    }
 
     @BeforeEach
     void resetRedisAndProvider() {
-        redis.getConnectionFactory().getConnection().serverCommands().flushDb();
+        requireLocalRedis();
+        deleteTestKeys();
         jdbc.update("DELETE FROM ai_trace");
         reset(providerClient);
         when(providerClient.answer(any())).thenAnswer(invocation -> {
@@ -59,6 +86,20 @@ class AiRateLimitRedisIntegrationTests {
                     request.traceId(), "库存事实已由 Java 提供。", AiModels.AnswerStatus.ANSWERED,
                     new AiModels.Provider("commerceflow-mock", AiModels.ProviderMode.MOCK, null), null);
         });
+    }
+
+    @org.junit.jupiter.api.AfterEach
+    void cleanUpTestKeys() {
+        if (redisAvailable) {
+            deleteTestKeys();
+        }
+    }
+
+    private void deleteTestKeys() {
+        Set<String> keys = redis.keys(TEST_KEY_PREFIX + ":*");
+        if (keys != null && !keys.isEmpty()) {
+            redis.delete(keys);
+        }
     }
 
     @Test
@@ -93,7 +134,7 @@ class AiRateLimitRedisIntegrationTests {
     @Test
     void keepsOneTtlAndSharesQuotaAcrossSkuButSeparatesRemoteIdentities() throws Exception {
         mockMvc.perform(ask("127.0.0.61", 101, 10004, "first")).andExpect(status().isOk());
-        String key = redis.keys("commerceflow:test:ai:rate:v1:*").iterator().next();
+        String key = redis.keys(TEST_KEY_PREFIX + ":*").iterator().next();
         long firstTtl = redis.getExpire(key, TimeUnit.SECONDS);
         mockMvc.perform(ask("127.0.0.61", 102, 10003, "other-sku")).andExpect(status().isOk())
                 .andExpect(header().string("X-RateLimit-Remaining", "3"));
@@ -112,7 +153,7 @@ class AiRateLimitRedisIntegrationTests {
         mockMvc.perform(askWithQuestion("127.0.0.71", 101, 10004, "   ", "invalid-question"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("INVALID_QUESTION"));
-        assertEquals(0, redis.keys("commerceflow:test:ai:rate:v1:*").size());
+        assertEquals(0, redis.keys(TEST_KEY_PREFIX + ":*").size());
 
         mockMvc.perform(ask("127.0.0.71", 999, 10004, "missing-product"))
                 .andExpect(status().isNotFound());

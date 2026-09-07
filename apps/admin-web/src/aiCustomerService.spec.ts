@@ -168,7 +168,8 @@ describe('AI customer service workbench', () => {
     await flushPromises()
     const [, init] = fetchMock.mock.calls[1] as [string, RequestInit]
     const body = JSON.parse(String(init.body))
-    expect(body).toMatchObject({ userId: 1, productId: 101, skuId: 10004, question: '这件灰色 L 码 T 恤现在还有库存吗？' })
+    expect(body).toMatchObject({ productId: 101, skuId: 10004, question: '这件灰色 L 码 T 恤现在还有库存吗？' })
+    expect(body).not.toHaveProperty('userId')
     expect(body.clientRequestId).toMatch(/^p4c-/)
     expect(body).not.toHaveProperty('availableStock')
     expect(body).not.toHaveProperty('salePrice')
@@ -400,7 +401,7 @@ describe('AI customer service workbench', () => {
       'X-RateLimit-Remaining': '0',
     }))
     vi.stubGlobal('fetch', fetchMock)
-    await expect(askCustomerService({ userId: 1, productId: 101, skuId: 10004, question: '库存还有吗？', clientRequestId: 'p5d-body-fallback' }))
+    await expect(askCustomerService({ productId: 101, skuId: 10004, question: '库存还有吗？', clientRequestId: 'p5d-body-fallback' }))
       .rejects.toMatchObject({ status: 429, retryAfterSeconds: 7 })
   })
 

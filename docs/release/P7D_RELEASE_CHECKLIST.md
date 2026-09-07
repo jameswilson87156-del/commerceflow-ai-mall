@@ -1,4 +1,6 @@
-# Showcase V1 Release Checklist
+# Showcase V1 Release Checklist (historical)
+
+> This is the historical 2026-07-29 release snapshot. It is retained as release evidence; the current implementation and test counts are maintained in [当前验收矩阵](../evidence/ACCEPTANCE_MATRIX.md) and [当前本地验证结果](../evidence/VERIFICATION_RESULTS.md).
 
 ## Release Gates
 

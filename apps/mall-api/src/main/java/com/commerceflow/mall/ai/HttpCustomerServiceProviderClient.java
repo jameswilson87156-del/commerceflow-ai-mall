@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
@@ -16,6 +17,7 @@ import org.springframework.web.client.RestClientResponseException;
 
 /** Bounded, typed Java-to-Python client. It never serializes facts by hand. */
 @Component
+@ConditionalOnProperty(prefix = "commerceflow.ai.provider", name = "mode", havingValue = "FASTAPI", matchIfMissing = true)
 public class HttpCustomerServiceProviderClient implements CustomerServiceProviderClient {
     private final RestClient client;
 

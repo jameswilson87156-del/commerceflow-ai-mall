@@ -6,9 +6,8 @@ export function createClientRequestId(randomUuid) {
   return `mobile-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`
 }
 
-export function createAskPayload({ userId, productId, skuId, question, clientRequestId }) {
+export function createAskPayload({ productId, skuId, question, clientRequestId }) {
   return {
-    userId: Number(userId),
     productId: Number(productId),
     skuId: Number(skuId),
     question: String(question || '').trim(),

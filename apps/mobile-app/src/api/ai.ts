@@ -2,7 +2,6 @@ import { request } from './runtime'
 import type { RateLimitMeta } from './types'
 
 export interface CustomerServiceAskRequest {
-  userId: number
   productId: number
   skuId: number
   question: string
@@ -70,7 +69,7 @@ export interface AiRequestResult {
 }
 
 export async function askCustomerService(payload: CustomerServiceAskRequest): Promise<AiRequestResult> {
-  const response = await request<CustomerServiceAnswer>('/ai/customer-service/ask', { method: 'POST', data: payload })
+  const response = await request<CustomerServiceAnswer>('/v1/me/ai/customer-service/ask', { method: 'POST', data: payload })
   return {
     answer: response.data,
     rateLimit: {

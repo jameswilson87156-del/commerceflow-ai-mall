@@ -1,0 +1,111 @@
+name: commerceflow-staging
+
+services:
+  mall-api:
+    build:
+      context: ../..
+      dockerfile: deploy/staging/mall-api.Dockerfile
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: staging
+      DB_URL: ${COMMERCEFLOW_DB_URL:?COMMERCEFLOW_DB_URL is required}
+      DB_USERNAME: ${COMMERCEFLOW_DB_USERNAME:?COMMERCEFLOW_DB_USERNAME is required}
+      DB_PASSWORD: ${COMMERCEFLOW_DB_PASSWORD:?COMMERCEFLOW_DB_PASSWORD is required}
+      SPRING_FLYWAY_USER: ${COMMERCEFLOW_DB_MIGRATION_USERNAME:?COMMERCEFLOW_DB_MIGRATION_USERNAME is required}
+      SPRING_FLYWAY_PASSWORD: ${COMMERCEFLOW_DB_MIGRATION_PASSWORD:?COMMERCEFLOW_DB_MIGRATION_PASSWORD is required}
+      SPRING_DATA_REDIS_SSL_ENABLED: ${COMMERCEFLOW_REDIS_SSL_ENABLED:-true}
+      REDIS_HOST: ${COMMERCEFLOW_REDIS_HOST:?COMMERCEFLOW_REDIS_HOST is required}
+      REDIS_PORT: ${COMMERCEFLOW_REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${COMMERCEFLOW_REDIS_PASSWORD:?COMMERCEFLOW_REDIS_PASSWORD is required}
+      COMMERCEFLOW_CORS_ALLOWED_ORIGINS: ${COMMERCEFLOW_CORS_ALLOWED_ORIGINS:?COMMERCEFLOW_CORS_ALLOWED_ORIGINS is required}
+      COMMERCEFLOW_LEGACY_API_ENABLED: "false"
+      COMMERCEFLOW_AUTH_MODE: OIDC
+      COMMERCEFLOW_AUTH_ISSUER_URI: ${COMMERCEFLOW_AUTH_ISSUER_URI:?COMMERCEFLOW_AUTH_ISSUER_URI is required}
+      COMMERCEFLOW_AUTH_AUDIENCE: ${COMMERCEFLOW_AUTH_AUDIENCE:?COMMERCEFLOW_AUTH_AUDIENCE is required}
+      COMMERCEFLOW_AUTH_ROLES_CLAIM: ${COMMERCEFLOW_AUTH_ROLES_CLAIM:-roles}
+      COMMERCEFLOW_AUTH_PRINCIPAL_CLAIM: ${COMMERCEFLOW_AUTH_PRINCIPAL_CLAIM:-sub}
+      COMMERCEFLOW_AUTH_USERNAME_CLAIM: ${COMMERCEFLOW_AUTH_USERNAME_CLAIM:-email}
+      COMMERCEFLOW_AUTH_DISPLAY_NAME_CLAIM: ${COMMERCEFLOW_AUTH_DISPLAY_NAME_CLAIM:-name}
+      COMMERCEFLOW_AUTH_USER_ID_CLAIM: ${COMMERCEFLOW_AUTH_USER_ID_CLAIM:-}
+      COMMERCEFLOW_AUTH_OPERATOR_ID_CLAIM: ${COMMERCEFLOW_AUTH_OPERATOR_ID_CLAIM:-}
+      COMMERCEFLOW_AUTH_OPERATOR_ROLES: ${COMMERCEFLOW_AUTH_OPERATOR_ROLES:-operator,admin}
+      COMMERCEFLOW_AUTH_AUTO_PROVISION_USERS: ${COMMERCEFLOW_AUTH_AUTO_PROVISION_USERS:-false}
+      SHOWCASE_DATA_SCOPE: STAGING
+      SHOWCASE_AUTHENTICATION_MODE: ${SHOWCASE_AUTHENTICATION_MODE:?SHOWCASE_AUTHENTICATION_MODE is required}
+      SHOWCASE_DEMO_USER_ID: "0"
+      COMMERCEFLOW_AI_PROVIDER: ${COMMERCEFLOW_AI_PROVIDER:?COMMERCEFLOW_AI_PROVIDER is required}
+      COMMERCEFLOW_AI_BASE_URL: ${COMMERCEFLOW_AI_BASE_URL:?COMMERCEFLOW_AI_BASE_URL is required}
+      COMMERCEFLOW_AI_PATH: ${COMMERCEFLOW_AI_PATH:-/v1/chat/completions}
+      COMMERCEFLOW_AI_MODEL: ${COMMERCEFLOW_AI_MODEL:?COMMERCEFLOW_AI_MODEL is required}
+      COMMERCEFLOW_AI_API_KEY: ${COMMERCEFLOW_AI_API_KEY:?COMMERCEFLOW_AI_API_KEY is required}
+      COMMERCEFLOW_AI_PROVIDER_NAME: ${COMMERCEFLOW_AI_PROVIDER_NAME:-openai-compatible}
+      COMMERCEFLOW_AI_CONNECT_TIMEOUT_MS: ${COMMERCEFLOW_AI_CONNECT_TIMEOUT_MS:-1500}
+      COMMERCEFLOW_AI_READ_TIMEOUT_MS: ${COMMERCEFLOW_AI_READ_TIMEOUT_MS:-8000}
+      COMMERCEFLOW_AI_MAX_RETRIES: ${COMMERCEFLOW_AI_MAX_RETRIES:-1}
+      COMMERCEFLOW_AI_FALLBACK_ENABLED: ${COMMERCEFLOW_AI_FALLBACK_ENABLED:-false}
+      AI_RATE_LIMIT_ENABLED: "true"
+      AI_RATE_LIMIT_FAILURE_POLICY: FAIL_CLOSED
+      AI_RATE_LIMIT_IDENTITY_HASH_SECRET: ${COMMERCEFLOW_RATE_LIMIT_HASH_SECRET:?COMMERCEFLOW_RATE_LIMIT_HASH_SECRET is required}
+    networks: [commerceflow-staging]
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://127.0.0.1:8080/actuator/health/readiness >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  edge:
+    build:
+      context: ../..
+      dockerfile: deploy/staging/edge.Dockerfile
+      args:
+        VITE_COMMERCEFLOW_AUTH_MODE: OIDC
+        VITE_COMMERCEFLOW_AUTH_ISSUER_URI: ${COMMERCEFLOW_AUTH_ISSUER_URI:?COMMERCEFLOW_AUTH_ISSUER_URI is required}
+        VITE_ADMIN_AUTH_CLIENT_ID: ${VITE_ADMIN_AUTH_CLIENT_ID:?VITE_ADMIN_AUTH_CLIENT_ID is required}
+        VITE_MOBILE_AUTH_CLIENT_ID: ${VITE_MOBILE_AUTH_CLIENT_ID:?VITE_MOBILE_AUTH_CLIENT_ID is required}
+        VITE_COMMERCEFLOW_AUTH_AUDIENCE: ${COMMERCEFLOW_AUTH_AUDIENCE:?COMMERCEFLOW_AUTH_AUDIENCE is required}
+        VITE_COMMERCEFLOW_AUTH_SCOPE: ${VITE_COMMERCEFLOW_AUTH_SCOPE:-openid profile email}
+    restart: unless-stopped
+    depends_on:
+      mall-api:
+        condition: service_healthy
+    environment:
+      STAGING_ADMIN_HOST: ${STAGING_ADMIN_HOST:?STAGING_ADMIN_HOST is required}
+      STAGING_MOBILE_HOST: ${STAGING_MOBILE_HOST:?STAGING_MOBILE_HOST is required}
+    ports:
+      - "127.0.0.1:${STAGING_HTTP_PORT:-8088}:8080"
+    networks: [commerceflow-staging]
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider --quiet http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  # Optional public TLS termination. Start with --profile tls only after both
+  # hostnames resolve to this machine and the operator has reviewed the Caddyfile.
+  caddy:
+    image: caddy:2.9-alpine
+    profiles: [tls]
+    restart: unless-stopped
+    depends_on:
+      edge:
+        condition: service_healthy
+    environment:
+      STAGING_ADMIN_HOST: ${STAGING_ADMIN_HOST:?STAGING_ADMIN_HOST is required}
+      STAGING_MOBILE_HOST: ${STAGING_MOBILE_HOST:?STAGING_MOBILE_HOST is required}
+      ACME_EMAIL: ${ACME_EMAIL:?ACME_EMAIL is required for TLS profile}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - staging-caddy-data:/data
+      - staging-caddy-config:/config
+    ports:
+      - "${STAGING_PUBLIC_HTTP_PORT:-80}:80"
+      - "${STAGING_PUBLIC_HTTPS_PORT:-443}:443"
+    networks: [commerceflow-staging]
+
+networks:
+  commerceflow-staging:
+    driver: bridge
+
+volumes:
+  staging-caddy-data:
+  staging-caddy-config:

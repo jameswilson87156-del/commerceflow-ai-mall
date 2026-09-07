@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { API_BASE } from './adminApi'
 import {
-  API_BASE,
   AiRequestError,
-  DEMO_USER_ID,
   MAX_QUESTION_LENGTH,
   aiMoney,
   askCustomerService,
@@ -268,7 +267,6 @@ async function sendQuestion(retryMessageId?: string) {
   isSending.value = true
   try {
     const result = await askCustomerService({
-      userId: DEMO_USER_ID,
       productId: selected.value.product.id,
       skuId: selected.value.sku.id,
       question: normalized,
@@ -310,18 +308,18 @@ onBeforeUnmount(clearCooldown)
   <section class="ai-workbench-page" aria-labelledby="ai-workbench-title">
     <header class="ai-workbench-heading">
       <div>
-        <p class="eyebrow">AI 商品客服 / 本地真实链路</p>
+        <p class="eyebrow">AI 商品客服 / Operator 真实链路</p>
         <h1 id="ai-workbench-title">AI 商品客服</h1>
-        <p class="subtitle">基于真实商品、SKU、价格和库存事实生成可追溯回答</p>
+        <p class="subtitle">基于真实商品、SKU、价格和库存事实生成可追溯回答；管理端请求需要后端 Operator 身份</p>
       </div>
-      <p class="ai-heading-boundary">仅展示本地 Showcase 数据与真实接口结果</p>
+      <p class="ai-heading-boundary">仅展示 Operator API 返回的真实结果；未授权或后端失败时不回填 Mock 数据</p>
     </header>
 
-    <div v-if="catalogState === 'loading'" class="state-panel" data-testid="ai-catalog-loading" role="status">
+    <div v-if="catalogState === 'loading'" class="state-panel" data-testid="ai-catalog-loading" role="status" aria-live="polite">
       <span class="state-mark loading-mark" aria-hidden="true"></span>
       <div><strong>正在加载真实商品与 SKU</strong><p>正在请求本地 Java 商品接口，不展示前端伪造商品。</p></div>
     </div>
-    <div v-else-if="catalogState === 'error'" class="state-panel error-state" data-testid="ai-catalog-error" role="alert">
+    <div v-else-if="catalogState === 'error'" class="state-panel error-state" data-testid="ai-catalog-error" role="alert" aria-live="assertive">
       <span class="state-mark" aria-hidden="true">!</span>
       <div><strong>商品与 SKU 加载失败</strong><p>{{ catalogError }}</p></div>
       <button class="secondary-button" type="button" data-testid="ai-catalog-retry" @click="loadCatalog">重新加载</button>
@@ -339,9 +337,9 @@ onBeforeUnmount(clearCooldown)
           <span class="result-count">{{ filteredSelections.length }} 个</span>
         </div>
         <div class="ai-selector-filters" aria-label="商品与 SKU 筛选">
-          <label class="search-field"><span>搜索</span><input v-model="query" type="search" placeholder="商品名称或 SKU 编码" data-testid="ai-search-input"></label>
-          <label><span>商品状态</span><select v-model="saleStatus" data-testid="ai-sale-filter"><option value="all">全部真实状态</option><option value="on-sale">仅在售</option></select></label>
-          <label><span>库存状态</span><select v-model="stockFilter" data-testid="ai-stock-filter"><option value="all">全部库存</option><option value="normal">库存正常</option><option value="low">库存偏低</option><option value="out">暂无库存</option></select></label>
+          <label class="search-field" for="ai-search-input"><span>搜索</span><input id="ai-search-input" v-model="query" type="search" placeholder="商品名称或 SKU 编码" data-testid="ai-search-input"></label>
+          <label for="ai-sale-filter"><span>商品状态</span><select id="ai-sale-filter" v-model="saleStatus" data-testid="ai-sale-filter"><option value="all">全部真实状态</option><option value="on-sale">仅在售</option></select></label>
+          <label for="ai-stock-filter"><span>库存状态</span><select id="ai-stock-filter" v-model="stockFilter" data-testid="ai-stock-filter"><option value="all">全部库存</option><option value="normal">库存正常</option><option value="low">库存偏低</option><option value="out">暂无库存</option></select></label>
         </div>
         <div v-if="filteredSelections.length" class="ai-sku-list">
           <button
@@ -376,7 +374,7 @@ onBeforeUnmount(clearCooldown)
           <span>{{ selected.product.name }}</span><strong>{{ selected.sku.color }} · {{ selected.sku.size }}</strong><small class="mono">{{ selected.sku.skuCode }}</small>
         </div>
         <div class="ai-chat-status-stack">
-          <div v-if="switchNotice" class="ai-switch-notice" role="status">{{ switchNotice }}</div>
+          <div v-if="switchNotice" class="ai-switch-notice" role="status" aria-live="polite">{{ switchNotice }}</div>
           <section v-if="rateLimit" :class="['ai-rate-limit-inline', rateLimit.mode, { 'is-throttled': rateLimit.mode === 'redis' && cooldownSeconds > 0 }]" data-testid="ai-rate-limit-inline" aria-live="polite">
             <template v-if="rateLimit.mode === 'redis' && cooldownSeconds > 0">
               <strong>请求过于频繁</strong>
@@ -437,7 +435,7 @@ onBeforeUnmount(clearCooldown)
         <form class="ai-composer" @submit.prevent="sendQuestion()">
           <label for="ai-question">商品问题</label>
           <textarea id="ai-question" ref="composer" v-model="question" :maxlength="MAX_QUESTION_LENGTH" :disabled="isSending || !selected" placeholder="例如：这件灰色 L 码 T 恤现在还有库存吗？" data-testid="ai-question-input" @keydown.enter.exact.prevent="submitFromKeyboard"></textarea>
-          <div class="ai-composer-footer"><span v-if="inputError" class="ai-input-error" role="alert">{{ inputError }}</span><span v-else>Enter 发送，Shift+Enter 换行</span><span>{{ questionCount }} / {{ MAX_QUESTION_LENGTH }}</span></div>
+          <div class="ai-composer-footer"><span v-if="inputError" class="ai-input-error" role="alert" aria-live="assertive">{{ inputError }}</span><span v-else>Enter 发送，Shift+Enter 换行</span><span>{{ questionCount }} / {{ MAX_QUESTION_LENGTH }}</span></div>
           <button class="primary-button ai-send-button" type="submit" :disabled="!canSend" data-testid="ai-send-button">{{ isSending ? '正在请求…' : cooldownSeconds > 0 ? `${cooldownSeconds} 秒后可发送` : '发送问题' }}</button>
         </form>
       </section>
@@ -504,7 +502,7 @@ onBeforeUnmount(clearCooldown)
 
         <details class="ai-developer-notes">
           <summary>开发演示信息（只读）</summary>
-          <dl><div><dt>外部 Java 接口</dt><dd class="mono">POST {{ API_BASE }}/ai/customer-service/ask</dd></div><div><dt>Java → Python 内部接口</dt><dd class="mono">POST /internal/ai/customer-service/answer</dd></div><div><dt>当前 userId</dt><dd>{{ DEMO_USER_ID }}</dd></div><div><dt>当前 productId / skuId</dt><dd>{{ selected?.product.id ?? '-' }} / {{ selected?.sku.id ?? '-' }}</dd></div><div><dt>最近 clientRequestId</dt><dd class="mono">{{ latestResponse?.clientRequestId ?? '-' }}</dd></div><div><dt>最近 traceId</dt><dd class="mono">{{ latestResponse?.traceId ?? '-' }}</dd></div><div><dt>Provider Mode</dt><dd>{{ latestResponse?.provider.mode ?? '-' }}</dd></div><div><dt>当前 Java 端口</dt><dd>{{ javaPort }}</dd></div><div><dt>当前 Python 端口</dt><dd>8000（本地 P4B 默认配置）</dd></div></dl>
+          <dl><div><dt>外部 Java 接口</dt><dd class="mono">POST {{ API_BASE }}/v1/operator/ai/customer-service/ask</dd></div><div><dt>Java → Python 内部接口</dt><dd class="mono">POST /internal/ai/customer-service/answer</dd></div><div><dt>身份边界</dt><dd>OperatorScope（服务端推导）</dd></div><div><dt>当前 productId / skuId</dt><dd>{{ selected?.product.id ?? '-' }} / {{ selected?.sku.id ?? '-' }}</dd></div><div><dt>最近 clientRequestId</dt><dd class="mono">{{ latestResponse?.clientRequestId ?? '-' }}</dd></div><div><dt>最近 traceId</dt><dd class="mono">{{ latestResponse?.traceId ?? '-' }}</dd></div><div><dt>Provider Mode</dt><dd>{{ latestResponse?.provider.mode ?? '-' }}</dd></div><div><dt>当前 Java 端口</dt><dd>{{ javaPort }}</dd></div><div><dt>当前 Python 端口</dt><dd>8000（本地 P4B 默认配置）</dd></div></dl>
         </details>
       </aside>
     </div>

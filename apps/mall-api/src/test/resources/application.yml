@@ -11,6 +11,19 @@ spring:
 commerceflow:
   cors:
     allowed-origins: http://localhost:5173,http://localhost:5176,http://127.0.0.1:5173,http://127.0.0.1:5176
+  showcase:
+    # Tests use an explicit in-memory demo fixture; this is not a runtime default.
+    mode: DEMO
+    data-scope: LOCAL_SHOWCASE
+    authentication-mode: DEMO_USER
+    demo-user-id: 1
+    demo-username: demo@commerceflow.local
+    demo-display-name: Demo Shopper
+    operator-authentication-mode: DEMO_OPERATOR
+    demo-operator-id: 9001
+    demo-operator-username: operator@commerceflow.local
+    demo-operator-display-name: Showcase Operator
+    legacy-api-enabled: true
   ai:
     rate-limit:
       enabled: false

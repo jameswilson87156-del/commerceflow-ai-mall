@@ -40,7 +40,7 @@ P4 answers one selected SKU at a time. A product-only selection is useful for br
 | `skuId`, `skuCode`, `color`, `size` | Yes | selected `product_sku` row | The selected SKU must belong to `productId`. |
 | `skuStatus` | Yes | `product_sku.status` | A selected off-sale SKU is not purchasable even when Product remains `ON_SALE`. |
 | `unitPrice` | Yes | Java `BigDecimal` from `DECIMAL(19,2)`, serialized as a plain decimal string | P4B resolves the P4A `salePrice` naming conflict. Java keeps `BigDecimal`; JSON sends a string so Java/Python never use binary float for money. |
-| `currency` | Yes | `product_sku.currency` | P4 expects `CNY`, but does not hard-code it. |
+| `currency` | Yes | `product_sku.currency` | The local Showcase contract is CNY-only; Java and Flyway V9 enforce it. |
 | `availableStock` | Yes in P4 | `inventory.available_stock` | Current schema is non-null and non-negative. `0` means out of stock; it is not missing. A future nullable schema value would mean `INSUFFICIENT_CONTEXT`, never zero. |
 | `knowledgeSnippets` | Yes, empty by default | Java-authored bounded list | Reserved only for future approved, source-labelled knowledge. P4 does not implement RAG. |
 | `queriedAt` | Yes | Java clock, ISO-8601 UTC | Trace/display timing only. |

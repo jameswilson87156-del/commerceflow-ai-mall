@@ -1,0 +1,48 @@
+spring:
+  config:
+    activate:
+      on-profile: production
+  flyway:
+    locations: classpath:db/staging-migration
+    table: commerceflow_schema_history
+    baseline-on-migrate: false
+    clean-disabled: true
+  datasource:
+    url: ${DB_URL:}
+    username: ${DB_USERNAME:${MYSQL_USER:}}
+    password: ${DB_PASSWORD:${MYSQL_PASSWORD:}}
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+commerceflow:
+  auth:
+    mode: OIDC
+    issuer-uri: ${COMMERCEFLOW_AUTH_ISSUER_URI:}
+    audience: ${COMMERCEFLOW_AUTH_AUDIENCE:}
+    roles-claim: ${COMMERCEFLOW_AUTH_ROLES_CLAIM:roles}
+    principal-claim: ${COMMERCEFLOW_AUTH_PRINCIPAL_CLAIM:sub}
+    username-claim: ${COMMERCEFLOW_AUTH_USERNAME_CLAIM:email}
+    display-name-claim: ${COMMERCEFLOW_AUTH_DISPLAY_NAME_CLAIM:name}
+    user-id-claim: ${COMMERCEFLOW_AUTH_USER_ID_CLAIM:}
+    operator-id-claim: ${COMMERCEFLOW_AUTH_OPERATOR_ID_CLAIM:}
+    operator-roles: ${COMMERCEFLOW_AUTH_OPERATOR_ROLES:operator,admin}
+    auto-provision-users: ${COMMERCEFLOW_AUTH_AUTO_PROVISION_USERS:false}
+  showcase:
+    mode: PRODUCTION
+    data-scope: PRODUCTION
+    authentication-mode: EXTERNAL
+    demo-user-id: 0
+    operator-authentication-mode: EXTERNAL
+    demo-operator-id: 0
+    legacy-api-enabled: false
+  ai:
+    provider:
+      fallback-enabled: false
+    rate-limit:
+      enabled: true
+      failure-policy: FAIL_CLOSED
+      identity-hash-secret: ${AI_RATE_LIMIT_IDENTITY_HASH_SECRET:}

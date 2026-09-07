@@ -1,0 +1,15 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+commerceflow:
+  showcase:
+    # A test profile has no runtime Demo identity; individual tests must opt in explicitly.
+    mode: TEST
+    data-scope: TEST
+    authentication-mode: NONE
+    demo-user-id: 0
+    operator-authentication-mode: NONE
+    demo-operator-id: 0
+    legacy-api-enabled: false

@@ -24,6 +24,8 @@ class CartApiTests {
     @BeforeEach
     void clearDemoCart() {
         jdbc.update("DELETE FROM cart_item WHERE user_id=?", 1L);
+        jdbc.update("UPDATE product SET status='ON_SALE' WHERE id IN (101,102)");
+        jdbc.update("UPDATE product_sku SET status='ON_SALE' WHERE id IN (10001,10002,10003,10004,10005)");
     }
 
     @Test
@@ -62,5 +64,37 @@ class CartApiTests {
             .andExpect(status().isNotFound());
         mockMvc.perform(delete("/api/cart/items/{itemId}?userId=2", itemId))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void rejectsInvalidQuantityBeforeWritingTheCart() throws Exception {
+        mockMvc.perform(post("/api/cart/items?userId=1")
+                .contentType("application/json")
+                .content("{\"skuId\":10004,\"quantity\":0}"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+
+        org.junit.jupiter.api.Assertions.assertEquals(0, jdbc.queryForObject(
+                "SELECT COUNT(*) FROM cart_item WHERE user_id=1 AND sku_id=10004", Integer.class));
+    }
+
+    @Test
+    void cannotAddAnOffSaleParentProductOrUnknownSkuToTheCart() throws Exception {
+        jdbc.update("UPDATE product SET status='OFF_SALE' WHERE id=101");
+        try {
+            mockMvc.perform(post("/api/cart/items?userId=1")
+                    .contentType("application/json")
+                    .content("{\"skuId\":10004,\"quantity\":1}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("SKU_NOT_FOUND"));
+        } finally {
+            jdbc.update("UPDATE product SET status='ON_SALE' WHERE id=101");
+        }
+
+        mockMvc.perform(post("/api/cart/items?userId=1")
+                .contentType("application/json")
+                .content("{\"skuId\":99999,\"quantity\":1}"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.code").value("SKU_NOT_FOUND"));
     }
 }

@@ -19,7 +19,7 @@ $mobileStatus=Get-ShowcaseHttpStatus "http://127.0.0.1:$mobile"
 Write-Host "Health: api=$healthStatus readiness=$readinessStatus python=$pythonStatus admin=$adminStatus mobile=$mobileStatus"
 Write-Host "URLs: admin=http://127.0.0.1:$admin mobile=http://127.0.0.1:$mobile api=http://127.0.0.1:$api"
 if($pythonStatus -eq 200){$provider=Invoke-RestMethod "http://127.0.0.1:$python/health"; Write-Host "Provider: $($provider.provider) / $($provider.providerMode)"}
-if($readinessStatus -eq 200){$overview=Invoke-RestMethod "http://127.0.0.1:$api/api/operations/overview"; Write-Host "Rate limit: $($overview.runtimeBoundary.rateLimitAlgorithm), $($overview.runtimeBoundary.rateLimitLimit)/$($overview.runtimeBoundary.rateLimitWindowSeconds)s, $($overview.runtimeBoundary.rateLimitFailurePolicy)"; Write-Host "Runtime scope: $($overview.runtimeBoundary.dataScope), auth=$($overview.runtimeBoundary.authenticationMode)"}
+if($readinessStatus -eq 200){$overview=Invoke-RestMethod "http://127.0.0.1:$api/api/v1/operator/operations/overview"; Write-Host "Rate limit: $($overview.runtimeBoundary.rateLimitAlgorithm), $($overview.runtimeBoundary.rateLimitLimit)/$($overview.runtimeBoundary.rateLimitWindowSeconds)s, $($overview.runtimeBoundary.rateLimitFailurePolicy)"; Write-Host "Runtime scope: $($overview.runtimeBoundary.dataScope), auth=$($overview.runtimeBoundary.authenticationMode)"}
 Push-Location $script:ShowcaseRoot
 $composeLines = @(docker compose -p $script:ShowcaseComposeProject ps --format json)
 $composeServices = @($composeLines | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_ | ConvertFrom-Json })

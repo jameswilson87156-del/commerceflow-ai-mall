@@ -1,3 +1,5 @@
+import { fetchAdminJson } from './adminApi'
+
 export type OperationsOverview = {
   summary: { productCount: number; skuCount: number; onSaleProductCount: number; availableStockTotal: number; lowStockSkuCount: number; createdOrderCount: number; createdOrderAmount: number; aiInteractionCount: number }
   recentOrders: Array<{ orderNo: string; status: string; totalAmount: number; currency: string; itemCount: number; createdAt: string }>
@@ -8,9 +10,7 @@ export type OperationsOverview = {
 }
 
 export async function fetchOperationsOverview(signal?: AbortSignal): Promise<OperationsOverview> {
-  const response = await fetch('/api/operations/overview', { signal })
-  if (!response.ok) throw new Error(`运营总览请求失败（HTTP ${response.status}）`)
-  return response.json()
+  return fetchAdminJson<OperationsOverview>('/v1/operator/operations/overview', { signal })
 }
 
 export function formatOperationsMoney(amount: number, currency: string): string {
