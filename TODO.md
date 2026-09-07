@@ -1,10 +1,16 @@
 # TODO / Remaining Phase 0-B Follow-up
 
+## 2026-09-08 — GITHUB_MAIN_MERGE
+
+- [x] `LOCAL_PASS`：`release/commerceflow-local-20260907` 已按授权以合并提交 `e878860` 推送到本项目自己的 `origin/main`；远端 `main` 已确认指向该提交。
+- [x] `LOCAL_PASS`：合并前 release CI run `34137998966` 的 6 个作业全部通过；合并后 Java `mvn -B test` 为 109 tests、0 failures、0 errors、10 skipped，构建成功。
+- [ ] `PENDING`：Redis-only 集成测试仍需在独立 Redis `127.0.0.1:6380` 可用时复跑；云端 staging、DNS、证书、真实 OIDC/Secret 和数据备份恢复仍未验收。
+
 ## 2026-09-07 — GITHUB_RELEASE_BRANCH_CI
 
 - [x] `LOCAL_PASS`：release 分支已推送；CommerceFlow CI run `34137998966` 的 6 个作业全部通过，包含 repository-integrity、Java + MySQL Flyway smoke、Python、Admin、Mobile 和 staging Compose。
 - [x] `LOCAL_PASS`：修复首次 CI 暴露的容器路径误报、审计文档私网地址和旧 operations smoke 路由；修复提交为 `7c359c1`。
-- [ ] `BLOCKED`：候选代码相对 `origin/main` ahead 1 / behind 2；GitHub `main` 尚未合并，需单独审阅后再做合并决定。
+- （历史记录）当时候选代码相对 `origin/main` ahead 1 / behind 2；GitHub `main` 尚未合并。
 
 ## 2026-09-07 — LOCAL_RELEASE_CANDIDATE_COMMITTED
 

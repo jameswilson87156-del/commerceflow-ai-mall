@@ -1,11 +1,17 @@
 # Phase 0-B Handoff
 
+## 2026-09-08 — GITHUB_MAIN_MERGE
+
+- 已按授权将 `release/commerceflow-local-20260907` 以非快进合并提交 `e878860` 推送到本项目自己的 `origin/main`；远端 `main` 已从 `dea3eab` 更新到 `e878860`。
+- 合并前 release CI run `34137998966` 的 6 个作业全部通过；合并后本地 Java `mvn -B test` 为 109 tests、0 failures、0 errors、10 skipped，构建成功。Redis-only 条件仍按前置条件保持 `PENDING`。
+- 本次只完成 GitHub 代码合并，没有购买或启动云资源，没有改 DNS/证书，没有连接公网 staging，也没有删除或覆盖工作区文件；当前 staging 仍为 `STAGING_PENDING`。
+
 ## 2026-09-07 — GITHUB_RELEASE_BRANCH_CI
 
 - `release/commerceflow-local-20260907` 已推送到 GitHub；修复提交 `7c359c1` 的远端分支指针已确认。首次 CI run `34137314401` 暴露了仓库完整性误报和旧版 operations smoke 路由问题，未把该次失败写成通过。
 - 修复内容为：容器服务账号改用无 home 目录的 `/nonexistent`、审计文档中的私网地址脱敏、CI smoke 显式启用本地 Demo operator 并调用 `/api/v1/operator/operations/overview`。没有放宽 staging/production 旧路由，也没有写入真实凭据。
 - 第二次 CI run `34137998966` 已全部通过：repository-integrity、java-backend（含 MySQL Flyway overview smoke）、python-ai-service、admin-web、mobile-app、staging-compose 均为成功。Actions 的 Node 20/setup-java 迁移提示属于平台告警，不影响本次结果。
-- `origin/main` 仍未修改；候选代码提交相对远端 `main` 仍为 ahead 1 / behind 2，尚未合并到 `main`，也没有 staging、DNS、证书、云资源或数据库操作。
+- （历史记录）当时 `origin/main` 尚未修改；候选代码提交相对远端 `main` 为 ahead 1 / behind 2，尚未合并到 `main`。
 
 ## 2026-09-07 — LOCAL_RELEASE_CANDIDATE_COMMITTED
 
