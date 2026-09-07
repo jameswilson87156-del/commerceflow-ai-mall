@@ -1,5 +1,12 @@
 # Phase 0-B Handoff
 
+## 2026-09-07 — GITHUB_RELEASE_BRANCH_CI
+
+- `release/commerceflow-local-20260907` 已推送到 GitHub；修复提交 `7c359c1` 的远端分支指针已确认。首次 CI run `34137314401` 暴露了仓库完整性误报和旧版 operations smoke 路由问题，未把该次失败写成通过。
+- 修复内容为：容器服务账号改用无 home 目录的 `/nonexistent`、审计文档中的私网地址脱敏、CI smoke 显式启用本地 Demo operator 并调用 `/api/v1/operator/operations/overview`。没有放宽 staging/production 旧路由，也没有写入真实凭据。
+- 第二次 CI run `34137998966` 已全部通过：repository-integrity、java-backend（含 MySQL Flyway overview smoke）、python-ai-service、admin-web、mobile-app、staging-compose 均为成功。Actions 的 Node 20/setup-java 迁移提示属于平台告警，不影响本次结果。
+- `origin/main` 仍未修改；候选代码提交相对远端 `main` 仍为 ahead 1 / behind 2，尚未合并到 `main`，也没有 staging、DNS、证书、云资源或数据库操作。
+
 ## 2026-09-07 — LOCAL_RELEASE_CANDIDATE_COMMITTED
 
 - 已在独立分支 `release/commerceflow-local-20260907` 形成本地候选提交 `14fa84833524c7081c2607410c57b8bcfe647858`（`release: assemble CommerceFlow staging candidate`）。提交包含源码、测试、部署 Compose/Caddy/Nginx 模板、文档和不含真实凭据的 `.env.example`；本地 `application-local.yml`、真实 `.env`、构建产物与临时回归目录仍保留在工作区，未删除或覆盖。

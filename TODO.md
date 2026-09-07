@@ -1,9 +1,15 @@
 # TODO / Remaining Phase 0-B Follow-up
 
+## 2026-09-07 — GITHUB_RELEASE_BRANCH_CI
+
+- [x] `LOCAL_PASS`：release 分支已推送；CommerceFlow CI run `34137998966` 的 6 个作业全部通过，包含 repository-integrity、Java + MySQL Flyway smoke、Python、Admin、Mobile 和 staging Compose。
+- [x] `LOCAL_PASS`：修复首次 CI 暴露的容器路径误报、审计文档私网地址和旧 operations smoke 路由；修复提交为 `7c359c1`。
+- [ ] `BLOCKED`：候选代码相对 `origin/main` ahead 1 / behind 2；GitHub `main` 尚未合并，需单独审阅后再做合并决定。
+
 ## 2026-09-07 — LOCAL_RELEASE_CANDIDATE_COMMITTED
 
 - [x] `LOCAL_PASS`：在 `release/commerceflow-local-20260907` 形成候选提交 `14fa84833524c7081c2607410c57b8bcfe647858`；源码、测试、部署模板、文档和安全 `.env.example` 已纳入，真实 `.env`、本地运行配置、构建产物和临时目录未纳入且保留。
-- [ ] `BLOCKED`：候选代码提交与 `origin/main` 的 ahead 1 / behind 2 差异需在推送前单独审阅；未执行 push、merge、云资源、DNS、证书、数据库或公网 staging。
+- [ ] `BLOCKED`：候选代码提交与 `origin/main` 的 ahead 1 / behind 2 差异需在合并前单独审阅；未执行 merge、云资源、DNS、证书、数据库或公网 staging。
 - [ ] `PENDING`：恢复本机 Redis `127.0.0.1:6380` 后重跑 5 条 `AiRateLimitRedisIntegrationTests`。
 
 ## 2026-09-07 — RELEASE_CANDIDATE_LOCAL_REAUDIT
