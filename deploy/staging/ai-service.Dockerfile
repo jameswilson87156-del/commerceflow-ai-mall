@@ -6,7 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 COPY services/ai-service/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt \
-    && useradd --system --uid 10002 --create-home --home-dir /home/commerceflow-ai commerceflow-ai
+    && useradd --system --uid 10002 --no-create-home --home-dir /nonexistent commerceflow-ai
 COPY services/ai-service/app /app/app
 RUN chown -R commerceflow-ai:commerceflow-ai /app
 USER 10002:10002

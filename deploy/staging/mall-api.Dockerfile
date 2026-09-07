@@ -11,7 +11,7 @@ FROM eclipse-temurin:17-jre-jammy
 RUN apt-get update \
     && apt-get install --no-install-recommends -y curl \
     && rm -rf /var/lib/apt/lists/* \
-    && useradd --system --uid 10001 --create-home --home-dir /home/commerceflow commerceflow
+    && useradd --system --uid 10001 --no-create-home --home-dir /nonexistent commerceflow
 
 WORKDIR /app
 COPY --from=build /workspace/apps/mall-api/target/mall-api-0.1.0-SNAPSHOT.jar /app/app.jar

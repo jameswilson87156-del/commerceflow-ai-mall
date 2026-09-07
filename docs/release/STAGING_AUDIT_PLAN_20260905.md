@@ -64,7 +64,7 @@ Java 数据库测试使用 H2，Redis 使用现有本地实例并限定随机测
 
 ## 3.2 用户提供的阿里云盘点证据（2026-09-05）
 
-- 轻量应用服务器页面显示：华东 1（杭州）、`OpenClaw-astw`、运行中、公网 `47.98.192.15`、私网 `172.25.5.238`、2 vCPU/2 GiB/40 GiB、到期 2026-12-26。该主机只能作为候选 staging 宿主机；在确认现有工作负载、监听端口、CPU/内存/磁盘余量、系统用户、Docker、轻量应用服务器防火墙和 SSH 方式前，不得覆盖或启动任何项目。
+- 轻量应用服务器页面显示：华东 1（杭州）、`OpenClaw-astw`、运行中、公网地址（已脱敏）、私网地址（已脱敏）、2 vCPU/2 GiB/40 GiB、到期 2026-12-26。该主机只能作为候选 staging 宿主机；在确认现有工作负载、监听端口、CPU/内存/磁盘余量、系统用户、Docker、轻量应用服务器防火墙和 SSH 方式前，不得覆盖或启动任何项目。
 - 域名页面显示 `wzl8.top` 状态“正常”、备案“已备案”、到期 2027-06-26，并显示“添加域名解析”操作。该证据不授权本轮修改 DNS；此前四个 staging 子域名仍解析为 NXDOMAIN。
 - 以上截图只更新资源盘点证据，不等于电商 staging 已部署、域名已解析、证书已签发或公网验收通过。
 
@@ -82,10 +82,10 @@ Java 数据库测试使用 H2，Redis 使用现有本地实例并限定随机测
 
 | 条件 | 本轮可确认内容 | 状态 |
 | --- | --- | --- |
-| ECS/地域/VPC/vSwitch/IP/SSH/安全组 | 截图和 Workbench 只读终端显示华东 1（杭州）轻量应用服务器 `OpenClaw-astw`，公网 `47.98.192.15`、私网 `172.25.5.238`、2 vCPU/约 1.8 GiB/40 GiB、Docker 24.0.9；当前可用内存约 1.0 GiB，80/443 已有监听，且存在现有 SearXNG/Node/Nginx/本地服务。它不是可直接占用的 ECS，主机防火墙、云侧规则、Docker 网络、端口归属和负载仍未完整核实 | BLOCKED |
+| ECS/地域/VPC/vSwitch/IP/SSH/安全组 | 截图和 Workbench 只读终端显示华东 1（杭州）轻量应用服务器 `OpenClaw-astw`，公网地址（已脱敏）、私网地址（已脱敏）、2 vCPU/约 1.8 GiB/40 GiB、Docker 24.0.9；当前可用内存约 1.0 GiB，80/443 已有监听，且存在现有 SearXNG/Node/Nginx/本地服务。它不是可直接占用的 ECS，主机防火墙、云侧规则、Docker 网络、端口归属和负载仍未完整核实 | BLOCKED |
 | RDS MySQL | 实例、私网地址、应用账号、权限、白名单、备份及恢复均未确认 | BLOCKED |
 | Tair/Redis | 云实例、私网地址、ACL/密码 Secret、白名单、TLS/兼容性、备份均未确认 | BLOCKED |
-| 根域名公开 DNS | 2026-09-05 本机解析器查询：wzl8.top A=47.98.192.15；NS=dns7.hichina.com、dns8.hichina.com | LOCAL_PASS：仅 DNS 查询证据 |
+| 根域名公开 DNS | 2026-09-05 本机解析器查询：wzl8.top A 记录（已脱敏）；NS=dns7.hichina.com、dns8.hichina.com | LOCAL_PASS：仅 DNS 查询证据 |
 | 电商 staging DNS | mall-staging、admin-staging、auth-staging 的 A/AAAA 查询返回 NXDOMAIN | STAGING_PENDING |
 | DNS 管理权 | 域名控制台截图显示 `wzl8.top` 可在当前控制台管理并提供“添加域名解析”等操作；未点击、未修改记录，控制台主体与解析权限仍需详情页核实 | STAGING_PENDING |
 | ICP | 域名控制台截图显示 `wzl8.top` 状态“正常”、备案“已备案”，到期 2027-06-26；备案主体、接入商、具体网站绑定和 staging 子域名关系尚未逐项核实 | STAGING_PENDING |

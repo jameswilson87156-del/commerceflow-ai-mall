@@ -55,6 +55,13 @@ jobs:
       COMMERCEFLOW_AI_PROVIDER: FASTAPI
       COMMERCEFLOW_AI_API_KEY: ''
       MALL_API_PORT: 8080
+      SHOWCASE_MODE: DEMO
+      SHOWCASE_DATA_SCOPE: LOCAL_SHOWCASE
+      SHOWCASE_OPERATOR_AUTHENTICATION_MODE: DEMO_OPERATOR
+      SHOWCASE_DEMO_OPERATOR_ID: 9001
+      SHOWCASE_DEMO_OPERATOR_USERNAME: operator@commerceflow.local
+      SHOWCASE_DEMO_OPERATOR_DISPLAY_NAME: Showcase Operator
+      COMMERCEFLOW_LEGACY_API_ENABLED: false
     defaults:
       run:
         working-directory: apps/mall-api
@@ -81,7 +88,7 @@ jobs:
             sleep 2
           done
           curl --fail --silent http://127.0.0.1:8080/actuator/health/readiness >/dev/null
-          curl --fail --silent http://127.0.0.1:8080/api/operations/overview | jq -e '
+          curl --fail --silent http://127.0.0.1:8080/api/v1/operator/operations/overview | jq -e '
             .summary.productCount == 2 and .summary.skuCount == 5 and
             .summary.createdOrderCount == 0 and .summary.createdOrderAmount == 0 and
             .summary.aiInteractionCount == 0'
