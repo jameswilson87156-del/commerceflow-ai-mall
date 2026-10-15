@@ -1,0 +1,19 @@
+- generic [ref=f2e110]:
+  - generic [ref=f2e111]:
+    - generic [ref=f2e112]:
+      - generic [ref=f2e113]: COMMERCEFLOW / CART
+      - generic [ref=f2e114]: 购物车
+      - generic [ref=f2e115]: 本地演示用户 · 服务端真实数据
+    - button "继续选购" [ref=f2e116] [cursor=pointer]
+  - generic [ref=f2e117]:
+    - generic [ref=f2e118]: YOUR BAG / 0 ITEMS
+    - generic [ref=f2e119]: 已选商品
+    - generic [ref=f2e120]: 服务端购物车 · 本地 Showcase
+  - generic [ref=f2e121]:
+    - generic [ref=f2e122]:
+      - generic [ref=f2e123]: 购物车商品
+      - generic [ref=f2e124]: 可购买库存实时校验
+    - generic [ref=f2e125]:
+      - generic [ref=f2e126]: 0 件
+      - generic [ref=f2e127]: 已同步
+  - generic [ref=f2e129]: 正在读取服务端购物车...

@@ -1,0 +1,25 @@
+- generic [ref=f2e70]:
+  - generic [ref=f2e71]:
+    - generic [ref=f2e72]:
+      - generic [ref=f2e73]: CF
+      - generic [ref=f2e74]:
+        - generic [ref=f2e75]: CommerceFlow
+        - generic [ref=f2e76]: AI MALL
+    - generic [ref=f2e77]: 在线
+  - generic [ref=f2e79]:
+    - generic [ref=f2e80]: COMMERCEFLOW STORE
+    - generic [ref=f2e81]: 好东西，
+    - generic [ref=f2e82]: 从今天开始。
+    - generic [ref=f2e83]: 真实商品，真实库存，今天就能买到。
+    - generic [ref=f2e84]: 本地演示 · 商品与库存来自 Java API
+  - generic [ref=f2e85]:
+    - generic [ref=f2e86]:
+      - generic [ref=f2e87]: 精选好物
+      - generic [ref=f2e88]: 0 件在售
+    - generic [ref=f2e89]: 查看全部
+  - generic [ref=f2e90]: 正在读取真实商品数据…
+  - generic "商城主导航" [ref=f2e91]:
+    - button "商城" [ref=f2e92] [cursor=pointer]
+    - button "订单" [ref=f2e95] [cursor=pointer]
+    - button "AI 助手" [ref=f2e98] [cursor=pointer]:
+      - generic [aria-hidden] [ref=f2e99]: ✦

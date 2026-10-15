@@ -1,0 +1,76 @@
+- generic [ref=e3]:
+  - generic [ref=e5]:
+    - generic [ref=e6]: COMMERCEFLOW / ORDERS
+    - generic [ref=e7]: 我的订单
+    - generic [ref=e8]: 只展示真实创建订单
+  - generic [ref=e10]:
+    - generic [ref=e11]: ORDER HISTORY
+    - generic [ref=e12]: 你的真实订单
+  - generic [ref=e13]:
+    - generic [ref=e14]: 服务端订单
+    - generic [ref=e15]: 6 笔
+  - generic [ref=e16]:
+    - button "CF51fb56daa9c74f9aab6715de1e30ae24 已创建 2026-09-02T08:59:27Z 1 个商品 · CNY ¥129CNY" [ref=e17] [cursor=pointer]:
+      - generic [ref=e18]:
+        - generic [ref=e19]: CF51fb56daa9c74f9aab6715de1e30ae24
+        - generic [ref=e20]: 已创建
+      - generic [ref=e22]: 2026-09-02T08:59:27Z
+      - generic [ref=e23]:
+        - generic [ref=e24]: 1 个商品 · CNY
+        - generic [ref=e25]: ¥129CNY
+      - generic [aria-hidden] [ref=e26]: ↗
+    - button "CFe9919be66f3f4071922717c6292b16ae 已创建 2026-09-02T08:25:00Z 1 个商品 · CNY ¥129CNY" [ref=e27] [cursor=pointer]:
+      - generic [ref=e28]:
+        - generic [ref=e29]: CFe9919be66f3f4071922717c6292b16ae
+        - generic [ref=e30]: 已创建
+      - generic [ref=e32]: 2026-09-02T08:25:00Z
+      - generic [ref=e33]:
+        - generic [ref=e34]: 1 个商品 · CNY
+        - generic [ref=e35]: ¥129CNY
+      - generic [aria-hidden] [ref=e36]: ↗
+    - button "CF8581b83f84914fb0a4d8edf398f49420 已创建 2026-09-02T06:10:12Z 1 个商品 · CNY ¥129CNY" [ref=e37] [cursor=pointer]:
+      - generic [ref=e38]:
+        - generic [ref=e39]: CF8581b83f84914fb0a4d8edf398f49420
+        - generic [ref=e40]: 已创建
+      - generic [ref=e42]: 2026-09-02T06:10:12Z
+      - generic [ref=e43]:
+        - generic [ref=e44]: 1 个商品 · CNY
+        - generic [ref=e45]: ¥129CNY
+      - generic [aria-hidden] [ref=e46]: ↗
+    - button "CF2ae989e4c54b463e99cf456bc7854078 已创建 2026-09-02T05:54:39Z 1 个商品 · CNY ¥129CNY" [ref=e47] [cursor=pointer]:
+      - generic [ref=e48]:
+        - generic [ref=e49]: CF2ae989e4c54b463e99cf456bc7854078
+        - generic [ref=e50]: 已创建
+      - generic [ref=e52]: 2026-09-02T05:54:39Z
+      - generic [ref=e53]:
+        - generic [ref=e54]: 1 个商品 · CNY
+        - generic [ref=e55]: ¥129CNY
+      - generic [aria-hidden] [ref=e56]: ↗
+    - button "CFfa846f72812f486b89746bf061208cbd 已创建 2026-09-02T05:36:57Z 1 个商品 · CNY ¥129CNY" [ref=e57] [cursor=pointer]:
+      - generic [ref=e58]:
+        - generic [ref=e59]: CFfa846f72812f486b89746bf061208cbd
+        - generic [ref=e60]: 已创建
+      - generic [ref=e62]: 2026-09-02T05:36:57Z
+      - generic [ref=e63]:
+        - generic [ref=e64]: 1 个商品 · CNY
+        - generic [ref=e65]: ¥129CNY
+      - generic [aria-hidden] [ref=e66]: ↗
+    - button "CFf26a67a02e4e4aea91a2aa1df371d7f6 已创建 2026-07-28T21:46:50Z 2 个商品 · CNY ¥328CNY" [ref=e67] [cursor=pointer]:
+      - generic [ref=e68]:
+        - generic [ref=e69]: CFf26a67a02e4e4aea91a2aa1df371d7f6
+        - generic [ref=e70]: 已创建
+      - generic [ref=e72]: 2026-07-28T21:46:50Z
+      - generic [ref=e73]:
+        - generic [ref=e74]: 2 个商品 · CNY
+        - generic [ref=e75]: ¥328CNY
+      - generic [aria-hidden] [ref=e76]: ↗
+  - generic "商城主导航" [ref=e77]:
+    - button "⌂ 商城" [ref=e78] [cursor=pointer]:
+      - generic [ref=e79]: ⌂
+      - generic [ref=e80]: 商城
+    - button "□ 订单" [ref=e81] [cursor=pointer]:
+      - generic [ref=e82]: □
+      - generic [ref=e83]: 订单
+    - button "✦ AI 助手" [ref=e84] [cursor=pointer]:
+      - generic [ref=e85]: ✦
+      - generic [ref=e86]: AI 助手

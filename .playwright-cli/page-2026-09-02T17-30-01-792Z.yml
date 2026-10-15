@@ -1,0 +1,31 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: CF
+      - generic [ref=e7]:
+        - generic [ref=e8]: COMMERCEFLOW
+        - generic [ref=e9]: AI MALL / 2026
+    - generic [ref=e10]: 在线
+  - generic [ref=e12]:
+    - generic [ref=e13]: EDITED GOODS · REAL INVENTORY
+    - generic [ref=e14]: 把日常，挑得更好
+    - generic [ref=e15]: 从真实库存中，选择一件现在可以买到的好物。
+    - generic [ref=e16]: LOCAL SHOWCASE · 商品与库存来自 Java API
+  - generic [ref=e17]:
+    - generic [ref=e18]:
+      - generic [ref=e19]: 精选商品
+      - generic [ref=e20]: 0 件在售
+    - generic [ref=e21]: SORT / FEATURED
+  - generic [ref=e22]:
+    - text: 请求失败（500）
+    - button "重新加载" [ref=e23] [cursor=pointer]
+  - generic "商城主导航" [ref=e24]:
+    - button "⌂ 商城" [ref=e25] [cursor=pointer]:
+      - generic [ref=e26]: ⌂
+      - generic [ref=e27]: 商城
+    - button "□ 订单" [ref=e28] [cursor=pointer]:
+      - generic [ref=e29]: □
+      - generic [ref=e30]: 订单
+    - button "✦ AI 助手" [ref=e31] [cursor=pointer]:
+      - generic [ref=e32]: ✦
+      - generic [ref=e33]: AI 助手

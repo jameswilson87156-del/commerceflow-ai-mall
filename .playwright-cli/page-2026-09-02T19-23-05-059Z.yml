@@ -1,0 +1,9 @@
+- generic [ref=f2e283]:
+  - generic [ref=f2e284]:
+    - button "返回" [ref=f2e285] [cursor=pointer]:
+      - generic [ref=f2e286]: ‹
+    - generic [ref=f2e287]:
+      - generic [ref=f2e288]: COMMERCEFLOW / ORDER
+      - generic [ref=f2e289]: 订单详情
+      - generic [ref=f2e290]: 读取创建时保存的商品快照
+  - generic [ref=f2e291]: 正在读取订单详情...

@@ -1,0 +1,9 @@
+- generic [ref=f2e101]:
+  - generic [ref=f2e102]:
+    - button "返回" [ref=f2e103] [cursor=pointer]:
+      - generic [ref=f2e104]: ‹
+    - generic [ref=f2e105]:
+      - generic [ref=f2e106]: COMMERCEFLOW / AI ASSISTANT
+      - generic [ref=f2e107]: AI 商品客服
+      - generic [ref=f2e108]: 只根据 Java 业务事实回答
+  - generic [ref=f2e109]: 正在读取当前商品与 SKU 事实...

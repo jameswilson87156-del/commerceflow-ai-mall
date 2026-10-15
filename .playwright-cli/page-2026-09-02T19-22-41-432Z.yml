@@ -1,0 +1,19 @@
+- generic [ref=f2e238]:
+  - generic [ref=f2e239]:
+    - button "返回" [ref=f2e240] [cursor=pointer]:
+      - generic [ref=f2e241]: ‹
+    - generic [ref=f2e242]:
+      - generic [ref=f2e243]: COMMERCEFLOW / CHECKOUT
+      - generic [ref=f2e244]: 确认订单
+      - generic [ref=f2e245]: 创建后状态为 CREATED
+  - generic "订单流程" [ref=f2e246]:
+    - generic [ref=f2e247]:
+      - generic [ref=f2e248]: "1"
+      - generic [ref=f2e249]: 购物车
+    - generic [ref=f2e251]:
+      - generic [ref=f2e252]: "2"
+      - generic [ref=f2e253]: 确认订单
+    - generic [ref=f2e255]:
+      - generic [ref=f2e256]: "3"
+      - generic [ref=f2e257]: 创建结果
+  - generic [ref=f2e258]: 正在重新读取服务端购物车...

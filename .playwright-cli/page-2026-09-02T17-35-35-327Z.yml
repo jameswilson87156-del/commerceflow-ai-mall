@@ -1,0 +1,190 @@
+- generic [ref=e3]:
+  - complementary "商城管理导航" [ref=e4]:
+    - generic [ref=e10]:
+      - strong [ref=e11]: CommerceFlow
+      - generic [ref=e12]: AI Mall Operations
+    - generic [ref=e13]: LOCAL SHOWCASE
+    - paragraph [ref=e16]: 工作台
+    - navigation [ref=e17]:
+      - button "运营总览" [ref=e18] [cursor=pointer]
+      - button "商品与 SKU" [ref=e20] [cursor=pointer]
+      - button "订单管理" [ref=e22] [cursor=pointer]
+      - button "AI 客服" [active] [ref=e24] [cursor=pointer]
+    - generic [ref=e26]:
+      - generic [ref=e29]:
+        - strong [ref=e30]: Java API 在线
+        - generic [ref=e31]: 真实读模型 · 演示数据域
+      - generic [ref=e32]:
+        - generic [ref=e33]: "1"
+        - generic [ref=e34]:
+          - strong [ref=e35]: Demo User
+          - generic [ref=e36]: userId=1 · 只读工作台
+        - generic [aria-hidden] [ref=e37]: ···
+  - main [ref=e38]:
+    - generic [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e41]: CommerceFlow AI Mall
+        - generic [ref=e42]: /
+        - strong [ref=e43]: AI 客服
+      - generic [ref=e44]:
+        - generic [ref=e45]: Local API
+        - generic [ref=e47]: "1"
+    - region [ref=e226]:
+      - generic [ref=e227]:
+        - generic [ref=e228]:
+          - paragraph [ref=e229]: AI 商品客服 / 本地真实链路
+          - heading "AI 商品客服" [level=1] [ref=e230]
+          - paragraph [ref=e231]: 基于真实商品、SKU、价格和库存事实生成可追溯回答
+        - paragraph [ref=e232]: 仅展示本地 Showcase 数据与真实接口结果
+      - generic [ref=e233]:
+        - complementary [ref=e234]:
+          - generic [ref=e235]:
+            - generic [ref=e236]:
+              - paragraph [ref=e237]: 真实选择
+              - heading "商品与 SKU" [level=2] [ref=e238]
+            - generic [ref=e239]: 5 个
+          - generic "商品与 SKU 筛选" [ref=e240]:
+            - generic [ref=e241]:
+              - generic [ref=e242]: 搜索
+              - searchbox "搜索" [ref=e243]
+            - generic [ref=e244]:
+              - generic [ref=e245]: 商品状态
+              - combobox "商品状态" [ref=e246]:
+                - option "全部真实状态" [selected]
+                - option "仅在售"
+            - generic [ref=e247]:
+              - generic [ref=e248]: 库存状态
+              - combobox "库存状态" [ref=e249]:
+                - option "全部库存" [selected]
+                - option "库存正常"
+                - option "库存偏低"
+                - option "暂无库存"
+          - generic [ref=e250]:
+            - button "轻盈棉质基础 T 恤 黑色 M 轻盈棉质基础 T 恤 T-SHIRT-BLACK-M 黑色 · M ¥129.00 CNY 库存正常 在售" [ref=e251] [cursor=pointer]:
+              - img "轻盈棉质基础 T 恤 黑色 M" [ref=e253]
+              - generic [ref=e254]:
+                - strong [ref=e255]: 轻盈棉质基础 T 恤
+                - generic [ref=e256]: T-SHIRT-BLACK-M
+                - generic [ref=e257]: 黑色 · M
+                - generic [ref=e258]: ¥129.00 CNY
+                - generic [ref=e259]:
+                  - emphasis [ref=e260]: 库存正常
+                  - emphasis [ref=e261]: 在售
+            - button "轻盈棉质基础 T 恤 白色 S 轻盈棉质基础 T 恤 T-SHIRT-WHITE-S 白色 · S ¥129.00 CNY 库存正常 在售" [ref=e262] [cursor=pointer]:
+              - img "轻盈棉质基础 T 恤 白色 S" [ref=e264]
+              - generic [ref=e265]:
+                - strong [ref=e266]: 轻盈棉质基础 T 恤
+                - generic [ref=e267]: T-SHIRT-WHITE-S
+                - generic [ref=e268]: 白色 · S
+                - generic [ref=e269]: ¥129.00 CNY
+                - generic [ref=e270]:
+                  - emphasis [ref=e271]: 库存正常
+                  - emphasis [ref=e272]: 在售
+            - button "轻盈棉质基础 T 恤 灰色 L 轻盈棉质基础 T 恤 T-SHIRT-GRAY-L 灰色 · L ¥129.00 CNY 库存偏低 在售" [ref=e273] [cursor=pointer]:
+              - img "轻盈棉质基础 T 恤 灰色 L" [ref=e275]
+              - generic [ref=e276]:
+                - strong [ref=e277]: 轻盈棉质基础 T 恤
+                - generic [ref=e278]: T-SHIRT-GRAY-L
+                - generic [ref=e279]: 灰色 · L
+                - generic [ref=e280]: ¥129.00 CNY
+                - generic [ref=e281]:
+                  - emphasis [ref=e282]: 库存偏低
+                  - emphasis [ref=e283]: 在售
+            - button "轻盈棉质基础 T 恤 藏青色 XL 轻盈棉质基础 T 恤 T-SHIRT-BLUE-XL 藏青色 · XL ¥129.00 CNY 暂无库存 在售" [ref=e284] [cursor=pointer]:
+              - img "轻盈棉质基础 T 恤 藏青色 XL" [ref=e286]
+              - generic [ref=e287]:
+                - strong [ref=e288]: 轻盈棉质基础 T 恤
+                - generic [ref=e289]: T-SHIRT-BLUE-XL
+                - generic [ref=e290]: 藏青色 · XL
+                - generic [ref=e291]: ¥129.00 CNY
+                - generic [ref=e292]:
+                  - emphasis [ref=e293]: 暂无库存
+                  - emphasis [ref=e294]: 在售
+            - button "简约通勤托特包 米色 One Size 简约通勤托特包 TOTE-BEIGE-ONE 米色 · One Size ¥199.00 CNY 库存正常 在售" [ref=e295] [cursor=pointer]:
+              - img "简约通勤托特包 米色 One Size" [ref=e297]
+              - generic [ref=e298]:
+                - strong [ref=e299]: 简约通勤托特包
+                - generic [ref=e300]: TOTE-BEIGE-ONE
+                - generic [ref=e301]: 米色 · One Size
+                - generic [ref=e302]: ¥199.00 CNY
+                - generic [ref=e303]:
+                  - emphasis [ref=e304]: 库存正常
+                  - emphasis [ref=e305]: 在售
+        - region [ref=e306]:
+          - generic [ref=e307]:
+            - generic [ref=e308]:
+              - paragraph [ref=e309]: 单轮问答
+              - heading "AI 客服工作区" [level=2] [ref=e310]
+            - generic [ref=e311]: SKU 10004
+          - generic [ref=e312]:
+            - generic [ref=e313]: 轻盈棉质基础 T 恤
+            - strong [ref=e314]: 灰色 · L
+            - generic [ref=e315]: T-SHIRT-GRAY-L
+          - generic [ref=e316]:
+            - strong [ref=e317]: 从真实 SKU 事实开始
+            - paragraph [ref=e318]: 选择左侧商品或 SKU，然后询问价格、规格、库存或是否可购买。
+            - generic "快捷问题" [ref=e319]:
+              - button "这个商品多少钱？" [ref=e320] [cursor=pointer]
+              - button "这个 SKU 是什么颜色和尺码？" [ref=e321] [cursor=pointer]
+              - button "现在还有库存吗？" [ref=e322] [cursor=pointer]
+              - button "这个商品还能购买吗？" [ref=e323] [cursor=pointer]
+              - button "商品的 SKU 编码是什么？" [ref=e324] [cursor=pointer]
+          - generic [ref=e325]:
+            - generic [ref=e326]: 商品问题
+            - textbox "商品问题" [ref=e327]:
+              - /placeholder: 例如：这件灰色 L 码 T 恤现在还有库存吗？
+            - generic [ref=e328]:
+              - generic [ref=e329]: Enter 发送，Shift+Enter 换行
+              - generic [ref=e330]: 0 / 500
+            - button "发送问题" [disabled] [ref=e331] [cursor=pointer]
+        - complementary [ref=e332]:
+          - generic [ref=e333]:
+            - paragraph [ref=e334]: 请求保护
+            - strong [ref=e335]: 等待首次 AI 请求
+            - paragraph [ref=e336]: 首次真实响应后显示当前请求保护状态。
+          - generic [ref=e337]:
+            - paragraph [ref=e338]: Provider 状态
+            - strong [ref=e339]: 等待首次请求
+            - paragraph [ref=e340]: 等待首次请求
+          - region [ref=e341]:
+            - generic [ref=e342]:
+              - generic [ref=e343]:
+                - paragraph [ref=e344]: 业务事实
+                - heading "本次商品事实" [level=2] [ref=e345]
+              - generic [ref=e346]: 当前选择预览
+            - generic [ref=e347]:
+              - img "轻盈棉质基础 T 恤" [ref=e348]
+              - generic [ref=e349]:
+                - strong [ref=e350]: 轻盈棉质基础 T 恤
+                - generic [ref=e351]: PROD-1001
+            - generic [ref=e352]:
+              - generic [ref=e353]:
+                - term [ref=e354]: 商品状态
+                - definition [ref=e355]: 在售 ON_SALE
+              - generic [ref=e356]:
+                - term [ref=e357]: SKU 编码
+                - definition [ref=e358]: T-SHIRT-GRAY-L
+              - generic [ref=e359]:
+                - term [ref=e360]: 颜色 / 尺码
+                - definition [ref=e361]: 灰色 / L
+              - generic [ref=e362]:
+                - term [ref=e363]: 售价 / 币种
+                - definition [ref=e364]: ¥129.00 CNY
+              - generic [ref=e365]:
+                - term [ref=e366]: 当前库存
+                - definition [ref=e367]: "27"
+              - generic [ref=e368]:
+                - term [ref=e369]: productId / skuId
+                - definition [ref=e370]: 101 / 10004
+          - region [ref=e371]:
+            - generic [ref=e373]:
+              - paragraph [ref=e374]: Java 事实证据
+              - heading "事实证据" [level=2] [ref=e375]
+            - paragraph [ref=e376]: 发送问题后仅展示 Java 返回的实际 Evidence。
+          - region [ref=e377]:
+            - generic [ref=e379]:
+              - paragraph [ref=e380]: 调用 Trace
+              - heading "调用追踪" [level=2] [ref=e381]
+            - paragraph [ref=e382]: 等待真实请求后展示后端返回的 Trace 步骤。
+          - group [ref=e383]:
+            - generic "开发演示信息（只读）" [ref=e384] [cursor=pointer]

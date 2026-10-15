@@ -1,0 +1,46 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - button "返回" [ref=e5] [cursor=pointer]:
+      - generic [ref=e6]: ‹
+    - generic [ref=e7]:
+      - generic [ref=e8]: COMMERCEFLOW / CHECKOUT
+      - generic [ref=e9]: 确认订单
+      - generic [ref=e10]: 创建后状态为 CREATED
+  - generic "订单流程" [ref=e11]:
+    - generic [ref=e12]:
+      - generic [ref=e13]: "1"
+      - generic [ref=e14]: 购物车
+    - generic [ref=e16]:
+      - generic [ref=e17]: "2"
+      - generic [ref=e18]: 确认订单
+    - generic [ref=e20]:
+      - generic [ref=e21]: "3"
+      - generic [ref=e22]: 创建结果
+  - generic [ref=e23]:
+    - generic [ref=e24]: 本地演示用户
+    - generic [ref=e25]: 订单仅使用 userId=1，不代表真实登录用户或真实交易。
+  - generic [ref=e26]:
+    - generic [ref=e27]:
+      - generic [ref=e28]: ORDER REVIEW
+      - generic [ref=e29]: 核对商品明细
+    - generic [ref=e30]: 服务端重算
+  - generic [ref=e32]:
+    - img "简约通勤托特包" [ref=e34]
+    - generic [ref=e35]:
+      - generic [ref=e36]: 简约通勤托特包
+      - generic [ref=e37]: TOTE-BEIGE-ONE
+      - generic [ref=e38]: 米色 / One Size · 数量 1
+      - generic [ref=e39]:
+        - generic [ref=e40]: ¥199CNY
+        - generic [ref=e41]: 小计 ¥199.00
+  - generic [ref=e42]:
+    - generic [ref=e43]:
+      - generic [ref=e44]: 订单预计总额
+      - generic [ref=e45]: CNY
+    - generic [ref=e47]: ¥199.00CNY
+    - generic [ref=e48]: 最终金额以服务端创建订单结果为准。
+  - generic [ref=e49]:
+    - generic [ref=e50]:
+      - text: 共 1 件
+      - generic [ref=e51]: ¥199.00CNY
+    - button "创建订单" [ref=e52] [cursor=pointer]

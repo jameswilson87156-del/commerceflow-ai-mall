@@ -1,0 +1,49 @@
+- generic [ref=f1e3]:
+  - generic [ref=f1e4]:
+    - generic [ref=f1e5]:
+      - generic [ref=f1e6]: CF
+      - generic [ref=f1e7]:
+        - generic [ref=f1e8]: CommerceFlow
+        - generic [ref=f1e9]: AI MALL
+    - generic [ref=f1e10]: 在线
+  - generic [ref=f1e12]:
+    - generic [ref=f1e13]: COMMERCEFLOW STORE
+    - generic [ref=f1e14]: 好东西，
+    - generic [ref=f1e15]: 从今天开始。
+    - generic [ref=f1e16]: 真实商品，真实库存，今天就能买到。
+    - generic [ref=f1e17]: 本地演示 · 商品与库存来自 Java API
+  - generic [ref=f1e18]:
+    - generic [ref=f1e19]:
+      - generic [ref=f1e20]: 精选好物
+      - generic [ref=f1e21]: 2 件在售
+    - generic [ref=f1e22]: 查看全部
+  - generic [ref=f1e23]:
+    - button "轻盈棉质基础 T 恤 在售 服饰 / 上衣 轻盈棉质基础 T 恤 日常基础款短袖，适合春夏穿搭 ¥129CNY 4 variants · PROD-1001" [ref=f1e24] [cursor=pointer]:
+      - generic [ref=f1e25]:
+        - img "轻盈棉质基础 T 恤" [ref=f1e27]
+        - generic [ref=f1e28]: 在售
+      - generic [ref=f1e30]:
+        - generic [ref=f1e31]: 服饰 / 上衣
+        - generic [ref=f1e32]: 轻盈棉质基础 T 恤
+        - generic [ref=f1e33]: 日常基础款短袖，适合春夏穿搭
+        - generic [ref=f1e34]:
+          - generic [ref=f1e35]: ¥129CNY
+          - generic [aria-hidden] [ref=f1e36]: +
+        - generic [ref=f1e37]: 4 variants · PROD-1001
+    - button "简约通勤托特包 在售 配饰 / 包袋 简约通勤托特包 轻便大容量，适合日常通勤使用 ¥199CNY 1 variants · PROD-1002" [ref=f1e38] [cursor=pointer]:
+      - generic [ref=f1e39]:
+        - img "简约通勤托特包" [ref=f1e41]
+        - generic [ref=f1e42]: 在售
+      - generic [ref=f1e44]:
+        - generic [ref=f1e45]: 配饰 / 包袋
+        - generic [ref=f1e46]: 简约通勤托特包
+        - generic [ref=f1e47]: 轻便大容量，适合日常通勤使用
+        - generic [ref=f1e48]:
+          - generic [ref=f1e49]: ¥199CNY
+          - generic [aria-hidden] [ref=f1e50]: +
+        - generic [ref=f1e51]: 1 variants · PROD-1002
+  - generic "商城主导航" [ref=f1e52]:
+    - button "商城" [ref=f1e53] [cursor=pointer]
+    - button "订单" [ref=f1e56] [cursor=pointer]
+    - button "AI 助手" [ref=f1e59] [cursor=pointer]:
+      - generic [aria-hidden] [ref=f1e60]: ✦

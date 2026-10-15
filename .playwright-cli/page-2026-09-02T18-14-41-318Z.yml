@@ -1,0 +1,50 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - button "返回" [ref=e5] [cursor=pointer]:
+      - generic [ref=e6]: ‹
+    - generic [ref=e7]:
+      - generic [ref=e8]: COMMERCEFLOW / AI ASSISTANT
+      - generic [ref=e9]: AI 商品客服
+      - generic [ref=e10]: 只根据 Java 业务事实回答
+  - generic [ref=e12]:
+    - img "轻盈棉质基础 T 恤" [ref=e14]
+    - generic [ref=e15]:
+      - generic [ref=e16]: 服饰 / 上衣
+      - generic [ref=e17]: 轻盈棉质基础 T 恤
+      - generic [ref=e18]: 灰色 / L · T-SHIRT-GRAY-L
+      - generic [ref=e19]:
+        - generic [ref=e20]: ¥129CNY
+        - generic [ref=e21]: 在售 · 库存 27
+  - generic [ref=e39]:
+    - generic [ref=e40]:
+      - generic [ref=e41]: Redis 限流正常
+      - generic [ref=e42]: 本窗口限额 5 次
+    - generic [ref=e43]:
+      - generic [ref=e44]: 剩余 4 次
+      - generic [ref=e45]: 重置 02:15:00
+  - generic [ref=e31]:
+    - generic [ref=e32]: 你好，我只根据 Java 查询到的当前商品、SKU 与库存事实回答价格、规格、库存、可购买性和 SKU 编码。
+    - generic [ref=e46]:
+      - generic [ref=e47]: 当前库存还有多少？
+      - generic [ref=e48]:
+        - generic [ref=e49]: Java 事实降级回答
+        - text: 灰色 L 码当前库存为 27 件，可以购买，售价为 ¥129.00。
+        - generic [ref=e50]: java-fact-fallback / FALLBACK · 8 ms
+  - generic [ref=e51]:
+    - button "Business Facts 展开" [ref=e53] [cursor=pointer]:
+      - generic [ref=e54]: Business Facts
+      - generic [ref=e55]: 展开
+    - button "Evidence（Java 真实来源） 展开" [ref=e57] [cursor=pointer]:
+      - generic [ref=e58]: Evidence（Java 真实来源）
+      - generic [ref=e59]: 展开
+    - button "Trace（6 步） 展开" [ref=e61] [cursor=pointer]:
+      - generic [ref=e62]: Trace（6 步）
+      - generic [ref=e63]: 展开
+    - button "开发演示信息 展开" [ref=e65] [cursor=pointer]:
+      - generic [ref=e66]: 开发演示信息
+      - generic [ref=e67]: 展开
+  - generic [ref=e34]:
+    - textbox "请输入商品价格、规格、库存、可购买性或 SKU 编码问题" [ref=e35]
+    - generic [ref=e36]:
+      - generic [ref=e37]: 0/500
+      - button "发送" [disabled] [ref=e38]

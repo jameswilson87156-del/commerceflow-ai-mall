@@ -1,0 +1,50 @@
+- generic [ref=e3]:
+  - complementary "商城管理导航" [ref=e4]:
+    - generic [ref=e10]:
+      - strong [ref=e11]: CommerceFlow
+      - generic [ref=e12]: AI Mall Operations
+    - generic [ref=e13]: LOCAL SHOWCASE
+    - paragraph [ref=e16]: 工作台
+    - navigation [ref=e17]:
+      - button "运营总览" [ref=e18] [cursor=pointer]
+      - button "商品与 SKU" [ref=e20] [cursor=pointer]
+      - button "订单管理" [ref=e22] [cursor=pointer]
+      - button "AI 客服" [ref=e24] [cursor=pointer]
+    - generic [ref=e26]:
+      - generic [ref=e29]:
+        - strong [ref=e30]: Java API 在线
+        - generic [ref=e31]: 真实读模型 · 演示数据域
+      - generic [ref=e32]:
+        - generic [ref=e33]: "1"
+        - generic [ref=e34]:
+          - strong [ref=e35]: Demo User
+          - generic [ref=e36]: userId=1 · 只读工作台
+        - generic [aria-hidden] [ref=e37]: ···
+  - main [ref=e38]:
+    - generic [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e41]: CommerceFlow AI Mall
+        - generic [ref=e42]: /
+        - strong [ref=e43]: 运营总览
+      - generic [ref=e44]:
+        - generic [ref=e45]: Local API
+        - generic [ref=e47]: "1"
+    - region [ref=e49]:
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - paragraph [ref=e52]: OPERATIONS / REAL READ MODEL
+          - heading "运营总览" [level=1] [ref=e53]
+          - paragraph [ref=e54]: 把商品、订单、库存和 AI 运行状态放在同一个可核对的本地工作面。
+        - generic [ref=e55]:
+          - generic [ref=e56]: 只读 Showcase
+          - button "加载中…" [disabled] [ref=e58] [cursor=pointer]
+      - note [ref=e59]:
+        - generic [aria-hidden] [ref=e60]: i
+        - generic [ref=e61]:
+          - strong [ref=e62]: 数据边界
+          - generic [ref=e63]: 指标来自 MySQL 读模型、ai_trace 与运行时配置；页面不生成未经证明的商业指标或虚构订单。
+      - status [ref=e64]:
+        - generic [ref=e65]: …
+        - generic [ref=e66]:
+          - strong [ref=e67]: 正在读取本地事实
+          - paragraph [ref=e68]: 运营总览不会使用前端预置指标。

@@ -1,0 +1,46 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: COMMERCEFLOW / CART
+      - generic [ref=e7]: 购物车
+      - generic [ref=e8]: 本地演示用户 · 服务端真实数据
+    - button "继续选购" [ref=e9] [cursor=pointer]
+  - generic [ref=e10]:
+    - generic [ref=e11]: YOUR BAG / 1 ITEMS
+    - generic [ref=e12]: 已选商品
+    - generic [ref=e13]: 服务端购物车 · 本地 Showcase
+  - generic [ref=e14]:
+    - generic [ref=e15]:
+      - generic [ref=e16]: 购物车商品
+      - generic [ref=e17]: 可购买库存实时校验
+    - generic [ref=e18]:
+      - generic [ref=e19]: 1 件
+      - generic [ref=e20]: 已同步
+  - generic [ref=e22]:
+    - generic [ref=e23]: 本地演示边界
+    - generic [ref=e24]: 商品、SKU、价格和库存均来自本地 API；这里只展示可执行的真实购物车操作。
+  - generic [ref=e25]:
+    - img "简约通勤托特包" [ref=e27]
+    - generic [ref=e28]:
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - generic [ref=e31]: 简约通勤托特包
+          - generic [ref=e32]: TOTE-BEIGE-ONE
+        - generic [ref=e33]: 已选
+      - generic [ref=e35]: 米色 / One Size
+      - generic [ref=e36]:
+        - generic [ref=e37]: ¥199CNY
+        - generic [ref=e38]: 小计 ¥199.00
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - button "减少 简约通勤托特包 数量" [disabled] [ref=e41]: −
+          - generic [ref=e42]: "1"
+          - button "增加 简约通勤托特包 数量" [ref=e43] [cursor=pointer]: +
+        - generic [ref=e44]: 库存 127
+        - button "删除" [ref=e45] [cursor=pointer]
+  - generic [ref=e46]:
+    - generic [ref=e47]:
+      - text: 订单预计总额
+      - generic [ref=e48]: ¥199.00CNY
+      - generic [ref=e49]: 共 1 件真实演示商品
+    - button "去确认订单" [ref=e50] [cursor=pointer]

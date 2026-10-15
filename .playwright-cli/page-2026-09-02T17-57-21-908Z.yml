@@ -1,0 +1,205 @@
+- generic [ref=e3]:
+  - complementary "商城管理导航" [ref=e4]:
+    - generic [ref=e10]:
+      - strong [ref=e11]: CommerceFlow
+      - generic [ref=e12]: AI Mall Operations
+    - generic [ref=e13]: LOCAL SHOWCASE
+    - paragraph [ref=e16]: 工作台
+    - navigation [ref=e17]:
+      - button "运营总览" [ref=e18] [cursor=pointer]
+      - button "商品与 SKU" [active] [ref=e20] [cursor=pointer]
+      - button "订单管理" [ref=e22] [cursor=pointer]
+      - button "AI 客服" [ref=e24] [cursor=pointer]
+    - generic [ref=e26]:
+      - generic [ref=e29]:
+        - strong [ref=e30]: Java API 在线
+        - generic [ref=e31]: 真实读模型 · 演示数据域
+      - generic [ref=e32]:
+        - generic [ref=e33]: "1"
+        - generic [ref=e34]:
+          - strong [ref=e35]: Demo User
+          - generic [ref=e36]: userId=1 · 只读工作台
+        - generic [aria-hidden] [ref=e37]: ···
+  - main [ref=e38]:
+    - generic [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e41]: CommerceFlow AI Mall
+        - generic [ref=e42]: /
+        - strong [ref=e43]: 商品与 SKU
+      - generic [ref=e44]:
+        - generic [ref=e385]: 商品主数据、SKU 与库存事实
+        - generic [ref=e45]: Local API
+        - generic [ref=e47]: "1"
+    - region [ref=e557]:
+      - generic [ref=e558]:
+        - generic [ref=e559]:
+          - paragraph [ref=e560]: CATALOG / PRODUCT MASTER
+          - heading "商品与 SKU" [level=1] [ref=e561]
+          - paragraph [ref=e562]: 从商品主数据进入规格、价格和实时可用库存。
+        - generic [ref=e563]:
+          - generic [ref=e564]: 真实接口
+          - paragraph [ref=e566]: "GET /api/productsGET /api/products/{productId}"
+      - note [ref=e567]:
+        - generic [aria-hidden] [ref=e568]: i
+        - generic [ref=e569]:
+          - strong [ref=e570]: 只读事实面
+          - generic [ref=e571]: 图片与字段来自 Java 商品接口；选择 SKU 只改变当前视图，不修改商品、价格或库存。
+      - region "商品本地搜索与筛选" [ref=e572]:
+        - generic [ref=e573]:
+          - generic [ref=e574]: 查找商品或 SKU
+          - searchbox "查找商品或 SKU" [ref=e575]
+        - generic [ref=e576]:
+          - generic [ref=e577]: 商品分类
+          - combobox "商品分类" [ref=e578]:
+            - option "全部分类" [selected]
+            - option "服饰 / 上衣"
+            - option "配饰 / 包袋"
+        - generic [ref=e579]:
+          - generic [ref=e580]: 库存状态
+          - combobox "库存状态" [ref=e581]:
+            - option "全部库存状态" [selected]
+            - option "库存正常"
+            - option "库存偏低"
+            - option "缺货"
+      - generic [ref=e582]:
+        - region [ref=e583]:
+          - generic [ref=e584]:
+            - generic [ref=e585]:
+              - paragraph [ref=e586]: PRODUCT MASTER
+              - heading "商品列表" [level=2] [ref=e587]
+              - paragraph [ref=e588]: 点击一项查看完整 SKU 事实。
+            - generic [ref=e589]:
+              - generic [ref=e590]: 2 项
+              - generic [ref=e591]: API
+          - generic [ref=e593]:
+            - button "轻盈棉质基础 T 恤 商品图 PROD-1001 轻盈棉质基础 T 恤 服饰 / 上衣 SKU 4 起售价 ¥129.00 库存 300" [ref=e594] [cursor=pointer]:
+              - img "轻盈棉质基础 T 恤 商品图" [ref=e595]
+              - generic [ref=e596]:
+                - generic [ref=e597]: PROD-1001
+                - strong [ref=e598]: 轻盈棉质基础 T 恤
+                - emphasis [ref=e599]: 服饰 / 上衣
+              - generic [ref=e600]:
+                - generic [ref=e601]:
+                  - generic [ref=e602]: SKU
+                  - strong [ref=e603]: "4"
+                - generic [ref=e604]:
+                  - generic [ref=e605]: 起售价
+                  - strong [ref=e606]: ¥129.00
+                - generic [ref=e607]:
+                  - generic [ref=e608]: 库存
+                  - strong [ref=e609]: "300"
+            - button "简约通勤托特包 商品图 PROD-1002 简约通勤托特包 配饰 / 包袋 SKU 1 起售价 ¥199.00 库存 127" [ref=e610] [cursor=pointer]:
+              - img "简约通勤托特包 商品图" [ref=e611]
+              - generic [ref=e612]:
+                - generic [ref=e613]: PROD-1002
+                - strong [ref=e614]: 简约通勤托特包
+                - emphasis [ref=e615]: 配饰 / 包袋
+              - generic [ref=e616]:
+                - generic [ref=e617]:
+                  - generic [ref=e618]: SKU
+                  - strong [ref=e619]: "1"
+                - generic [ref=e620]:
+                  - generic [ref=e621]: 起售价
+                  - strong [ref=e622]: ¥199.00
+                - generic [ref=e623]:
+                  - generic [ref=e624]: 库存
+                  - strong [ref=e625]: "127"
+        - generic [ref=e626]:
+          - region [ref=e627]:
+            - generic [ref=e628]:
+              - generic [ref=e629]: SELECTED PRODUCT
+              - generic [ref=e630]: 已上架
+            - generic [ref=e632]:
+              - img "轻盈棉质基础 T 恤 当前 SKU 图" [ref=e634]
+              - generic [ref=e635]:
+                - generic [ref=e637]:
+                  - text: PROD-1001
+                  - heading "轻盈棉质基础 T 恤" [level=2] [ref=e638]
+                - paragraph [ref=e639]: 日常基础款短袖，适合春夏穿搭
+                - generic [ref=e640]:
+                  - generic [ref=e641]:
+                    - term [ref=e642]: productId
+                    - definition [ref=e643]: "101"
+                  - generic [ref=e644]:
+                    - term [ref=e645]: 分类
+                    - definition [ref=e646]: 服饰 / 上衣
+                  - generic [ref=e647]:
+                    - term [ref=e648]: 当前 skuId
+                    - definition [ref=e649]: "10001"
+                  - generic [ref=e650]:
+                    - term [ref=e651]: 当前 skuCode
+                    - definition [ref=e652]: T-SHIRT-BLACK-M
+          - region [ref=e653]:
+            - generic [ref=e654]:
+              - generic [ref=e655]:
+                - paragraph [ref=e656]: VARIANTS / INVENTORY
+                - heading "SKU 与库存" [level=2] [ref=e657]
+                - paragraph [ref=e658]: 选中行会同步上方商品图片和事实摘要。
+              - generic [ref=e659]:
+                - generic [ref=e660]: 4 个 SKU
+                - generic [ref=e661]: 实时库存
+            - table [ref=e664]:
+              - rowgroup [ref=e665]:
+                - row [ref=e666]:
+                  - columnheader "skuId" [ref=e667]
+                  - columnheader "skuCode" [ref=e668]
+                  - columnheader "颜色" [ref=e669]
+                  - columnheader "尺寸" [ref=e670]
+                  - columnheader "salePrice" [ref=e671]
+                  - columnheader "currency" [ref=e672]
+                  - columnheader "availableStock" [ref=e673]
+                  - columnheader "库存状态" [ref=e674]
+              - rowgroup [ref=e675]:
+                - row [ref=e676] [cursor=pointer]:
+                  - cell "10001" [ref=e677]
+                  - cell "T-SHIRT-BLACK-M" [ref=e678]
+                  - cell "黑色 SKU 图 黑色" [ref=e679]:
+                    - generic [ref=e680]:
+                      - img "黑色 SKU 图" [ref=e681]
+                      - generic [ref=e682]: 黑色
+                  - cell "M" [ref=e683]
+                  - cell "¥129.00" [ref=e684]
+                  - cell "CNY" [ref=e685]
+                  - cell "91" [ref=e686]
+                  - cell "库存正常" [ref=e687]
+                - row [ref=e689] [cursor=pointer]:
+                  - cell "10002" [ref=e690]
+                  - cell "T-SHIRT-WHITE-S" [ref=e691]
+                  - cell "白色 SKU 图 白色" [ref=e692]:
+                    - generic [ref=e693]:
+                      - img "白色 SKU 图" [ref=e694]
+                      - generic [ref=e695]: 白色
+                  - cell "S" [ref=e696]
+                  - cell "¥129.00" [ref=e697]
+                  - cell "CNY" [ref=e698]
+                  - cell "182" [ref=e699]
+                  - cell "库存正常" [ref=e700]
+                - row [ref=e702] [cursor=pointer]:
+                  - cell "10004" [ref=e703]
+                  - cell "T-SHIRT-GRAY-L" [ref=e704]
+                  - cell "灰色 SKU 图 灰色" [ref=e705]:
+                    - generic [ref=e706]:
+                      - img "灰色 SKU 图" [ref=e707]
+                      - generic [ref=e708]: 灰色
+                  - cell "L" [ref=e709]
+                  - cell "¥129.00" [ref=e710]
+                  - cell "CNY" [ref=e711]
+                  - cell "27" [ref=e712]
+                  - cell "库存偏低" [ref=e713]
+                - row [ref=e715] [cursor=pointer]:
+                  - cell "10005" [ref=e716]
+                  - cell "T-SHIRT-BLUE-XL" [ref=e717]
+                  - cell "藏青色 SKU 图 藏青色" [ref=e718]:
+                    - generic [ref=e719]:
+                      - img "藏青色 SKU 图" [ref=e720]
+                      - generic [ref=e721]: 藏青色
+                  - cell "XL" [ref=e722]
+                  - cell "¥129.00" [ref=e723]
+                  - cell "CNY" [ref=e724]
+                  - cell "0" [ref=e725]
+                  - cell "缺货" [ref=e726]
+          - note [ref=e728]:
+            - generic [aria-hidden] [ref=e729]: i
+            - generic [ref=e730]:
+              - strong [ref=e731]: 库存事实说明
+              - generic [ref=e732]: availableStock 来自 Java 商品接口。0 为缺货，1 至 29 为库存偏低，其他为库存正常；页面不会修改后端库存事实。

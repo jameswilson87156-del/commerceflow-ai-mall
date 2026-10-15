@@ -1,0 +1,239 @@
+- generic [ref=e3]:
+  - complementary "商城管理导航" [ref=e4]:
+    - generic [ref=e10]:
+      - strong [ref=e11]: CommerceFlow
+      - generic [ref=e12]: AI Mall Operations
+    - generic [ref=e13]: LOCAL SHOWCASE
+    - paragraph [ref=e16]: 工作台
+    - navigation [ref=e17]:
+      - button "运营总览" [ref=e18] [cursor=pointer]
+      - button "商品与 SKU" [ref=e20] [cursor=pointer]
+      - button "订单管理" [active] [ref=e22] [cursor=pointer]
+      - button "AI 客服" [ref=e24] [cursor=pointer]
+    - generic [ref=e26]:
+      - generic [ref=e29]:
+        - strong [ref=e30]: Java API 在线
+        - generic [ref=e31]: 真实读模型 · 演示数据域
+      - generic [ref=e32]:
+        - generic [ref=e33]: "1"
+        - generic [ref=e34]:
+          - strong [ref=e35]: Demo User
+          - generic [ref=e36]: userId=1 · 只读工作台
+        - generic [aria-hidden] [ref=e37]: ···
+  - main [ref=e38]:
+    - generic [ref=e39]:
+      - generic [ref=e40]:
+        - generic [ref=e41]: CommerceFlow AI Mall
+        - generic [ref=e42]: /
+        - strong [ref=e43]: 订单管理
+      - generic [ref=e44]:
+        - generic [ref=e385]: 订单快照、扣减与事务证据
+        - generic [ref=e45]: Local API
+        - generic [ref=e47]: "1"
+    - region [ref=e733]:
+      - generic [ref=e734]:
+        - generic [ref=e735]:
+          - paragraph [ref=e736]: ORDERS / EXECUTION EVIDENCE
+          - heading "订单执行证据" [level=1] [ref=e737]
+          - paragraph [ref=e738]: 从一次真实创建结果，追到商品快照、库存扣减和幂等事务边界。
+        - generic [ref=e739]:
+          - generic [ref=e740]: CREATED only
+          - generic [ref=e742]: "GET /api/ordersGET /api/orders/{orderNo}/execution-evidence"
+      - note [ref=e743]:
+        - generic [aria-hidden] [ref=e744]: i
+        - generic [ref=e745]:
+          - strong [ref=e746]: 证据阅读方式
+          - generic [ref=e747]: 左侧选择订单，右侧按‘订单摘要 → 商品快照 → 库存 movement’阅读；页面只展示服务端已保存的记录。
+      - region "订单真实查询条件" [ref=e748]:
+        - generic [ref=e749]:
+          - generic [ref=e750]: 用户 ID userId
+          - spinbutton "用户 ID userId" [ref=e751]: "1"
+        - generic [ref=e752]:
+          - generic [ref=e753]: 订单号搜索
+          - searchbox "订单号搜索" [ref=e754]
+        - button "加载真实订单" [ref=e755] [cursor=pointer]
+      - generic [ref=e756]:
+        - region [ref=e757]:
+          - generic [ref=e758]:
+            - generic [ref=e759]:
+              - paragraph [ref=e760]: ORDER INDEX
+              - heading "已创建订单" [level=2] [ref=e761]
+              - paragraph [ref=e762]: 选择一笔订单查看服务端证据。
+            - generic [ref=e763]:
+              - generic [ref=e764]: 6 笔
+              - generic [ref=e765]: 只读
+          - generic [ref=e767]:
+            - button "轻盈棉质基础 T 恤 商品缩略图 CF51fb56daa9c74f9aab6715de1e30ae24 已创建 轻盈棉质基础 T 恤 共 1 件 ¥129.00 2026年9月2日 16:59:27" [ref=e768] [cursor=pointer]:
+              - img "轻盈棉质基础 T 恤 商品缩略图" [ref=e770]
+              - generic [ref=e771]:
+                - generic [ref=e772]:
+                  - strong [ref=e773]: CF51fb56daa9c74f9aab6715de1e30ae24
+                  - generic [ref=e774]: 已创建
+                - strong [ref=e775]: 轻盈棉质基础 T 恤
+                - generic [ref=e776]:
+                  - generic [ref=e777]: 共 1 件
+                  - strong [ref=e778]: ¥129.00
+                - generic [ref=e779]: 2026年9月2日 16:59:27
+            - button "轻盈棉质基础 T 恤 商品缩略图 CFe9919be66f3f4071922717c6292b16ae 已创建 轻盈棉质基础 T 恤 共 1 件 ¥129.00 2026年9月2日 16:25:00" [ref=e780] [cursor=pointer]:
+              - img "轻盈棉质基础 T 恤 商品缩略图" [ref=e782]
+              - generic [ref=e783]:
+                - generic [ref=e784]:
+                  - strong [ref=e785]: CFe9919be66f3f4071922717c6292b16ae
+                  - generic [ref=e786]: 已创建
+                - strong [ref=e787]: 轻盈棉质基础 T 恤
+                - generic [ref=e788]:
+                  - generic [ref=e789]: 共 1 件
+                  - strong [ref=e790]: ¥129.00
+                - generic [ref=e791]: 2026年9月2日 16:25:00
+            - button "轻盈棉质基础 T 恤 商品缩略图 CF8581b83f84914fb0a4d8edf398f49420 已创建 轻盈棉质基础 T 恤 共 1 件 ¥129.00 2026年9月2日 14:10:12" [ref=e792] [cursor=pointer]:
+              - img "轻盈棉质基础 T 恤 商品缩略图" [ref=e794]
+              - generic [ref=e795]:
+                - generic [ref=e796]:
+                  - strong [ref=e797]: CF8581b83f84914fb0a4d8edf398f49420
+                  - generic [ref=e798]: 已创建
+                - strong [ref=e799]: 轻盈棉质基础 T 恤
+                - generic [ref=e800]:
+                  - generic [ref=e801]: 共 1 件
+                  - strong [ref=e802]: ¥129.00
+                - generic [ref=e803]: 2026年9月2日 14:10:12
+            - button "轻盈棉质基础 T 恤 商品缩略图 CF2ae989e4c54b463e99cf456bc7854078 已创建 轻盈棉质基础 T 恤 共 1 件 ¥129.00 2026年9月2日 13:54:39" [ref=e804] [cursor=pointer]:
+              - img "轻盈棉质基础 T 恤 商品缩略图" [ref=e806]
+              - generic [ref=e807]:
+                - generic [ref=e808]:
+                  - strong [ref=e809]: CF2ae989e4c54b463e99cf456bc7854078
+                  - generic [ref=e810]: 已创建
+                - strong [ref=e811]: 轻盈棉质基础 T 恤
+                - generic [ref=e812]:
+                  - generic [ref=e813]: 共 1 件
+                  - strong [ref=e814]: ¥129.00
+                - generic [ref=e815]: 2026年9月2日 13:54:39
+            - button "轻盈棉质基础 T 恤 商品缩略图 CFfa846f72812f486b89746bf061208cbd 已创建 轻盈棉质基础 T 恤 共 1 件 ¥129.00 2026年9月2日 13:36:57" [ref=e816] [cursor=pointer]:
+              - img "轻盈棉质基础 T 恤 商品缩略图" [ref=e818]
+              - generic [ref=e819]:
+                - generic [ref=e820]:
+                  - strong [ref=e821]: CFfa846f72812f486b89746bf061208cbd
+                  - generic [ref=e822]: 已创建
+                - strong [ref=e823]: 轻盈棉质基础 T 恤
+                - generic [ref=e824]:
+                  - generic [ref=e825]: 共 1 件
+                  - strong [ref=e826]: ¥129.00
+                - generic [ref=e827]: 2026年9月2日 13:36:57
+            - button "轻盈棉质基础 T 恤 商品缩略图 简约通勤托特包 商品缩略图 CFf26a67a02e4e4aea91a2aa1df371d7f6 已创建 轻盈棉质基础 T 恤 共 2 件 ¥328.00 2026年7月29日 05:46:50" [ref=e828] [cursor=pointer]:
+              - generic [ref=e829]:
+                - img "轻盈棉质基础 T 恤 商品缩略图" [ref=e830]
+                - img "简约通勤托特包 商品缩略图" [ref=e831]
+              - generic [ref=e832]:
+                - generic [ref=e833]:
+                  - strong [ref=e834]: CFf26a67a02e4e4aea91a2aa1df371d7f6
+                  - generic [ref=e835]: 已创建
+                - strong [ref=e836]: 轻盈棉质基础 T 恤
+                - generic [ref=e837]:
+                  - generic [ref=e838]: 共 2 件
+                  - strong [ref=e839]: ¥328.00
+                - generic [ref=e840]: 2026年7月29日 05:46:50
+          - paragraph [ref=e841]: 共 6 笔真实演示订单
+        - generic [ref=e842]:
+          - region [ref=e843]:
+            - generic [ref=e844]:
+              - generic [ref=e845]: SELECTED ORDER
+              - generic [ref=e846]: CREATED / 已创建
+            - generic [ref=e848]:
+              - generic [ref=e849]:
+                - heading "CF51fb56daa9c74f9aab6715de1e30ae24" [level=2] [ref=e850]
+                - paragraph [ref=e851]: 创建于 2026年9月2日 16:59:27
+              - strong [ref=e852]: ¥129.00
+            - generic [ref=e853]:
+              - generic [ref=e854]:
+                - generic [ref=e855]:
+                  - text: 用户 ID
+                  - generic [ref=e856]: userId
+                - strong [ref=e857]: "1"
+              - generic [ref=e858]:
+                - generic [ref=e859]:
+                  - text: 币种
+                  - generic [ref=e860]: currency
+                - strong [ref=e861]: CNY
+              - generic [ref=e862]:
+                - generic [ref=e863]:
+                  - text: 创建时间
+                  - generic [ref=e864]: createdAt
+                - strong [ref=e865]: 2026年9月2日 16:59:27
+              - generic [ref=e866]:
+                - generic [ref=e867]: 订单结果
+                - strong [ref=e868]: 首次创建
+          - region [ref=e869]:
+            - generic [ref=e870]:
+              - generic [ref=e871]:
+                - paragraph [ref=e872]: ORDER ITEM SNAPSHOT
+                - heading "订单商品快照" [level=2] [ref=e873]
+                - paragraph [ref=e874]: 创建时写入的商品名称、规格、价格和图片。
+              - generic [ref=e875]:
+                - generic [ref=e876]: 1 项
+                - generic [ref=e877]: 历史快照
+            - table [ref=e880]:
+              - rowgroup [ref=e881]:
+                - row [ref=e882]:
+                  - columnheader "商品图片" [ref=e883]
+                  - columnheader "商品名称快照" [ref=e884]
+                  - columnheader "SKU 编码快照" [ref=e885]
+                  - columnheader "颜色" [ref=e886]
+                  - columnheader "尺寸" [ref=e887]
+                  - columnheader "单价" [ref=e888]
+                  - columnheader "数量" [ref=e889]
+                  - columnheader "小计" [ref=e890]
+              - rowgroup [ref=e891]:
+                - row [ref=e892] [cursor=pointer]:
+                  - cell [ref=e893]:
+                    - img "轻盈棉质基础 T 恤 商品图片" [ref=e894]
+                  - cell "轻盈棉质基础 T 恤" [ref=e895]
+                  - cell "T-SHIRT-BLACK-M" [ref=e896]
+                  - cell "黑色" [ref=e897]
+                  - cell "M" [ref=e898]
+                  - cell "¥129.00" [ref=e899]
+                  - cell "1" [ref=e900]
+                  - cell "¥129.00" [ref=e901]
+          - region [ref=e902]:
+            - generic [ref=e903]:
+              - generic [ref=e904]:
+                - paragraph [ref=e905]: INVENTORY MOVEMENT / TRANSACTION
+                - heading "库存扣减与事务结果" [level=2] [ref=e906]
+                - paragraph [ref=e907]: 条件 UPDATE、订单和 movement 处于同一事务。
+              - generic [ref=e908]: 数据库记录
+            - table [ref=e912]:
+              - rowgroup [ref=e913]:
+                - row [ref=e914]:
+                  - columnheader "商品" [ref=e915]
+                  - columnheader "SKU ID skuId" [ref=e916]:
+                    - text: SKU ID
+                    - generic [ref=e917]: skuId
+                  - columnheader "SKU 编码 skuCode" [ref=e918]:
+                    - text: SKU 编码
+                    - generic [ref=e919]: skuCode
+                  - columnheader "扣减前" [ref=e920]
+                  - columnheader "本次扣减" [ref=e921]
+                  - columnheader "扣减后" [ref=e922]
+                  - columnheader "变动类型 movementType" [ref=e923]:
+                    - text: 变动类型
+                    - generic [ref=e924]: movementType
+                  - columnheader "执行时间" [ref=e925]
+              - rowgroup [ref=e926]:
+                - row [ref=e927] [cursor=pointer]:
+                  - cell [ref=e928]:
+                    - img "轻盈棉质基础 T 恤 商品缩略图" [ref=e930]
+                  - cell "10001" [ref=e931]
+                  - cell "T-SHIRT-BLACK-M" [ref=e932]
+                  - cell "92" [ref=e933]
+                  - cell "-1" [ref=e934]
+                  - cell "91" [ref=e935]
+                  - cell "ORDER_DEDUCT" [ref=e936]
+                  - cell "2026年9月2日 16:59:27" [ref=e937]
+            - generic [ref=e938]:
+              - generic [ref=e939]:
+                - generic [ref=e940]: Idempotency-Key
+                - strong [ref=e941]: showcase-verify-3b87713e8eab49288cae76b049e9b10f
+              - generic [ref=e942]:
+                - generic [ref=e943]: 订单初始结果
+                - strong [ref=e944]: 首次创建
+            - paragraph [ref=e945]: 库存条件 UPDATE、订单、OrderItem 图片快照、库存 movement 与购物车清理处于同一事务。
+            - group [ref=e946]:
+              - generic "开发演示信息" [ref=e947] [cursor=pointer]

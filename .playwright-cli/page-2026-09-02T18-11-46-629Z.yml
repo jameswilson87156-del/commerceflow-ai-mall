@@ -1,0 +1,55 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: CF
+      - generic [ref=e7]:
+        - generic [ref=e8]: COMMERCEFLOW
+        - generic [ref=e9]: AI MALL / 2026
+    - generic [ref=e10]: 在线
+  - generic [ref=e12]:
+    - generic [ref=e13]: EDITED GOODS · REAL INVENTORY
+    - generic [ref=e14]: 把日常，挑得更好
+    - generic [ref=e15]: 从真实库存中，选择一件现在可以买到的好物。
+    - generic [ref=e16]: LOCAL SHOWCASE · 商品与库存来自 Java API
+  - generic [ref=e17]:
+    - generic [ref=e18]:
+      - generic [ref=e19]: 精选商品
+      - generic [ref=e20]: 2 件在售
+    - generic [ref=e21]: SORT / FEATURED
+  - generic [ref=e22]:
+    - button "轻盈棉质基础 T 恤 01 在售 服饰 / 上衣 轻盈棉质基础 T 恤 日常基础款短袖，适合春夏穿搭 ¥129CNY 4 variants · PROD-1001" [ref=e23] [cursor=pointer]:
+      - generic [ref=e24]:
+        - img "轻盈棉质基础 T 恤" [ref=e26]
+        - generic [ref=e27]: "01"
+        - generic [ref=e28]: 在售
+      - generic [ref=e30]:
+        - generic [ref=e31]: 服饰 / 上衣
+        - generic [ref=e32]: 轻盈棉质基础 T 恤
+        - generic [ref=e33]: 日常基础款短袖，适合春夏穿搭
+        - generic [ref=e34]:
+          - generic [ref=e35]: ¥129CNY
+          - generic [aria-hidden] [ref=e36]: ↗
+        - generic [ref=e37]: 4 variants · PROD-1001
+    - button "简约通勤托特包 02 在售 配饰 / 包袋 简约通勤托特包 轻便大容量，适合日常通勤使用 ¥199CNY 1 variants · PROD-1002" [ref=e38] [cursor=pointer]:
+      - generic [ref=e39]:
+        - img "简约通勤托特包" [ref=e41]
+        - generic [ref=e42]: "02"
+        - generic [ref=e43]: 在售
+      - generic [ref=e45]:
+        - generic [ref=e46]: 配饰 / 包袋
+        - generic [ref=e47]: 简约通勤托特包
+        - generic [ref=e48]: 轻便大容量，适合日常通勤使用
+        - generic [ref=e49]:
+          - generic [ref=e50]: ¥199CNY
+          - generic [aria-hidden] [ref=e51]: ↗
+        - generic [ref=e52]: 1 variants · PROD-1002
+  - generic "商城主导航" [ref=e53]:
+    - button "⌂ 商城" [ref=e54] [cursor=pointer]:
+      - generic [ref=e55]: ⌂
+      - generic [ref=e56]: 商城
+    - button "□ 订单" [ref=e57] [cursor=pointer]:
+      - generic [ref=e58]: □
+      - generic [ref=e59]: 订单
+    - button "✦ AI 助手" [ref=e60] [cursor=pointer]:
+      - generic [ref=e61]: ✦
+      - generic [ref=e62]: AI 助手

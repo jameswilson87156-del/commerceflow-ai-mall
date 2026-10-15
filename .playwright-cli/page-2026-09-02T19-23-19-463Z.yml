@@ -1,0 +1,16 @@
+- generic [ref=f2e292]:
+  - generic [ref=f2e294]:
+    - generic [ref=f2e295]: COMMERCEFLOW / RESULT
+    - generic [ref=f2e296]: 订单结果
+    - generic [ref=f2e297]: 服务端已返回真实创建结果
+  - generic "订单流程" [ref=f2e298]:
+    - generic [ref=f2e299]:
+      - generic [ref=f2e300]: "1"
+      - generic [ref=f2e301]: 购物车
+    - generic [ref=f2e303]:
+      - generic [ref=f2e304]: "2"
+      - generic [ref=f2e305]: 确认订单
+    - generic [ref=f2e307]:
+      - generic [ref=f2e308]: "3"
+      - generic [ref=f2e309]: 创建结果
+  - generic [ref=f2e310]: 正在读取真实订单结果...

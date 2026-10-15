@@ -1,0 +1,93 @@
+- generic [ref=f2e130]:
+  - generic [ref=f2e131]:
+    - button "返回" [ref=f2e132] [cursor=pointer]:
+      - generic [ref=f2e133]: ‹
+    - generic [ref=f2e134]:
+      - generic [ref=f2e135]: COMMERCEFLOW / PRODUCT
+      - generic [ref=f2e136]: 商品详情
+  - generic [ref=f2e137]:
+    - generic [ref=f2e138]:
+      - img "轻盈棉质基础 T 恤" [ref=f2e140]
+      - generic [ref=f2e141]:
+        - generic [ref=f2e142]: PRODUCT / PROD-1001
+        - generic [ref=f2e143]: 4 VARIANTS
+    - generic [ref=f2e144]:
+      - generic [ref=f2e145]:
+        - generic [ref=f2e146]: 服饰 / 上衣
+        - generic [ref=f2e147]: 在售
+      - generic [ref=f2e149]: 轻盈棉质基础 T 恤
+      - generic [ref=f2e150]: PROD-1001
+      - generic [ref=f2e151]: 日常基础款短袖，适合春夏穿搭
+      - generic [ref=f2e152]:
+        - generic [ref=f2e153]: ¥129CNY
+        - generic [ref=f2e154]: 起 / CNY
+  - generic [ref=f2e155]:
+    - generic [ref=f2e156]:
+      - generic [ref=f2e157]:
+        - generic [ref=f2e158]: SELECT A VARIANT
+        - generic [ref=f2e159]: 选择规格
+      - generic [ref=f2e160]: 4 OPTIONS
+    - generic [ref=f2e161]:
+      - button "黑色 M 黑色 M T-SHIRT-BLACK-M 库存正常 ✓" [pressed] [ref=f2e162] [cursor=pointer]:
+        - img "黑色 M" [ref=f2e164]
+        - generic [ref=f2e165]:
+          - generic [ref=f2e166]:
+            - generic [ref=f2e167]: 黑色
+            - generic [ref=f2e168]: M
+          - generic [ref=f2e169]: T-SHIRT-BLACK-M
+        - generic [ref=f2e170]:
+          - generic [ref=f2e171]: 库存正常
+          - generic [ref=f2e172]: ✓
+      - button "白色 S 白色 S T-SHIRT-WHITE-S 库存正常 ○" [ref=f2e173] [cursor=pointer]:
+        - img "白色 S" [ref=f2e175]
+        - generic [ref=f2e176]:
+          - generic [ref=f2e177]:
+            - generic [ref=f2e178]: 白色
+            - generic [ref=f2e179]: S
+          - generic [ref=f2e180]: T-SHIRT-WHITE-S
+        - generic [ref=f2e181]:
+          - generic [ref=f2e182]: 库存正常
+          - generic [ref=f2e183]: ○
+      - button "灰色 L 灰色 L T-SHIRT-GRAY-L 库存正常 ○" [ref=f2e184] [cursor=pointer]:
+        - img "灰色 L" [ref=f2e186]
+        - generic [ref=f2e187]:
+          - generic [ref=f2e188]:
+            - generic [ref=f2e189]: 灰色
+            - generic [ref=f2e190]: L
+          - generic [ref=f2e191]: T-SHIRT-GRAY-L
+        - generic [ref=f2e192]:
+          - generic [ref=f2e193]: 库存正常
+          - generic [ref=f2e194]: ○
+      - button "藏青色 XL 藏青色 XL T-SHIRT-BLUE-XL 缺货 ○" [disabled] [ref=f2e195]:
+        - img "藏青色 XL" [ref=f2e197]
+        - generic [ref=f2e198]:
+          - generic [ref=f2e199]:
+            - generic [ref=f2e200]: 藏青色
+            - generic [ref=f2e201]: XL
+          - generic [ref=f2e202]: T-SHIRT-BLUE-XL
+        - generic [ref=f2e203]:
+          - generic [ref=f2e204]: 缺货
+          - generic [ref=f2e205]: ○
+    - generic [ref=f2e206]:
+      - generic [ref=f2e207]:
+        - generic [ref=f2e208]: CURRENT SELECTION
+        - generic [ref=f2e209]: 黑色 / M
+        - generic [ref=f2e210]: T-SHIRT-BLACK-M
+      - generic [ref=f2e211]:
+        - generic [ref=f2e212]: ¥129CNY
+        - generic [ref=f2e213]: 库存 91
+  - generic [ref=f2e214]:
+    - generic [ref=f2e215]:
+      - generic [ref=f2e216]:
+        - generic [ref=f2e217]: PURCHASE FACTS
+        - generic [ref=f2e218]: 库存与购买事实
+      - generic [ref=f2e219]: i
+    - generic [ref=f2e220]:
+      - generic [ref=f2e221]: 当前可用库存：91 件
+      - generic [ref=f2e224]: 库存数据来自 Java 商品与库存接口
+      - generic [ref=f2e227]: 下单时会再次校验真实库存
+  - button "✦ 询问 AI 商品助手" [ref=f2e230] [cursor=pointer]
+  - generic [ref=f2e232]:
+    - button "购物车" [ref=f2e233] [cursor=pointer]
+    - button "加入购物车" [ref=f2e236] [cursor=pointer]
+    - button "立即购买" [ref=f2e237] [cursor=pointer]

@@ -1,0 +1,17 @@
+- generic [ref=f2e259]:
+  - generic [ref=f2e261]:
+    - generic [ref=f2e262]: COMMERCEFLOW / ORDERS
+    - generic [ref=f2e263]: 我的订单
+    - generic [ref=f2e264]: 只展示真实创建订单
+  - generic [ref=f2e266]:
+    - generic [ref=f2e267]: ORDER HISTORY
+    - generic [ref=f2e268]: 你的真实订单
+  - generic [ref=f2e269]:
+    - generic [ref=f2e270]: 服务端订单
+    - generic [ref=f2e271]: 0 笔
+  - generic [ref=f2e272]: 正在读取订单列表…
+  - generic "商城主导航" [ref=f2e273]:
+    - button "商城" [ref=f2e274] [cursor=pointer]
+    - button "订单" [ref=f2e277] [cursor=pointer]
+    - button "AI 助手" [ref=f2e280] [cursor=pointer]:
+      - generic [aria-hidden] [ref=f2e281]: ✦
