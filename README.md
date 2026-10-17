@@ -94,6 +94,19 @@ Redis 429 与 FAIL_OPEN 是技术证据，见 [Canonical 截图索引](docs/show
 
 消费者前端只发送 `productId`、`skuId`、`question`、`clientRequestId`，不发送 `userId`；管理端 AI 使用独立 Operator 路径，也不接受消费者 `userId`。Java 从 MySQL 加载业务事实、构造 Evidence，通过 `CustomerServiceProvider` 选择 FastAPI 或 OpenAI-compatible 适配器，再校验结构化回答并保存最小化 Trace 摘要。Provider 不写业务数据库、不回调 Java、不编造库存；不可用时 Java 使用事实约束 fallback。详见 [AI 事实链路](docs/architecture/AI_GROUNDED_ANSWER_FLOW.md)、[Phase 0-B 边界设计](docs/design/PHASE_0B_API_BOUNDARY_AUTHORIZATION.md) 和 [E3 Provider 设计](docs/design/BACKEND_E3_PROVIDER_OBSERVABILITY.md)。
 
+### 接入真实 LLM Provider
+
+默认链路使用确定性 `commerceflow-mock`，保证演示可复现。切到真实模型只需三步（OpenAI 兼容协议，以 DashScope 为例）：
+
+```dotenv
+COMMERCEFLOW_AI_PROVIDER_NAME=openai-compatible
+COMMERCEFLOW_AI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+COMMERCEFLOW_AI_API_KEY=<你的 Key>   # 不入库、不进日志
+COMMERCEFLOW_AI_MODEL=qwen-plus
+```
+
+切换后 AI 回答仍由 Java 侧 `businessFacts` 约束（Provider 不写业务库、不编造库存），调用证据进 `ai_trace`，失败/超时回退 Java 事实约束 fallback。协议适配有本地 fixture 测试，不调用外部模型。
+
 ### Redis 限流
 
 消费者 `POST /api/v1/me/ai/customer-service/ask` 与管理端 `POST /api/v1/operator/ai/customer-service/ask` 受 Redis Lua 固定窗口保护，默认 5 次 / 60 秒。第 6 次返回 429 与 `Retry-After`；429 不调用 Provider、不写 AI Trace。Redis 不参与订单、库存、购物车或 MySQL 事务。详见 [Redis 限流链路](docs/architecture/REDIS_RATE_LIMIT_FLOW.md)。
