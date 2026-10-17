@@ -36,6 +36,10 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 commerceflow:
+  order-timeout:
+    ttl-seconds: ${COMMERCEFLOW_ORDER_TIMEOUT_TTL_SECONDS:1800}
+    batch-size: 50
+    scan-interval-ms: 5000
   cors:
     allowed-origins: ${COMMERCEFLOW_CORS_ALLOWED_ORIGINS:${SHOWCASE_ADMIN_ORIGIN:http://127.0.0.1:5174},${SHOWCASE_MOBILE_ORIGIN:http://127.0.0.1:5173}}
   ai-service-url: ${AI_SERVICE_URL:http://127.0.0.1:8000}

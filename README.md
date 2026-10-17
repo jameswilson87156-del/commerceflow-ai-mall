@@ -1,12 +1,8 @@
 # CommerceFlow AI Mall
 
-> 2026-09-05 第一阶段部署审计：当前总状态 **BLOCKED**。最新 Java 91/91（无跳过）、Python 11/11、Admin 46/46、H5 36/36、应用生产构建、配置守卫、空库 schema-only 初始化及 Compose 静态检查为 **LOCAL_PASS**。共享 OIDC 源码、Demo 迁移种子、容器化 RDS/Tair 接线、Admin/H5 client 隔离和跨项目 smoke 来源问题已完成本地整改；Docker registry、云资源、真实 Secret/OIDC、DNS/ICP/TLS 及公网验收仍 **STAGING_PENDING** 或 **BLOCKED**。详见 [本项目审计与部署计划](docs/release/STAGING_AUDIT_PLAN_20260905.md)。Compose 语法通过不代表可直接部署。
-
 **电商与 AI 客服协同平台**，用于展示 Java 后端、AI 应用、Vue 管理端与 UniApp H5 的一条可本地重建的 Showcase 链路。
 
 > `LOCAL SHOWCASE` · `commerceflow-mock` 确定性 Mock · `CNY_ONLY` · `H5_VERIFIED` · 非 H5 仅编译通过
-
-这是本地求职展示项目，不是生产系统。Codex 对 Showcase 实现有实质贡献；代码所有权差距与后续学习重构计划如实记录在 [OWNERSHIP_GAPS](docs/career/OWNERSHIP_GAPS.md)。
 
 ![运营总览真实运行截图：本地 MySQL、ai_trace 与运行配置驱动](screenshots/v2/01-operations-overview-real.png)
 
@@ -18,17 +14,18 @@
 - 用 MySQL 唯一约束和 `Idempotency-Key` 处理重复提交；库存扣减、订单快照与库存变动证据在同一事务中完成。
 - 由 Java 从 MySQL 构造 `businessFacts`，再调用 FastAPI 的确定性 `commerceflow-mock`，返回可核对的回答、Evidence 与 Trace。
 - 用 Redis Lua 固定窗口保护 AI 接口，并在页面展示真实 429 / Retry-After 边界。
+- `CREATED` 订单超过可配置 TTL（默认 30 分钟）后自动取消：状态 CAS、同一事务回补库存、`TIMEOUT_RESTOCK` 证据与 outbox 事件，运营端 API 可手动触发演示。
 
 ## 真实能力与边界
 
 | 已实现且有本地证据 | 明确未实现或不应声称 |
 | --- | --- |
-| 商品、SKU、库存、购物车、订单快照、库存变动、幂等 | 支付、物流、退款、地址、优惠券 |
+| 商品、SKU、库存、购物车、订单快照、库存变动、幂等、订单超时取消与库存回补 | 支付、物流、退款、地址、优惠券 |
 | Java 事实驱动 AI 客服、Java fallback、Evidence、Trace；价格与订单只支持 CNY；GPT/DeepSeek 兼容 Provider 适配边界和本地协议测试 | 真实外部模型调用、真实 API Key 验收、真实客户数据 |
 | Redis 5 次 / 60 秒 Lua 限流、429、FAIL_OPEN Showcase 边界 | 生产认证、DDoS 防护、高并发或商业运营结论 |
 | Admin 真实本地 API 页面；UniApp H5 浏览器验收 | 原生设备、微信小程序、Android 或 iOS 运行时验收 |
 
-当前默认仍是本地 Demo，不会伪装成真实注册登录；但 OIDC/JWT Resource Server、消费者身份映射、Operator 角色边界以及 Admin/H5 的 Authorization Code + PKCE 适配已经实现，staging profile 会关闭 Demo 身份和 legacy 路由。仓库根目录的 `.env.example` 仍显式开启本地 Demo 用户和 Demo Operator，基础 Spring 配置本身不创建任何默认身份；`/api/v1/me/...` 由 `CurrentUserPort` 派生消费者范围，`/api/v1/operator/...` 由独立 `OperatorScope` 授权跨用户管理读取。旧 `/api` 兼容链路仅在显式 LOCAL/DEMO 模式开启，不能作为公网权限边界。订单状态只有 `CREATED`。Redis 身份摘要不是生产认证，`FAIL_OPEN` 只适用于当前 Mock Showcase。真实 IdP、真实模型账号和公网服务器尚未在本工作区完成连接，执行边界见 [真实认证、Provider 与部署说明](docs/REAL_AUTH_PROVIDER_DEPLOYMENT.md)。
+当前默认仍是本地 Demo，不会伪装成真实注册登录；但 OIDC/JWT Resource Server、消费者身份映射、Operator 角色边界以及 Admin/H5 的 Authorization Code + PKCE 适配已经实现，staging profile 会关闭 Demo 身份和 legacy 路由。仓库根目录的 `.env.example` 仍显式开启本地 Demo 用户和 Demo Operator，基础 Spring 配置本身不创建任何默认身份；`/api/v1/me/...` 由 `CurrentUserPort` 派生消费者范围，`/api/v1/operator/...` 由独立 `OperatorScope` 授权跨用户管理读取。旧 `/api` 兼容链路仅在显式 LOCAL/DEMO 模式开启，不能作为公网权限边界。订单状态只有 `CREATED` 与超时自动取消后的 `CANCELLED_TIMEOUT`（没有支付流转）。Redis 身份摘要不是生产认证，`FAIL_OPEN` 只适用于当前 Mock Showcase。真实 IdP、真实模型账号和公网服务器尚未在本工作区完成连接，执行边界见 [真实认证、Provider 与部署说明](docs/REAL_AUTH_PROVIDER_DEPLOYMENT.md)。
 
 金额合同固定为 CNY：商品 SKU、购物车、订单和订单明细都使用 `CNY`。Java 订单服务拒绝非 CNY SKU，Flyway V9 又在 `product_sku`、`orders` 和 `order_item` 上补齐数据库约束；这不是对多币种结算能力的宣称。
 
@@ -89,6 +86,10 @@ Redis 429 与 FAIL_OPEN 是技术证据，见 [Canonical 截图索引](docs/show
 `Product -> SKU -> Inventory` 是当前商品事实。提交订单时服务端接收 `Idempotency-Key`，聚合同一 SKU，按 SKU ID 稳定排序完成锁定与扣减，执行带库存条件的原子 `UPDATE`，写入 `orders`、`order_item` 快照和 `inventory_movement`，并在一个 MySQL 事务中提交。重复的同 Key 同请求返回原订单；同 Key 不同请求返回 `409`。详见 [订单事务链路](docs/architecture/ORDER_TRANSACTION_FLOW.md)。
 
 > **订单可靠性证据：** 使用真实 MySQL 8.4 覆盖库存竞争、并发幂等、Key 冲突、事务回滚与重复 SKU 聚合；本地独立数据库连续三次通过。详见 [Order Reliability Evidence V1](docs/evidence/order-reliability-v1/README.md)。这不是生产负载或吞吐量声明。
+### 订单超时取消
+
+每个新订单在插入时写入 `cancel_deadline`（应用侧计算，默认 30 分钟，`commerceflow.order-timeout.ttl-seconds`）。固定延迟扫描（默认 5 秒）查出到期且仍为 `CREATED` 的订单，用条件更新 `UPDATE ... WHERE status='CREATED'` 做状态 CAS：只有抢到的那次取消才会在同一事务里回补库存、写 `TIMEOUT_RESTOCK` 的 `inventory_movement` 证据并追加 `ORDER_TIMEOUT_CANCELLED` outbox 事件；并发已推进（如已支付）或重复扫描都会被 CAS 挡住，不会二次回补。选择数据库 deadline 扫描而不是 Redisson 延迟队列的取舍、运营端手动触发 API 与测试覆盖见 [BACKEND_E4 订单超时取消设计](docs/design/BACKEND_E4_ORDER_TIMEOUT_CANCELLATION.md)。
+
 ### AI 商品客服
 
 消费者前端只发送 `productId`、`skuId`、`question`、`clientRequestId`，不发送 `userId`；管理端 AI 使用独立 Operator 路径，也不接受消费者 `userId`。Java 从 MySQL 加载业务事实、构造 Evidence，通过 `CustomerServiceProvider` 选择 FastAPI 或 OpenAI-compatible 适配器，再校验结构化回答并保存最小化 Trace 摘要。Provider 不写业务数据库、不回调 Java、不编造库存；不可用时 Java 使用事实约束 fallback。详见 [AI 事实链路](docs/architecture/AI_GROUNDED_ANSWER_FLOW.md)、[Phase 0-B 边界设计](docs/design/PHASE_0B_API_BOUNDARY_AUTHORIZATION.md) 和 [E3 Provider 设计](docs/design/BACKEND_E3_PROVIDER_OBSERVABILITY.md)。
@@ -121,7 +122,7 @@ powershell -NoProfile -File .\scripts\showcase\stop.ps1
 
 ## 测试与 CI
 
-GitHub Actions 设有五个清晰职责：`repository-integrity`、`java-backend`、`python-ai-service`、`admin-web`、`mobile-app`。Java job 使用真实 MySQL 8.4 与 Redis 8.0.2，并进行 Flyway V1–V10 概览 smoke；Python 固定 Mock Provider；Provider 兼容协议使用本地 fixture 测试，不调用外部模型；前端不依赖已运行的 Java 服务。
+GitHub Actions 设有五个清晰职责：`repository-integrity`、`java-backend`、`python-ai-service`、`admin-web`、`mobile-app`。Java job 使用真实 MySQL 8.4 与 Redis 8.0.2，并进行 Flyway V1–V12 概览 smoke；Python 固定 Mock Provider；Provider 兼容协议使用本地 fixture 测试，不调用外部模型；前端不依赖已运行的 Java 服务。
 
 当前本地验收矩阵与精确数量见 [当前验收矩阵](docs/evidence/ACCEPTANCE_MATRIX.md)、[前端重做验收记录](docs/evidence/frontend-redesign/README.md) 和 [P7C 测试结果](docs/evidence/P7-showcase/P7C_TEST_RESULTS.md)。CI 不调用外部 AI、不读取真实密钥、不部署、不发布镜像。
 
@@ -130,8 +131,9 @@ GitHub Actions 设有五个清晰职责：`repository-integrity`、`java-backend
 1. 打开 Admin 运营总览，说明这些数值来自本地 MySQL、`ai_trace` 与运行时配置。
 2. 进入商品与 SKU，说明 Product、SKU、Inventory 的关系和只读边界。
 3. 查看订单证据，讲解原子扣库存、快照、幂等与事务回滚。
-4. 在 AI 客服中展示 Java 业务事实、Mock 回答、Evidence、Trace 与 fallback 边界。
-5. 在 UniApp H5 展示商品、购物车、订单和 AI 客服；说明非 H5 仅完成编译。
+4. 调用运营端 `POST /api/v1/operator/operations/order-timeout/enforce` 展示到期订单自动取消：状态 CAS、库存回补与 `TIMEOUT_RESTOCK` 证据。
+5. 在 AI 客服中展示 Java 业务事实、Mock 回答、Evidence、Trace 与 fallback 边界。
+6. 在 UniApp H5 展示商品、购物车、订单和 AI 客服；说明非 H5 仅完成编译。
 
 ## 目录
 
@@ -146,6 +148,12 @@ docs/evidence/       阶段验收与冻结证据
 docs/design/         设计审查、页面规格与事实边界
 screenshots/v2/      真实运行截图
 ```
+
+## 边界与诚实声明
+
+这是本地求职展示项目，不是生产系统。Codex 对 Showcase 实现有实质贡献；代码所有权差距与后续学习重构计划如实记录在 [OWNERSHIP_GAPS](docs/career/OWNERSHIP_GAPS.md)。
+
+> 2026-09-05 第一阶段部署审计：当前总状态 **BLOCKED**。最新 Java 91/91（无跳过）、Python 11/11、Admin 46/46、H5 36/36、应用生产构建、配置守卫、空库 schema-only 初始化及 Compose 静态检查为 **LOCAL_PASS**。共享 OIDC 源码、Demo 迁移种子、容器化 RDS/Tair 接线、Admin/H5 client 隔离和跨项目 smoke 来源问题已完成本地整改；Docker registry、云资源、真实 Secret/OIDC、DNS/ICP/TLS 及公网验收仍 **STAGING_PENDING** 或 **BLOCKED**。详见 [本项目审计与部署计划](docs/release/STAGING_AUDIT_PLAN_20260905.md)。Compose 语法通过不代表可直接部署。
 
 ## 来源、许可与面试材料
 

@@ -2,6 +2,8 @@ package com.commerceflow.mall.order.application.port.out;
 
 import com.commerceflow.mall.api.ApiModels;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.NoRepositoryBean;
 
@@ -26,6 +28,25 @@ public interface OrderWritePort {
     void clearCart(long userId, long skuId);
 
     Optional<ApiModels.OrderSummary> find(String orderNo);
+
+    List<DueOrder> findTimeoutDue(Instant now, int limit);
+
+    boolean cancelIfCreated(String orderNo);
+
+    List<StoredItem> storedItems(String orderNo);
+
+    void recordTimeoutRestock(String orderNo, long skuId, int quantity, int stockBefore, int stockAfter, String evidenceKey);
+
+    record DueOrder(
+            String orderNo,
+            long userId) {
+    }
+
+    record StoredItem(
+            long skuId,
+            String skuCode,
+            int quantity) {
+    }
 
     record OrderDraft(
             String orderNo,

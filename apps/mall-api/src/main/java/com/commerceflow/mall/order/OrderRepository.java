@@ -6,17 +6,24 @@ import com.commerceflow.mall.order.application.port.out.OrderWritePort;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class OrderRepository implements OrderWritePort, IdempotencyStore {
     private final JdbcTemplate jdbc;
-    public OrderRepository(JdbcTemplate jdbc) { this.jdbc = jdbc; }
+    private final int timeoutSeconds;
+    public OrderRepository(JdbcTemplate jdbc,
+            @Value("${commerceflow.order-timeout.ttl-seconds:1800}") int timeoutSeconds) {
+        this.jdbc = jdbc;
+        this.timeoutSeconds = timeoutSeconds;
+    }
     @Override
     public Optional<IdempotencyRecord> find(long userId, String key) {
         try {
@@ -37,8 +44,11 @@ public class OrderRepository implements OrderWritePort, IdempotencyStore {
 
     @Override
     public long insertOrder(OrderDraft draft) {
-        jdbc.update("INSERT INTO orders(order_no,user_id,idempotency_key,request_fingerprint,total_amount,currency,status) VALUES (?,?,?,?,?,?,?)",
-                draft.orderNo(), draft.userId(), draft.idempotencyKey(), draft.requestFingerprint(), draft.totalAmount(), draft.currency(), "CREATED");
+        // The timeout deadline is computed in the application and stored as a
+        // plain parameter so the same statement runs on MySQL and H2 alike.
+        Timestamp deadline = Timestamp.from(Instant.now().plusSeconds(timeoutSeconds));
+        jdbc.update("INSERT INTO orders(order_no,user_id,idempotency_key,request_fingerprint,total_amount,currency,status,cancel_deadline) VALUES (?,?,?,?,?,?,?,?)",
+                draft.orderNo(), draft.userId(), draft.idempotencyKey(), draft.requestFingerprint(), draft.totalAmount(), draft.currency(), "CREATED", deadline);
         return jdbc.queryForObject("SELECT id FROM orders WHERE order_no=?", Long.class, draft.orderNo());
     }
 
@@ -63,6 +73,33 @@ public class OrderRepository implements OrderWritePort, IdempotencyStore {
     }
     @Override
     public void clearCart(long userId, long skuId) { jdbc.update("DELETE FROM cart_item WHERE user_id=? AND sku_id=?", userId, skuId); }
+
+    @Override
+    public List<DueOrder> findTimeoutDue(Instant now, int limit) {
+        return jdbc.query(
+                "SELECT order_no,user_id FROM orders WHERE status='CREATED' AND cancel_deadline IS NOT NULL AND cancel_deadline<=? ORDER BY cancel_deadline LIMIT ?",
+                (rs, n) -> new DueOrder(rs.getString("order_no"), rs.getLong("user_id")),
+                Timestamp.from(now), limit);
+    }
+
+    @Override
+    public boolean cancelIfCreated(String orderNo) {
+        return jdbc.update("UPDATE orders SET status='CANCELLED_TIMEOUT' WHERE order_no=? AND status='CREATED'", orderNo) > 0;
+    }
+
+    @Override
+    public List<StoredItem> storedItems(String orderNo) {
+        return jdbc.query(
+                "SELECT i.sku_id,i.sku_code_snapshot,i.quantity FROM order_item i WHERE i.order_id=(SELECT id FROM orders WHERE order_no=?) ORDER BY i.id",
+                (rs, n) -> new StoredItem(rs.getLong(1), rs.getString(2), rs.getInt(3)),
+                orderNo);
+    }
+
+    @Override
+    public void recordTimeoutRestock(String orderNo, long skuId, int quantity, int stockBefore, int stockAfter, String evidenceKey) {
+        jdbc.update("INSERT INTO inventory_movement(order_no,sku_id,movement_type,quantity,stock_before,stock_after,idempotency_key) VALUES (?,?,?,?,?,?,?)",
+                orderNo, skuId, "TIMEOUT_RESTOCK", quantity, stockBefore, stockAfter, evidenceKey);
+    }
     public List<ApiModels.OrderSummary> findAll(long userId) { return jdbc.query("SELECT order_no,user_id,total_amount,currency,status,created_at FROM orders WHERE user_id=? ORDER BY id DESC", (rs,n) -> summary(rs, rs.getLong("user_id")), userId); }
     /** Cross-user list used only after the operator authorization policy succeeds. */
     public List<ApiModels.OrderSummary> findAllForOperator() {

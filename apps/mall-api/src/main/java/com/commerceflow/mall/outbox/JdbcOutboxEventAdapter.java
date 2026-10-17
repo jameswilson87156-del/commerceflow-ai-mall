@@ -22,6 +22,26 @@ public class JdbcOutboxEventAdapter implements OutboxEventPort {
     }
 
     @Override
+    public void append(OrderTimeoutCancelledEvent event) {
+        String payload;
+        try {
+            payload = objectMapper.writeValueAsString(event);
+        } catch (JsonProcessingException ex) {
+            throw new CommerceException("OUTBOX_SERIALIZATION_FAILED", "Order timeout event could not be serialized");
+        }
+        String eventId = "order-timeout-cancelled:" + event.orderNo();
+        jdbc.update(
+                "INSERT INTO outbox_event(event_id,aggregate_type,aggregate_id,event_type,payload_json,status,attempts) VALUES (?,?,?,?,?,?,?)",
+                eventId,
+                "ORDER",
+                event.orderNo(),
+                "ORDER_TIMEOUT_CANCELLED",
+                payload,
+                "PENDING",
+                0);
+    }
+
+    @Override
     public void append(OrderCreatedEvent event) {
         String payload;
         try {

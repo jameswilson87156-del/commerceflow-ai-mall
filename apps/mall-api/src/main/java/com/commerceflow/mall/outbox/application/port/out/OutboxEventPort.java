@@ -7,6 +7,8 @@ import java.util.List;
 public interface OutboxEventPort {
     void append(OrderCreatedEvent event);
 
+    void append(OrderTimeoutCancelledEvent event);
+
     record OrderCreatedEvent(
             String orderNo,
             long userId,
@@ -20,6 +22,18 @@ public interface OutboxEventPort {
             String skuCode,
             String productName,
             BigDecimal unitPrice,
+            int quantity) {
+    }
+
+    record OrderTimeoutCancelledEvent(
+            String orderNo,
+            long userId,
+            List<CancelledItem> items) {
+    }
+
+    record CancelledItem(
+            long skuId,
+            String skuCode,
             int quantity) {
     }
 }

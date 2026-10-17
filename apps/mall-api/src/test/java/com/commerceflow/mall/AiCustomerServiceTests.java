@@ -304,7 +304,7 @@ class AiCustomerServiceTests {
 
     @Test
     void cleanTestDatabaseAppliesAllFlywayMigrations() {
-        assertEquals(11, jdbc.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE AND version IS NOT NULL", Integer.class));
+        assertEquals(12, jdbc.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE AND version IS NOT NULL", Integer.class));
         assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE LOWER(TABLE_NAME)='ai_trace' AND LOWER(COLUMN_NAME)='question_summary'", Integer.class));
     }
 

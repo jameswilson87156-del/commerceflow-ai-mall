@@ -40,4 +40,25 @@ public class JdbcInventoryAdapter implements InventoryPort {
         int after = jdbc.queryForObject("SELECT available_stock FROM inventory WHERE sku_id=?", Integer.class, skuId);
         return new Reservation(skuId, quantity, before, after);
     }
+
+    @Override
+    public Reservation release(long skuId, int quantity) {
+        if (quantity < 1) {
+            throw new CommerceException("INVENTORY_QUANTITY_INVALID", "Inventory release quantity must be positive");
+        }
+        Integer before;
+        try {
+            before = jdbc.queryForObject(
+                    "SELECT available_stock FROM inventory WHERE sku_id=? FOR UPDATE",
+                    Integer.class,
+                    skuId);
+        } catch (EmptyResultDataAccessException ex) {
+            throw new CommerceException("INVENTORY_NOT_FOUND", "Inventory is unavailable");
+        }
+        jdbc.update(
+                "UPDATE inventory SET available_stock=available_stock+?,updated_at=CURRENT_TIMESTAMP WHERE sku_id=?",
+                quantity,
+                skuId);
+        return new Reservation(skuId, quantity, before, before + quantity);
+    }
 }

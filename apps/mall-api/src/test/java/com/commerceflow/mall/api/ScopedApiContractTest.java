@@ -5,6 +5,7 @@ import com.commerceflow.mall.ai.OperatorAiController;
 import com.commerceflow.mall.ai.ScopedAiController;
 import com.commerceflow.mall.cart.ScopedCartController;
 import com.commerceflow.mall.operations.OperatorOperationsOverviewController;
+import com.commerceflow.mall.operations.OperatorOrderTimeoutController;
 import com.commerceflow.mall.order.OperatorOrderController;
 import com.commerceflow.mall.order.ScopedOrderController;
 import java.lang.annotation.Annotation;
@@ -53,6 +54,10 @@ class ScopedApiContractTest {
         assertEquals(CommerceApiContract.V1_OPERATOR_OPERATIONS_PATH, classPath(OperatorOperationsOverviewController.class));
         assertMapping(OperatorOperationsOverviewController.class, "overview", GetMapping.class,
                 CommerceApiContract.OPERATIONS_OVERVIEW_PATH);
+
+        assertEquals(CommerceApiContract.V1_OPERATOR_OPERATIONS_PATH, classPath(OperatorOrderTimeoutController.class));
+        assertMapping(OperatorOrderTimeoutController.class, "enforce", PostMapping.class,
+                CommerceApiContract.OPERATIONS_ORDER_TIMEOUT_ENFORCE_PATH);
 
         assertEquals(CommerceApiContract.V1_OPERATOR_AI_PATH, classPath(OperatorAiController.class));
         assertMapping(OperatorAiController.class, "ask", PostMapping.class,

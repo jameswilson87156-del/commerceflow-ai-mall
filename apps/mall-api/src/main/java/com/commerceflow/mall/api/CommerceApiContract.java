@@ -27,6 +27,7 @@ public final class CommerceApiContract {
     public static final String AI_LEGACY_PRODUCT_CHAT_PATH = "/product-chat";
     public static final String OPERATIONS_PATH = API_PREFIX + "/operations";
     public static final String OPERATIONS_OVERVIEW_PATH = "/overview";
+    public static final String OPERATIONS_ORDER_TIMEOUT_ENFORCE_PATH = "/order-timeout/enforce";
     public static final String V1_PREFIX = API_PREFIX + "/v1";
     public static final String V1_ME_PATH = V1_PREFIX + "/me";
     public static final String V1_ME_CART_PATH = V1_ME_PATH + "/cart";

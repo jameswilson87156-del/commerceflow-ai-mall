@@ -8,6 +8,8 @@ package com.commerceflow.mall.inventory.application.port.out;
 public interface InventoryPort {
     Reservation reserve(long skuId, int quantity);
 
+    Reservation release(long skuId, int quantity);
+
     record Reservation(long skuId, int quantity, int stockBefore, int stockAfter) {
     }
 }

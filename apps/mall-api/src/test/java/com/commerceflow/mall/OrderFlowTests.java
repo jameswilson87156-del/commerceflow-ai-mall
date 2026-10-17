@@ -337,7 +337,7 @@ class OrderFlowTests {
 
     @Test
     void cleanTestDatabaseAppliedAllMigrationsThroughCnyContract() {
-        assertEquals(11, count("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE AND version IS NOT NULL"));
+        assertEquals(12, count("SELECT COUNT(*) FROM flyway_schema_history WHERE success=TRUE AND version IS NOT NULL"));
     }
 
     private ApiModels.OrderRequest request(long skuId, int quantity) {
