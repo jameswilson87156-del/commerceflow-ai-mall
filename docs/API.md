@@ -86,4 +86,4 @@ Java 在调用既有 `AiService` 前把 `CurrentUserPort` 的用户 ID 放入内
 
 ## AI provider boundary
 
-当前本地默认 Provider 是确定性 `commerceflow-mock`。Java 的 OpenAI-compatible/DeepSeek 适配器仅做本地协议测试，真实模型、真实 API Key、计费和模型质量不在本轮验收范围；Provider 不能访问 MySQL、修改订单库存或回调 Java。
+当前本地默认 Provider 是确定性 `commerceflow-mock`。Java 的 OpenAI-compatible/DeepSeek 适配器有本地协议测试，另有一条 2026-09-05 的真实 DeepSeek 合成请求 smoke；完整多题模型质量、计费、配额和公网调用不在当前验收范围。Provider 不能访问 MySQL、修改订单库存或回调 Java。

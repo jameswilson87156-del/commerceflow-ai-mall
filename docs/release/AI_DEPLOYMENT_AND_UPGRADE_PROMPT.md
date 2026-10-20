@@ -173,7 +173,7 @@ DeepSeek Key 已经准备过，不需要再次发送给 AI。下一个 AI 只需
 COMMERCEFLOW_AI_PROVIDER=OPENAI_COMPATIBLE
 COMMERCEFLOW_AI_BASE_URL=https://api.deepseek.com
 COMMERCEFLOW_AI_PATH=/v1/chat/completions
-COMMERCEFLOW_AI_MODEL=deepseek-chat
+COMMERCEFLOW_AI_MODEL=deepseek-flash
 COMMERCEFLOW_AI_API_KEY=<server-side-secret>
 COMMERCEFLOW_AI_FALLBACK_ENABLED=false
 ~~~

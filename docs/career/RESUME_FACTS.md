@@ -10,7 +10,7 @@ Use this list as a fact check before writing a resume or portfolio entry. It ref
 - Flyway V1–V10 schema lifecycle, including CNY/positive-quantity constraints and a transactional `outbox_event` foundation for `ORDER_CREATED`.
 - Redis Lua fixed-window AI rate limiter with 5 requests per 60 seconds, HTTP 429, `Retry-After`, and a documented local `FAIL_OPEN` behavior.
 - Java-owned Product/SKU/Inventory facts passed to FastAPI, seven Java Evidence records, six Trace steps, bounded trace persistence, and fact-bound Java fallback behavior.
-- Provider SPI with a default FastAPI adapter and an OpenAI-compatible adapter that can target OpenAI/DeepSeek by environment configuration; local fixture tests cover response parsing, auth-header handling, retry/error classification, and no-secret request-body leakage. No real provider credential or model-quality claim is included.
+- Provider SPI with a default FastAPI adapter and an OpenAI-compatible adapter that can target OpenAI/DeepSeek by environment configuration; local fixture tests cover response parsing, auth-header handling, retry/error classification, and no-secret request-body leakage. A separate 2026-09-05 record proves one real DeepSeek synthetic request through the Java adapter, but not multi-case model quality.
 - Low-cardinality Micrometer Provider request/latency metrics with fixed mode/outcome tags; no raw prompt, answer, Trace ID or key is used as a metric dimension.
 - Vue 3 + TypeScript Admin pages for live operations overview, read-only Product/SKU inventory inspection, order execution evidence, and AI customer service.
 - UniApp H5 product detail, server-backed cart, checkout, `CREATED` order result/detail, and AI customer service flow.
@@ -34,7 +34,7 @@ Use this list as a fact check before writing a resume or portfolio entry. It ref
 
 ## Planned or out of scope
 
-- Payment, shipment/logistics, refunds, addresses, coupons, real registration/login, roles/permissions, public deployment, real remote-provider/API-key acceptance, production alerting/observability, and throughput/scale metrics.
+- Payment, shipment/logistics, refunds, addresses, coupons, real registration/login, roles/permissions, public deployment, complete remote-provider quality evaluation, production alerting/observability, and throughput/scale metrics.
 - AI trace history/search and product/SKU write APIs are not claimed beyond the implemented current-response and read-only views.
 
 Ownership remains explicitly documented as `NOT_PASSED` in [OWNERSHIP_GAPS](OWNERSHIP_GAPS.md); the project should not be described as independently written from scratch until the learning rebuild is completed.

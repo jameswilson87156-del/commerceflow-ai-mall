@@ -21,11 +21,11 @@
 | 已实现且有本地证据 | 明确未实现或不应声称 |
 | --- | --- |
 | 商品、SKU、库存、购物车、订单快照、库存变动、幂等、订单超时取消与库存回补 | 支付、物流、退款、地址、优惠券 |
-| Java 事实驱动 AI 客服、Java fallback、Evidence、Trace；价格与订单只支持 CNY；GPT/DeepSeek 兼容 Provider 适配边界和本地协议测试 | 真实外部模型调用、真实 API Key 验收、真实客户数据 |
+| Java 事实驱动 AI 客服、Java fallback、Evidence、Trace；价格与订单只支持 CNY；DeepSeek 兼容 Provider；一条真实 DeepSeek 合成请求 smoke | 完整多题 DeepSeek 质量评测、真实客户数据 |
 | Redis 5 次 / 60 秒 Lua 限流、429、FAIL_OPEN Showcase 边界 | 生产认证、DDoS 防护、高并发或商业运营结论 |
 | Admin 真实本地 API 页面；UniApp H5 浏览器验收 | 原生设备、微信小程序、Android 或 iOS 运行时验收 |
 
-当前默认仍是本地 Demo，不会伪装成真实注册登录；但 OIDC/JWT Resource Server、消费者身份映射、Operator 角色边界以及 Admin/H5 的 Authorization Code + PKCE 适配已经实现，staging profile 会关闭 Demo 身份和 legacy 路由。仓库根目录的 `.env.example` 仍显式开启本地 Demo 用户和 Demo Operator，基础 Spring 配置本身不创建任何默认身份；`/api/v1/me/...` 由 `CurrentUserPort` 派生消费者范围，`/api/v1/operator/...` 由独立 `OperatorScope` 授权跨用户管理读取。旧 `/api` 兼容链路仅在显式 LOCAL/DEMO 模式开启，不能作为公网权限边界。订单状态只有 `CREATED` 与超时自动取消后的 `CANCELLED_TIMEOUT`（没有支付流转）。Redis 身份摘要不是生产认证，`FAIL_OPEN` 只适用于当前 Mock Showcase。真实 IdP、真实模型账号和公网服务器尚未在本工作区完成连接，执行边界见 [真实认证、Provider 与部署说明](docs/REAL_AUTH_PROVIDER_DEPLOYMENT.md)。
+当前默认仍是本地 Demo，不会伪装成真实注册登录；但 OIDC/JWT Resource Server、消费者身份映射、Operator 角色边界以及 Admin/H5 的 Authorization Code + PKCE 适配已经实现，staging profile 会关闭 Demo 身份和 legacy 路由。仓库根目录的 `.env.example` 仍显式开启本地 Demo 用户和 Demo Operator，基础 Spring 配置本身不创建任何默认身份；`/api/v1/me/...` 由 `CurrentUserPort` 派生消费者范围，`/api/v1/operator/...` 由独立 `OperatorScope` 授权跨用户管理读取。旧 `/api` 兼容链路仅在显式 LOCAL/DEMO 模式开启，不能作为公网权限边界。订单状态只有 `CREATED` 与超时自动取消后的 `CANCELLED_TIMEOUT`（没有支付流转）。Redis 身份摘要不是生产认证，`FAIL_OPEN` 只适用于当前 Mock Showcase。真实 IdP、完整 DeepSeek 多题评测和公网服务器尚未在本工作区完成连接；已有一条本地 DeepSeek 合成请求 smoke 记录，执行边界见 [真实认证、Provider 与部署说明](docs/REAL_AUTH_PROVIDER_DEPLOYMENT.md)。
 
 金额合同固定为 CNY：商品 SKU、购物车、订单和订单明细都使用 `CNY`。Java 订单服务拒绝非 CNY SKU，Flyway V9 又在 `product_sku`、`orders` 和 `order_item` 上补齐数据库约束；这不是对多币种结算能力的宣称。
 
@@ -93,6 +93,56 @@ Redis 429 与 FAIL_OPEN 是技术证据，见 [Canonical 截图索引](docs/show
 ### AI 商品客服
 
 消费者前端只发送 `productId`、`skuId`、`question`、`clientRequestId`，不发送 `userId`；管理端 AI 使用独立 Operator 路径，也不接受消费者 `userId`。Java 从 MySQL 加载业务事实、构造 Evidence，通过 `CustomerServiceProvider` 选择 FastAPI 或 OpenAI-compatible 适配器，再校验结构化回答并保存最小化 Trace 摘要。Provider 不写业务数据库、不回调 Java、不编造库存；不可用时 Java 使用事实约束 fallback。详见 [AI 事实链路](docs/architecture/AI_GROUNDED_ANSWER_FLOW.md)、[Phase 0-B 边界设计](docs/design/PHASE_0B_API_BOUNDARY_AUTHORIZATION.md) 和 [E3 Provider 设计](docs/design/BACKEND_E3_PROVIDER_OBSERVABILITY.md)。
+
+### 接入真实 LLM Provider
+
+默认链路使用确定性 `commerceflow-mock`，保证演示可复现。切到真实模型只需配置 OpenAI 兼容 Provider（以下以 DashScope 为例）：
+
+```dotenv
+COMMERCEFLOW_AI_PROVIDER_NAME=openai-compatible
+COMMERCEFLOW_AI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+COMMERCEFLOW_AI_API_KEY=<你的 Key>   # 不入库、不进日志
+COMMERCEFLOW_AI_MODEL=qwen-plus
+```
+
+切换后 AI 回答仍由 Java 侧 `businessFacts` 约束（Provider 不写业务库、不编造库存），调用证据进 `ai_trace`，失败/超时回退 Java 事实约束 fallback。协议适配有本地 fixture 测试，不调用外部模型。
+
+DeepSeek 可复用同一适配器。使用 DeepSeek API 时，将配置改为：
+
+```dotenv
+COMMERCEFLOW_AI_PROVIDER_NAME=openai-compatible
+COMMERCEFLOW_AI_BASE_URL=https://api.deepseek.com
+COMMERCEFLOW_AI_API_KEY=<你的 DeepSeek API Key>
+COMMERCEFLOW_AI_MODEL=deepseek-flash
+```
+
+本地演示仍使用 Mock。发送给模型的是合成商品与 Java 组装的 `businessFacts`，不包含真实客户数据。模型输出仍须通过事实校验，最终回答由服务端依据业务事实生成。当前 `deepseek-flash` 名称和 API 地址以[DeepSeek 官方 API 文档](https://api-docs.deepseek.com/guides/search_fetch)为准。此前在 2026-09-05 留有一条 `deepseek-chat` 合成请求 smoke 记录；该名称已退役，这条历史记录只证明当时的一次链路调用，不是当前多题质量评测。
+
+### AI 客服合成评测
+
+`services/ai-service/evaluation/customer-service-cases-v1.json` 提供 20 条合成问答，价格、规格、SKU 编码、库存/购买、越界问题各 4 条。离线运行：
+
+```powershell
+Set-Location .\services\ai-service
+py -3.12 .\evaluate_provider.py
+```
+
+本地 Mock 基线为 20/20 场景通过。该结果只验证确定性意图规则和服务端事实回答，不代表 LLM 质量或生产效果。机器可读报告写入 `services/ai-service/target/evaluation/customer-service-eval-v1.json`。
+
+要用 DeepSeek 评估同一批合成样本，先在本地 PowerShell 会话设置 `AI_PROVIDER_MODE=openai-compatible`、`AI_PROVIDER_PROTOCOL=chat-completions`、`AI_PROVIDER_BASE_URL=https://api.deepseek.com`、`AI_PROVIDER_MODEL=deepseek-flash`、`AI_PROVIDER_API_KEY` 和 `AI_PROVIDER_FALLBACK_ENABLED=false`，再显式运行：
+
+```powershell
+$env:AI_PROVIDER_MODE = "openai-compatible"
+$env:AI_PROVIDER_PROTOCOL = "chat-completions"
+$env:AI_PROVIDER_BASE_URL = "https://api.deepseek.com"
+$env:AI_PROVIDER_MODEL = "deepseek-flash"
+$env:AI_PROVIDER_API_KEY = "<本机 API Key>"
+$env:AI_PROVIDER_FALLBACK_ENABLED = "false"
+$env:COMMERCEFLOW_AI_EVAL_ENABLED = "true"
+py -3.12 .\evaluate_provider.py --allow-external
+```
+
+外部模式每个样本调用一次模型，可能产生 API 费用；没有两项显式 opt-in 时评测器不会发送请求。不要把 API Key 写入 `.env.example`、评测报告或 Git。当前尚未记录完整 20 条 DeepSeek 质量评测结果；历史单请求 smoke 的边界见[证据记录](docs/evidence/deepseek-synthetic-smoke-20260905.md)。
 
 ### Redis 限流
 
