@@ -96,7 +96,7 @@ Redis 429 与 FAIL_OPEN 是技术证据，见 [Canonical 截图索引](docs/show
 
 ### 接入真实 LLM Provider
 
-默认链路使用确定性 `commerceflow-mock`，保证演示可复现。切到真实模型只需配置 OpenAI 兼容 Provider（以下以 DashScope 为例）：
+默认链路使用确定性 `commerceflow-mock`，保证演示可复现。切到真实模型只需三步（OpenAI 兼容协议，以 DashScope 为例）：
 
 ```dotenv
 COMMERCEFLOW_AI_PROVIDER_NAME=openai-compatible
