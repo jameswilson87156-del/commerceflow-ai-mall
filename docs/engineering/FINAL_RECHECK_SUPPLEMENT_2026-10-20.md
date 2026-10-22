@@ -6,11 +6,11 @@
 
 ## 仓库、分支与原始工作区保护
 
-- 目标 checkout：`D:\面试冲刺包\_execution-20261020\commerceflow-ai-mall-git`
+- 目标 checkout：`<LOCAL_PATH>`
 - 目标远端分支：`feat/order-timeout-cancellation`
 - 目标 SHA、`origin/feat/order-timeout-cancellation` 与本地 `HEAD` 均为 `b9bdaa1e8bb5a89735403fe66c55413d2628905b`。
 - 为承载未提交修改而建立的本地分支：`fix/timeout-cancellation-showcase-20261020`；当前修改未暂存、未提交。
-- 旧候选目录 `D:\workhome\commerceflow-ai-mall-ai-provider`、`D:\workhome\commerceflow-ai-mall-order-reliability`、`D:\workhome\deployment-remediation-20260905\before\commerceflow-ai-mall` 未被写入、覆盖或重建。旧阻塞记录指出前两个 worktree 指针失效，第三个缺少有效 Git 元数据；它们没有被冒充为目标 checkout。
+- 旧候选目录 `<LOCAL_PATH>`、`<LOCAL_PATH>`、`<LOCAL_PATH>` 未被写入、覆盖或重建。旧阻塞记录指出前两个 worktree 指针失效，第三个缺少有效 Git 元数据；它们没有被冒充为目标 checkout。
 - 旧 `commerceflow-showcase` MySQL 数据卷保留；本轮使用独立 Compose 项目和独立数据卷，没有执行 `down -v`。
 - `.env` 仍被 Git 忽略，本轮未修改或输出其中的凭据。没有提交、推送、合并、PR 或部署。
 
@@ -54,9 +54,9 @@
 | 浏览器端到端 | BLOCKED | 用户已授权启动一次 Tabbit Browser。稳定启动器诊断退出码 69；当前用户 Tabbit 应用注册列表无规范匹配，`%LOCALAPPDATA%\Tabbit` 下未找到 Browser 主程序，managed 实例目录为空。没有使用其他浏览器后端。 |
 | DeepSeek | NOT_RUN | Showcase Provider 明确为 `commerceflow-mock / MOCK`；没有真实 DeepSeek 请求。 |
 
-MySQL 测试日志与隔离 schema 脚本：`D:\面试冲刺包\_execution-20261020\evidence\commerceflow-mysql-integration-20261020`。最终 smoke 输出：`D:\面试冲刺包\_execution-20261020\evidence\commerceflow-showcase-20261020-final`。
+MySQL 测试日志与隔离 schema 脚本：`<LOCAL_PATH>`。最终 smoke 输出：`<LOCAL_PATH>`。
 
-表格中的目标 checkout 根目录完整路径为 `D:\面试冲刺包\_execution-20261020\commerceflow-ai-mall-git`；Admin、Mobile H5 与 Python 测试工作目录分别为该路径下的 `apps\admin-web`、`apps\mobile-app` 和 `services\ai-service`。MySQL 专项使用 `ORDER_RELIABILITY_MYSQL_ENABLED=true`，`ORDER_RELIABILITY_DB_URL` 指向上述隔离 schema；凭据未写入报告。
+表格中的目标 checkout 根目录完整路径为 `<LOCAL_PATH>`；Admin、Mobile H5 与 Python 测试工作目录分别为该路径下的 `apps\admin-web`、`apps\mobile-app` 和 `services\ai-service`。MySQL 专项使用 `ORDER_RELIABILITY_MYSQL_ENABLED=true`，`ORDER_RELIABILITY_DB_URL` 指向上述隔离 schema；凭据未写入报告。
 
 ## 当前本地演示状态
 
