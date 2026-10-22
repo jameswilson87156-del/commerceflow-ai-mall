@@ -192,4 +192,3 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate staging Compose interpolation
         run: docker compose --env-file deploy/staging/.env.example -f deploy/staging/docker-compose.yml config -q
-
