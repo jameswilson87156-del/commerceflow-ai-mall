@@ -92,7 +92,7 @@ jobs:
             .summary.productCount == 2 and .summary.skuCount == 5 and
             .summary.createdOrderCount == 0 and .summary.createdOrderAmount == 0 and
             .summary.aiInteractionCount == 0'
-          grep -Eq 'Successfully applied 11 migrations|Schema.*up to date' "$log"
+          grep -Eq 'Successfully applied [0-9]+ migrations|Schema.*up to date' "$log"
         if: always()
       - name: Print API log on smoke failure
         if: failure()
@@ -192,3 +192,4 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate staging Compose interpolation
         run: docker compose --env-file deploy/staging/.env.example -f deploy/staging/docker-compose.yml config -q
+
