@@ -1,19 +1,40 @@
 :root {
-  --cf-page: #f5f5f7;
-  --cf-surface: #ffffff;
-  --cf-soft: #f5f5f7;
-  --cf-line: #d2d2d7;
+  --brand-primary: #0071e3;
+  --brand-soft: #e8f1fb;
+  --text-primary: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --border-subtle: #d2d2d7;
+  --surface-page: #f5f5f7;
+  --surface-panel: #ffffff;
+  --state-success: #248a3d;
+  --state-success-soft: #e9f7ed;
+  --state-warning: #a05a00;
+  --state-warning-soft: #fff4e5;
+  --state-danger: #c9343f;
+  --state-danger-soft: #fff0f0;
+  --state-info: #3d6b8c;
+  --state-info-soft: #e8f1fb;
+  --focus-ring: rgba(25, 103, 210, .34);
+  --focus-ring-soft: rgba(25, 103, 210, .18);
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+  --space-unit: 4px;
+  --radius-control: 10px;
+  --radius-panel: 18px;
+  --cf-page: var(--surface-page);
+  --cf-surface: var(--surface-panel);
+  --cf-soft: var(--surface-page);
+  --cf-line: var(--border-subtle);
   --cf-line-strong: #b7b7be;
-  --cf-ink: #1d1d1f;
-  --cf-muted: #6e6e73;
-  --cf-blue: #0071e3;
-  --cf-blue-soft: #e8f1fb;
-  --cf-green: #248a3d;
-  --cf-green-soft: #e9f7ed;
-  --cf-orange: #a05a00;
-  --cf-orange-soft: #fff4e5;
-  --cf-red: #c9343f;
-  --cf-red-soft: #fff0f0;
+  --cf-ink: var(--text-primary);
+  --cf-muted: var(--text-secondary);
+  --cf-blue: var(--brand-primary);
+  --cf-blue-soft: var(--brand-soft);
+  --cf-green: var(--state-success);
+  --cf-green-soft: var(--state-success-soft);
+  --cf-orange: var(--state-warning);
+  --cf-orange-soft: var(--state-warning-soft);
+  --cf-red: var(--state-danger);
+  --cf-red-soft: var(--state-danger-soft);
   --cf-shadow: 0 8px 30px rgba(0, 0, 0, .055);
   --cf-shadow-sm: 0 4px 16px rgba(0, 0, 0, .045);
   --cf-page-padding: 20px;
@@ -21,11 +42,11 @@
   --cf-bottom-bar-gap: 22px;
 }
 
-page, body, #app { margin: 0; min-height: 100%; background: var(--cf-page); color: var(--cf-ink); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif; }
+page, body, #app { margin: 0; min-height: 100%; background: var(--cf-page); color: var(--cf-ink); font-family: var(--font-body); }
 body { min-width: 320px; }
 view, text, button, img, input, textarea { box-sizing: border-box; }
 button { margin: 0; border: 0; -webkit-appearance: none; appearance: none; font-family: inherit; cursor: pointer; }
-button:focus-visible, textarea:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgba(25, 103, 210, .28); outline-offset: 2px; }
+button:focus-visible, textarea:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 button[disabled] { cursor: not-allowed; }
 
 .mobile-page { display: block; width: 100%; min-height: 100vh; box-sizing: border-box; padding: calc(18px + env(safe-area-inset-top)) var(--cf-page-padding) calc(34px + env(safe-area-inset-bottom)); overflow-x: hidden; }
@@ -60,9 +81,9 @@ button[disabled] { cursor: not-allowed; }
 .status-line { margin: 14px 0; color: #45627f; font-size: 17px; line-height: 1.5; }
 .error-box { margin: 14px 0; padding: 14px; border: 1px solid #efc2c7; border-radius: 16px; background: var(--cf-red-soft); color: var(--cf-red); font-size: 14px; line-height: 1.5; }
 .empty-box { padding: 46px 20px; text-align: center; color: var(--cf-muted); font-size: 14px; line-height: 1.5; }
-.primary-button, .secondary-button, .danger-button { display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 9px 16px; border-radius: 13px; font-size: 15px; font-weight: 800; line-height: 1.25; text-align: center; white-space: nowrap; transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, opacity .18s ease; }
-.primary-button { background: var(--cf-blue); color: #fff; box-shadow: 0 8px 18px rgba(25, 103, 210, .2); }
-.secondary-button { background: var(--cf-blue-soft); color: #145bc8; }
+.primary-button, .secondary-button, .danger-button { display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 9px 16px; border-radius: var(--radius-control); font-size: 15px; font-weight: 800; line-height: 1.25; text-align: center; white-space: nowrap; transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, opacity .18s ease; }
+.primary-button { background: var(--brand-primary); color: #fff; box-shadow: none; }
+.secondary-button { background: var(--brand-soft); color: var(--brand-primary); }
 .danger-button { background: var(--cf-red-soft); color: var(--cf-red); }
 .primary-button:not([disabled]):active, .secondary-button:not([disabled]):active { transform: translateY(1px); }
 .primary-button[disabled], .secondary-button[disabled], .danger-button[disabled] { opacity: .46; box-shadow: none; }
@@ -109,23 +130,23 @@ button[disabled] { cursor: not-allowed; }
 @media (max-width: 360px) { .mobile-page { padding-left: 16px; padding-right: 16px; } .product-cover-wrap { width: 100px; height: 100px; } .product-card { gap: 10px !important; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
 
-/* Apple-inspired storefront baseline: quiet canvas, white content layers, one action blue. */
-.mobile-page { background: #f5f5f7; }
-.panel { border-radius: 20px; box-shadow: none; }
+/* Shared structural defaults; brand and state values come from semantic aliases. */
+.mobile-page { background: var(--surface-page); }
+.panel { border-radius: var(--radius-panel); box-shadow: none; }
 .mobile-notice { border-radius: 14px; box-shadow: none; }
-.primary-button, .secondary-button, .danger-button { border-radius: 999px; }
-.primary-button { background: #0071e3; box-shadow: none; font-weight: 650; }
-.secondary-button { border: 1px solid #d2d2d7; background: #fff; color: #0071e3; font-weight: 650; }
-.danger-button { border: 1px solid #f0c4c6; background: #fff; color: #c9343f; }
-.icon-button { width: 36px; height: 36px; border-radius: 50%; border-color: #d2d2d7; background: rgba(255, 255, 255, .82); box-shadow: none; }
-.back-chevron { font-size: 25px; color: #1d1d1f; }
+.primary-button, .secondary-button, .danger-button { border-radius: var(--radius-control); }
+.primary-button { background: var(--brand-primary); box-shadow: none; font-weight: 650; }
+.secondary-button { border: 1px solid var(--border-subtle); background: var(--surface-panel); color: var(--brand-primary); font-weight: 650; }
+.danger-button { border: 1px solid var(--state-danger-soft); background: var(--surface-panel); color: var(--state-danger); }
+.icon-button { width: 36px; height: 36px; border-radius: 50%; border-color: var(--border-subtle); background: rgba(255, 255, 255, .82); box-shadow: none; }
+.back-chevron { font-size: 25px; color: var(--text-primary); }
 .mobile-header { min-height: 42px; margin-bottom: 22px; }
-.header-eyebrow { color: #6e6e73; font-size: 10px; font-weight: 600; letter-spacing: .03em; }
-.header-title { color: #1d1d1f; font-size: 18px; font-weight: 650; letter-spacing: -.02em; }
-.header-subtitle { color: #6e6e73; }
-.page-title { color: #1d1d1f; font-weight: 700; letter-spacing: -.035em; }
-.page-subtitle { color: #6e6e73; }
-.mobile-money { color: #1d1d1f; font-weight: 650; }
+.header-eyebrow { color: var(--text-secondary); font-size: 10px; font-weight: 600; letter-spacing: .03em; }
+.header-title { color: var(--text-primary); font-size: 18px; font-weight: 650; letter-spacing: -.02em; }
+.header-subtitle { color: var(--text-secondary); }
+.page-title { color: var(--text-primary); font-weight: 700; letter-spacing: -.035em; }
+.page-subtitle { color: var(--text-secondary); }
+.mobile-money { color: var(--text-primary); font-weight: 650; }
 .bottom-action, .mobile-bottom-nav { box-shadow: 0 -8px 24px rgba(0, 0, 0, .06); }
 .bottom-action { background: rgba(255, 255, 255, .86); border-top-color: rgba(210, 210, 215, .86); backdrop-filter: blur(20px); }
 .mobile-bottom-nav { background: rgba(255, 255, 255, .86); border-top-color: rgba(210, 210, 215, .86); backdrop-filter: blur(20px); }

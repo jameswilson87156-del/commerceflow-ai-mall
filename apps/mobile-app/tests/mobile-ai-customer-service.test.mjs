@@ -2,15 +2,20 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   MAX_QUESTION_LENGTH,
+  canSubmitQuestion,
+  customerServiceFailureMessage,
   cooldownSeconds,
   clearQuestionAfterSuccess,
   createAskPayload,
   createClientRequestId,
   hasRedisQuota,
   isFailOpen,
+  isCurrentRequestActive,
+  isCustomerServiceTimeout,
   isSupportedQuestion,
   nextCooldown,
   pendingQuestionForAttempt,
+  normalizeCustomerServiceAnswer,
   retryQuestion,
   traceLabel
 } from '../src/ui/mobile-ai-customer-service.mjs'
@@ -83,4 +88,39 @@ test('Trace 仅映射已返回的六个真实链路步骤', () => {
   assert.equal(traceLabel('BUSINESS_FACTS_LOADED'), '加载商品事实')
   assert.equal(traceLabel('RESPONSE_RETURNED'), '组合回答与证据')
   assert.equal(traceLabel('UNKNOWN'), 'UNKNOWN')
+})
+
+test('加载、无 SKU、请求中和限流期间不能重复提交', () => {
+  assert.equal(canSubmitQuestion({ pageState: 'loading', hasSku: true, sending: false, cooldownRemaining: 0 }), false)
+  assert.equal(canSubmitQuestion({ pageState: 'ready', hasSku: false, sending: false, cooldownRemaining: 0 }), false)
+  assert.equal(canSubmitQuestion({ pageState: 'ready', hasSku: true, sending: true, cooldownRemaining: 0 }), false)
+  assert.equal(canSubmitQuestion({ pageState: 'ready', hasSku: true, sending: false, cooldownRemaining: 1 }), false)
+  assert.equal(canSubmitQuestion({ pageState: 'ready', hasSku: true, sending: false, cooldownRemaining: 0 }), true)
+})
+
+test('只接受含非空回答和页面必需字段的 AI 成功响应', () => {
+  const answer = {
+    traceId: 'trace-1', answer: '售价 ¥129.00，库存 27 件。', answerStatus: 'ANSWERED',
+    provider: { name: 'commerceflow-mock', mode: 'MOCK' }, evidence: [], businessFacts: {}, trace: []
+  }
+  assert.equal(normalizeCustomerServiceAnswer(answer), answer)
+  assert.throws(() => normalizeCustomerServiceAnswer(null), /暂未返回有效回答/)
+  assert.throws(() => normalizeCustomerServiceAnswer({ ...answer, answer: '   ' }), /暂未返回有效回答/)
+  assert.throws(() => normalizeCustomerServiceAnswer({ ...answer, provider: null }), /暂未返回有效回答/)
+})
+
+test('请求超时显示可重试的识别结果', () => {
+  assert.equal(isCustomerServiceTimeout(new Error('request:fail timeout')), true)
+  assert.equal(isCustomerServiceTimeout(new Error('upstream timed out')), true)
+  assert.equal(isCustomerServiceTimeout(new Error('服务暂不可用')), false)
+  assert.equal(customerServiceFailureMessage(new Error('request:fail timeout')), '请求超时，尚未收到客服回答，请稍后重试。')
+  assert.equal(customerServiceFailureMessage(new Error('服务不可用'), 'Backend Unavailable'), 'Backend Unavailable')
+  const backendUnavailable = Object.assign(new Error('Backend Unavailable: TEST_ONLY_UPSTREAM_SECRET_SENTINEL'), { statusCode: 503 })
+  assert.equal(customerServiceFailureMessage(backendUnavailable, 'Backend Unavailable'), '商品客服服务暂时不可用，请稍后重试。')
+})
+
+test('已卸载页面或已失效请求不会再应用异步结果', () => {
+  assert.equal(isCurrentRequestActive(true, 2, 2), true)
+  assert.equal(isCurrentRequestActive(false, 2, 2), false)
+  assert.equal(isCurrentRequestActive(true, 1, 2), false)
 })

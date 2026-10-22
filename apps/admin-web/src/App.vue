@@ -37,10 +37,10 @@ const viewDescriptions: Record<View, string> = {
     <aside class="sidebar" aria-label="商城管理导航">
       <div class="brand-lockup">
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-        <div><strong>CommerceFlow</strong><small>AI Mall Operations</small></div>
+        <div><strong>CommerceFlow</strong><small>商城运营台</small></div>
       </div>
 
-      <div class="workspace-label"><span class="workspace-label__dot"></span><span>{{ oidcEnabled ? 'OIDC OPERATOR' : 'LOCAL SHOWCASE' }}</span></div>
+      <div class="workspace-label"><span class="workspace-label__dot"></span><span>{{ oidcEnabled ? 'OIDC 身份接入' : '管理工作区' }}</span></div>
       <p class="nav-caption">工作台</p>
       <nav class="nav-list">
         <template v-for="item in navigation" :key="item.label">
@@ -57,14 +57,14 @@ const viewDescriptions: Record<View, string> = {
 
       <div class="sidebar-footer">
         <div class="sidebar-boundary"><div><strong>服务端数据工作区</strong><small>连接结果以各页面请求为准</small></div></div>
-        <div class="sidebar-user"><span class="avatar">O</span><div><strong>Operator Workbench</strong><small>{{ oidcEnabled ? '身份由 OIDC JWT + OperatorScope 判定' : '身份由后端 OperatorScope 判定' }}</small></div><span class="more-dots" aria-hidden="true">···</span></div>
+        <div class="sidebar-user"><span class="avatar">O</span><div><strong>运营管理工作台</strong><small>{{ oidcEnabled ? '身份由 OIDC JWT 与 OperatorScope 判定' : '身份由后端 OperatorScope 判定' }}</small></div><span class="more-dots" aria-hidden="true">···</span></div>
       </div>
     </aside>
 
     <main class="main-content">
       <header class="context-bar">
         <div class="context-bar__crumbs"><span>CommerceFlow AI Mall</span><span class="context-bar__slash">/</span><strong>{{ activeNavigation.label }}</strong></div>
-        <div class="context-bar__meta"><span class="context-bar__description">{{ viewDescriptions[activeNavigation.view] }}</span><span class="context-status"><span class="connection-dot"></span>{{ oidcEnabled ? 'OIDC Operator API' : 'Operator API' }}</span><AdminAuthControl /><span class="context-avatar">O</span></div>
+        <div class="context-bar__meta"><span class="context-bar__description">{{ viewDescriptions[activeNavigation.view] }}</span><span class="context-status"><span class="connection-dot"></span>{{ oidcEnabled ? 'OIDC 管理接口' : '管理端接口' }}</span><AdminAuthControl /><span class="context-avatar">O</span></div>
       </header>
       <div class="main-stage">
         <OperationsOverview v-if="activeView === 'overview'" @open-orders="activeView = 'orders'" />

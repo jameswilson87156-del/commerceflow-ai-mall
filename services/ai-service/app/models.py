@@ -3,7 +3,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class StrictModel(BaseModel):
@@ -77,6 +77,15 @@ class RemoteClaims(StrictModel):
 
 
 class RemoteStructuredAnswer(StrictModel):
-    intent: Literal["PRICE", "SPECIFICATION", "SKU_CODE", "STOCK_OR_PURCHASE", "UNSUPPORTED"]
-    answerStatus: Literal["ANSWERED", "UNSUPPORTED_QUESTION"]
+    intent: Literal["PRICE", "SPECIFICATION", "SKU_CODE", "STOCK_OR_PURCHASE", "UNSUPPORTED"] | None = None
+    intents: list[Literal["PRICE", "SPECIFICATION", "SKU_CODE", "STOCK_OR_PURCHASE", "UNSUPPORTED"]] | None = Field(default=None, min_length=1)
+    answerStatus: Literal["ANSWERED", "INSUFFICIENT_CONTEXT", "UNSUPPORTED_QUESTION"]
     claims: RemoteClaims
+
+    @model_validator(mode="after")
+    def one_compatible_intent_shape(self) -> "RemoteStructuredAnswer":
+        if (self.intent is None) == (self.intents is None):
+            raise ValueError("Provide either legacy intent or multi-intent intents.")
+        if self.intents is not None and len(set(self.intents)) != len(self.intents):
+            raise ValueError("Multi-intent response cannot contain duplicate intents.")
+        return self

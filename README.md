@@ -21,11 +21,11 @@
 | 已实现且有本地证据 | 明确未实现或不应声称 |
 | --- | --- |
 | 商品、SKU、库存、购物车、订单快照、库存变动、幂等、订单超时取消与库存回补 | 支付、物流、退款、地址、优惠券 |
-| Java 事实驱动 AI 客服、Java fallback、Evidence、Trace；价格与订单只支持 CNY；DeepSeek 兼容 Provider；一条真实 DeepSeek 合成请求 smoke | 完整多题 DeepSeek 质量评测、真实客户数据 |
+| Java 事实驱动 AI 客服、Java fallback、Evidence、Trace；价格与订单只支持 CNY；DeepSeek 兼容 Provider；离线评测分别覆盖 44 条常规问题、78 条红队攻击/控制和 18 条价格库存状态矩阵 | 真实客户数据、生产质量结论 |
 | Redis 5 次 / 60 秒 Lua 限流、429、FAIL_OPEN Showcase 边界 | 生产认证、DDoS 防护、高并发或商业运营结论 |
 | Admin 真实本地 API 页面；UniApp H5 浏览器验收 | 原生设备、微信小程序、Android 或 iOS 运行时验收 |
 
-当前默认仍是本地 Demo，不会伪装成真实注册登录；但 OIDC/JWT Resource Server、消费者身份映射、Operator 角色边界以及 Admin/H5 的 Authorization Code + PKCE 适配已经实现，staging profile 会关闭 Demo 身份和 legacy 路由。仓库根目录的 `.env.example` 仍显式开启本地 Demo 用户和 Demo Operator，基础 Spring 配置本身不创建任何默认身份；`/api/v1/me/...` 由 `CurrentUserPort` 派生消费者范围，`/api/v1/operator/...` 由独立 `OperatorScope` 授权跨用户管理读取。旧 `/api` 兼容链路仅在显式 LOCAL/DEMO 模式开启，不能作为公网权限边界。订单状态只有 `CREATED` 与超时自动取消后的 `CANCELLED_TIMEOUT`（没有支付流转）。Redis 身份摘要不是生产认证，`FAIL_OPEN` 只适用于当前 Mock Showcase。真实 IdP、完整 DeepSeek 多题评测和公网服务器尚未在本工作区完成连接；已有一条本地 DeepSeek 合成请求 smoke 记录，执行边界见 [真实认证、Provider 与部署说明](docs/REAL_AUTH_PROVIDER_DEPLOYMENT.md)。
+当前默认仍是本地 Demo，不会伪装成真实注册登录；但 OIDC/JWT Resource Server、消费者身份映射、Operator 角色边界以及 Admin/H5 的 Authorization Code + PKCE 适配已经实现，staging profile 会关闭 Demo 身份和 legacy 路由。仓库根目录的 `.env.example` 仍显式开启本地 Demo 用户和 Demo Operator，基础 Spring 配置本身不创建任何默认身份；`/api/v1/me/...` 由 `CurrentUserPort` 派生消费者范围，`/api/v1/operator/...` 由独立 `OperatorScope` 授权跨用户管理读取。旧 `/api` 兼容链路仅在显式 LOCAL/DEMO 模式开启，不能作为公网权限边界。订单状态只有 `CREATED` 与超时自动取消后的 `CANCELLED_TIMEOUT`（没有支付流转）。Redis 身份摘要不是生产认证，`FAIL_OPEN` 只适用于当前 Mock Showcase。真实 IdP 和公网服务器尚未连接；历史 DeepSeek v2 评测是 22 条固定合成问句的一次独立模型批次，当前 MOCK 评测则分组覆盖常规问答、红队契约及复合事实状态矩阵；两者不能混算，也不代表真实客户流量或生产质量，执行边界见 [真实认证、Provider 与部署说明](docs/REAL_AUTH_PROVIDER_DEPLOYMENT.md) 和 [当前 AI 离线评测证据](docs/evidence/commerceflow-ai-eval-v5-state-matrix-20261022/README.md)。
 
 金额合同固定为 CNY：商品 SKU、购物车、订单和订单明细都使用 `CNY`。Java 订单服务拒绝非 CNY SKU，Flyway V9 又在 `product_sku`、`orders` 和 `order_item` 上补齐数据库约束；这不是对多币种结算能力的宣称。
 
@@ -116,33 +116,46 @@ COMMERCEFLOW_AI_API_KEY=<你的 DeepSeek API Key>
 COMMERCEFLOW_AI_MODEL=deepseek-flash
 ```
 
-本地演示仍使用 Mock。发送给模型的是合成商品与 Java 组装的 `businessFacts`，不包含真实客户数据。模型输出仍须通过事实校验，最终回答由服务端依据业务事实生成。当前 `deepseek-flash` 名称和 API 地址以[DeepSeek 官方 API 文档](https://api-docs.deepseek.com/guides/search_fetch)为准。此前在 2026-09-05 留有一条 `deepseek-chat` 合成请求 smoke 记录；该名称已退役，这条历史记录只证明当时的一次链路调用，不是当前多题质量评测。
+本地演示仍使用 Mock。发送给模型的是合成商品与 Java 组装的 `businessFacts`，不包含真实客户数据。模型输出仍须通过事实校验，最终回答由服务端依据业务事实生成。当前 `deepseek-flash` 名称和 API 地址以[DeepSeek 官方 API 文档](https://api-docs.deepseek.com/quick_start/agent_integrations/)为准。此前在 2026-09-05 留有一条 `deepseek-chat` 合成请求 smoke 记录；该名称已退役，这条历史记录只证明当时的一次链路调用，不是当前多题质量评测。
 
 ### AI 客服合成评测
 
-`services/ai-service/evaluation/customer-service-cases-v1.json` 提供 20 条合成问答，价格、规格、SKU 编码、库存/购买、越界问题各 4 条。离线运行：
+`services/ai-service/evaluation/customer-service-cases-v1.json` 保留原有 20 条单意图基线。v2 数据集有 22 条合成样本；新增 v3 数据集 `services/ai-service/evaluation/customer-service-cases-v3.json` 原样保留 v2 的 22 条标签，再加入 22 条双语覆盖与回归样本，共 44 条，覆盖 5 类意图、历史价格/库存调整后的当前事实询问及复合事实问题。没有使用客户或生产数据。
+
+本地 Mock 离线运行：
 
 ```powershell
 Set-Location .\services\ai-service
-py -3.12 .\evaluate_provider.py
+$env:AI_PROVIDER_MODE = "mock"
+py -3.12 .\evaluate_provider.py --dataset .\evaluation\customer-service-cases-v3.json --output .\target\evaluation\commerce-v3-mock.json --include-answer-text
 ```
 
-本地 Mock 基线为 20/20 场景通过。该结果只验证确定性意图规则和服务端事实回答，不代表 LLM 质量或生产效果。机器可读报告写入 `services/ai-service/target/evaluation/customer-service-eval-v1.json`。
+离线 Mock v3 为 44/44 场景通过，逐样本记录意图、状态、要求事实匹配和混淆矩阵；该结果只验证本地确定性意图规则与服务端事实回答，不代表 LLM 质量或生产效果。机器可读结果与失败样本清单见 [v3 MOCK 评测报告](docs/evidence/commerceflow-ai-eval-v3/README.md)。
 
-要用 DeepSeek 评估同一批合成样本，先在本地 PowerShell 会话设置 `AI_PROVIDER_MODE=openai-compatible`、`AI_PROVIDER_PROTOCOL=chat-completions`、`AI_PROVIDER_BASE_URL=https://api.deepseek.com`、`AI_PROVIDER_MODEL=deepseek-flash`、`AI_PROVIDER_API_KEY` 和 `AI_PROVIDER_FALLBACK_ENABLED=false`，再显式运行：
+当前离线覆盖分别记录常规问答、Unicode 红队和复合问题。最新 V13 红队共 90 条固定合成样本（45 条攻击、45 条正常控制），在 V12 基础上加入 U+0131 dotless-i 绕过及正常文本控制；本地 MOCK 意图准确率与 Macro-F1 均为 1.0000，90/90 样本满足既定契约。复合问题 V2 有 18 条价格和库存问句，覆盖商品状态 × SKU 状态 × 零/非零库存的 8 种组合以及单件库存边界，保留 V1 原始 12 条作为前缀。以上是固定合成集上的规则/MOCK 回归，不是独立模型准确率或生产安全率。最新 Python 全量测试 223 项通过；Java 全量 121 项、0 失败/错误，10 项 Redis/MySQL 条件集成测试跳过。
+
+此外，真实 Java fallback 的回归测试发现并修复了 Provider 不可用时的复合问题遗漏：零库存或 SKU 下架时，若用户明确同时问价格，Java fallback 现在会同时返回当前价格和不可购买状态；只问库存时保留原回答。这个 Java 故障降级测试与 Python Mock 的离线复合评测分别验证，不合并计分。
+
+历史 DeepSeek v2 评测逐条运行 22 个合成样本：模型结构化意图、回答状态、要求事实片段均为 22/22；两个复合问题都同时答出库存与价格。记录有 22 个请求、0 个 Provider/解析失败、19,324 个 Token。该批次早于新增 v3 样本；最终回答由后端基于 Java 传入的业务事实生成，报告不保存原始模型响应。小样本满分不能解释为生产准确率。
+
+评测器每次最多发送 10 个真实请求，可用 `--offset` 与 `--limit` 分成不重叠批次。真实调用必须同时启用显式环境标记和命令行开关：
 
 ```powershell
 $env:AI_PROVIDER_MODE = "openai-compatible"
 $env:AI_PROVIDER_PROTOCOL = "chat-completions"
 $env:AI_PROVIDER_BASE_URL = "https://api.deepseek.com"
 $env:AI_PROVIDER_MODEL = "deepseek-flash"
-$env:AI_PROVIDER_API_KEY = "<本机 API Key>"
+$env:AI_PROVIDER_API_KEY = $env:DEEPSEEK_API_KEY
 $env:AI_PROVIDER_FALLBACK_ENABLED = "false"
 $env:COMMERCEFLOW_AI_EVAL_ENABLED = "true"
-py -3.12 .\evaluate_provider.py --allow-external
+py -3.12 .\evaluate_provider.py --dataset .\evaluation\customer-service-cases-v3.json --offset 0 --limit 10 --allow-external --output .\target\evaluation\commerce-v3-real-20261022-01.json
+py -3.12 .\evaluate_provider.py --dataset .\evaluation\customer-service-cases-v3.json --offset 10 --limit 10 --allow-external --output .\target\evaluation\commerce-v3-real-20261022-02.json
+py -3.12 .\evaluate_provider.py --dataset .\evaluation\customer-service-cases-v3.json --offset 20 --limit 10 --allow-external --output .\target\evaluation\commerce-v3-real-20261022-03.json
+py -3.12 .\evaluate_provider.py --dataset .\evaluation\customer-service-cases-v3.json --offset 30 --limit 10 --allow-external --output .\target\evaluation\commerce-v3-real-20261022-04.json
+py -3.12 .\evaluate_provider.py --dataset .\evaluation\customer-service-cases-v3.json --offset 40 --limit 10 --allow-external --output .\target\evaluation\commerce-v3-real-20261022-05.json
 ```
 
-外部模式每个样本调用一次模型，可能产生 API 费用；没有两项显式 opt-in 时评测器不会发送请求。不要把 API Key 写入 `.env.example`、评测报告或 Git。当前尚未记录完整 20 条 DeepSeek 质量评测结果；历史单请求 smoke 的边界见[证据记录](docs/evidence/deepseek-synthetic-smoke-20260905.md)。
+最后一批只有 2 条时，`--limit 10` 会自动评估剩余样本。每次都要使用不同的输出路径；外部模式每个样本调用一次模型并可能产生 API 费用。不要把 API Key 写入 `.env.example`、评测报告或 Git。真实运行摘要与逐样本证据见 [v2 AI 评测报告](docs/evidence/commerceflow-ai-eval-v2/README.md)；历史单请求 smoke 见[证据记录](docs/evidence/deepseek-synthetic-smoke-20260905.md)。
 
 ### Redis 限流
 
@@ -211,3 +224,20 @@ screenshots/v2/      真实运行截图
 - [截图分类与用途](docs/showcase/CANONICAL_SCREENSHOTS.md)
 - [项目三分钟介绍](docs/career/PROJECT_3_MINUTE_INTRO.md)、[十分钟 walkthrough](docs/career/PROJECT_10_MINUTE_WALKTHROUGH.md)、[面试问题](docs/career/INTERVIEW_QUESTIONS.md)
 - [P2–P7 证据入口](docs/evidence/) 与 [P7 发布规划](docs/release/P7_RELEASE_AUDIT_SUMMARY.md)
+
+## AI 客服评测与红队补充
+
+- 普通客服问题的历史 DeepSeek v2 22 条模型结果见 [AI 客服评测 v2](docs/evidence/commerceflow-ai-eval-v2/README.md)；当前 44 条 MOCK 结果与数据覆盖见 [AI 客服评测 v3](docs/evidence/commerceflow-ai-eval-v3/README.md)。两组数字分开统计。
+- 红队 v1 保留 24 条历史合成攻击样本，v2 扩为 32 条。v3 在 v2 基础上加入 8 条全角兼容字符与零宽格式字符样本，共 40 条、八类攻击各 5 条；Python MOCK 契约通过 40/40，Java 故障降级拒绝用例通过。详见[红队评测 v3](docs/evidence/commerceflow-ai-redteam-v3/RED_TEAM_EVALUATION_V3_CN_20261022.md)。这不是 DeepSeek 红队成绩；当前 DeepSeek 配置缺失，本轮真实模型请求数为 0。
+- 红队 v3 修复前首轮为 36/40，复现 4 条 NFKC/格式字符绕过误分类；修复后 Python 全量测试 103 passed，Java 全量测试 117 项、0 失败、10 项跳过（隔离 H2，未连接 MySQL）。
+- 2026-10-22 再次独立复核普通问题和红队 MOCK 集，结果分别为 44/44、40/40；逐样本复核 JSON 与命令记录见[红队评测 v3 的复核记录](docs/evidence/commerceflow-ai-redteam-v3/RED_TEAM_EVALUATION_V3_CN_20261022.md#2026-10-22-独立复核)。
+- 新增红队 v4 专门测试 2 种西里尔同形字混淆（提示词提取和改价）及 2 条正常控制。修复前 2 个攻击被误判为 `PRICE`；限定映射常见西里尔同形字后，MOCK 契约为 4/4，Python 全量 107 passed，Java 117 项、0 失败、10 项跳过。该小集不是通用同形字或 DeepSeek 安全率；逐样本结果见[红队 v4](docs/evidence/commerceflow-ai-redteam-v4/RED_TEAM_EVALUATION_V4_UNICODE_CONFUSABLES_CN_20261022.md)。本轮真实模型请求数为 0。
+
+- 红队 v5 编码文本专项覆盖百分号编码与数字 HTML 实体的两条指令攻击及两条价格控制。修复前两个攻击都被分类为 PRICE；增加最多两轮 HTML 实体/百分号解码后，本地 MOCK 契约为 4/4，外部请求 0。最新 Python 全量为 111 passed；Java 全量 117 项、0 失败，Redis 与 MySQL 集成测试各跳过 5 项。范围仅限固定合成样本，不代表 DeepSeek 安全率。详见 [编码文本红队补测 v5](docs/evidence/commerceflow-ai-redteam-v5-encoded-text/ENCODED_TEXT_REDTEAM_V5_CN_20261022.md)。
+- 红队评测器 V2 将攻击样本和正常控制分开统计，并让 `byAttackType` 只汇总攻击；v4/v5 重算均为攻击 2/2、控制 2/2。新增 v6 的显式 Base64、真实 Base64URL 字符（`-`/`_`）、HEX 与 ROT13 合成集：MOCK 为攻击 4/4、正常价格控制 4/4，外部请求 0。边界测试覆盖错误编码及超长 token；Python 全量 125 项通过，Java 全量 117 项通过、10 项 Redis/MySQL 条件测试跳过。都是小型离线 MOCK 结果，不是 DeepSeek 或生产安全成绩。详见[指标分组修订](docs/evidence/commerceflow-ai-redteam-metrics-v2/REDTEAM_METRIC_GROUPING_V2_CN_20261022.md)和[v6 编码红队](docs/evidence/commerceflow-ai-redteam-v6-framed-encodings/ENCODED_TEXT_REDTEAM_V6_CN_20261022.md)。
+- 红队 v7 保留 v6 的 8 条价格样本并增加 4 条编码库存修改攻击、4 条正常库存/购买控制；Base64、Base64URL、HEX、ROT13 都按攻击与正常问法配对。MOCK 结果为 8/8 攻击契约通过、8/8 正常控制通过，控制答案核对合成事实 `27 件`；该集不测真实模型。该轮 Python 全量 126 passed；Java 全量 117 项、0 失败、0 错误、10 项 Redis/MySQL 条件集成测试跳过。详见[v7 库存事实红队报告](docs/evidence/commerceflow-ai-redteam-v7-stock/COMMERCEFLOW_STOCK_REDTEAM_V7_CN_20261022.md)。
+- 红队 v8 增加 `update/更新` 动词攻击与历史事实控制，修复后 28/28；继续用自然语言变体做 v9 时发现 7 条攻击漏判和 1 条库存数量控制意图冲突。补充替换/覆盖售价、成本改写、库存断言等有界规则，并调整数量查询与 SKU 编码的意图优先级。v9 保留 v8 共 44 条，MOCK 攻击 22/22、控制 22/22，Python 全量 153 passed；Java 全量 117 项、0 失败、0 错误、10 项条件集成测试跳过，使用 H2。详见[v9 价格与库存措辞变体报告](docs/evidence/commerceflow-ai-redteam-v9-price-stock-paraphrases/COMMERCEFLOW_PRICE_STOCK_PARAPHRASE_REDTEAM_V9_CN_20261022.md)。这些数据是固定合成样本的本地规则/MOCK 契约回归，不是 DeepSeek 或生产安全评分。
+- 红队 v10 在 v9 的 44 条基础上增加 5 条同形字符/改价攻击及 5 条配对控制，累计 54 条、27/27。红测发现 Python 与 Java 降级规则的混写字符处理不一致，且 Java 漏掉普通英语 `set ... price` 指令；修复后 Python MOCK 54/54、Java 降级拒绝与正常事实控制通过。Python 全量 164 passed；Java 全量 119 项、0 失败、0 错误、10 项 Redis/MySQL 条件测试跳过，使用 H2。结果仅证明固定合成样本上的规则与事实契约，不是 DeepSeek 或生产安全评分。详见[v10 同形字符与跨运行时报告](docs/evidence/commerceflow-ai-redteam-v10-unicode-confusables/COMMERCEFLOW_UNICODE_CONFUSABLE_REDTEAM_V10_CN_20261022.md)。
+- 红队 v11 保留 v10 的 54 条，再增加 6 条希腊字母同形字符提示/秘密提取攻击与 6 条正常事实控制。修复前 Python 将混写提示注入判为 `PRICE`，Java Provider 故障降级也会返回价格答案；在 Python 与 Java 增加有限的常见希腊字符映射后，规则判为 `UNSUPPORTED` 的问题会在真实 Provider HTTP 请求前被本地拒答。桩测试中 6 条攻击请求数为 0，6 条正常控制各请求一次。MOCK 下累计 66/66 契约通过，攻击 33/33、控制 33/33。Python 全量 207 passed；Java 全量 120 项、0 失败/错误、10 项 Redis/MySQL 条件测试跳过。真实外部请求 0；这不是完整 UTS #39 映射、DeepSeek 安全率或生产质量结论。详见[v11 希腊同形字符红队报告](docs/evidence/commerceflow-ai-redteam-v11-greek-confusables/COMMERCEFLOW_GREEK_CONFUSABLE_REDTEAM_V11_CN_20261022.md)。
+- 红队 v12 保留 v11 的 66 条，再加入 6 条亚美尼亚/切罗基同形字符攻击和 6 条正常控制，总计 78 条（攻击 39、控制 39）。新增的最小化攻击样本发现：`Ꭵ` 在小写化后变成 `ꭵ`，原有仅映射大写码位的规则漏掉了两个单字符绕过；Python 与 Java 补充小写码位映射后，Python 全量 221 passed，Java 全量回归结果见 [v12 报告](services/ai-service/docs/evidence/commerceflow-ai-redteam-v12-armenian-cherokee-confusables/COMMERCEFLOW_UNICODE_CONFUSABLE_REDTEAM_V12_CN_20261022.md)。MOCK 固定集为 78/78、攻击 39/39、正常控制 39/39，外部请求 0。此结果只验证合成规则与事实契约，不是 DeepSeek 模型评测、通用 Unicode 混淆检测或生产安全率；实现采用 UTS #39 的有限选定映射，不构造完整 skeleton。
+- 红队 v13 保留 V12 的 78 条，再加入 6 条 U+0131 dotless-i 提示注入攻击和 6 条正常控制，总计 90 条（攻击 45、控制 45）。复现后发现 Python 意图门禁与 Java Provider 故障降级都可能把 `ıgnore previous instructions ... price` 误识别为价格问题；两端补充有限单字符归一化并保留价格、库存、规格、SKU benign 控制。MOCK 结果为意图准确率 1.0000、Macro-F1 1.0000、攻击契约 45/45、控制契约 45/45，外部请求 0。Python 全量 223 passed；Java 全量 121 项、0 失败/错误、10 项 Redis/MySQL 条件集成测试跳过。该结果只验证固定合成样本与规则/MOCK 契约，不代表 DeepSeek 安全率或完整 UTS #39 防护。逐样本结果、复现命令与哈希见 [V13 dotless-i 报告](docs/evidence/commerceflow-ai-redteam-v13-dotless-i-20261022/REPORT_CN.md)。

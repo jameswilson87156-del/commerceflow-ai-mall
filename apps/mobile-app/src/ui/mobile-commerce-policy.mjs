@@ -18,3 +18,9 @@ export function hasHorizontalOverflow(scrollWidth, clientWidth, tolerance = 1) {
 export function isDecodedImage(image) {
   return Boolean(image?.complete && image?.naturalWidth > 0 && image?.naturalHeight > 0)
 }
+
+export function getOrderStatusPresentation(status) {
+  if (status === 'CREATED') return { label: '已创建', tone: 'success' }
+  if (status === 'CANCELLED_TIMEOUT') return { label: '超时取消', tone: 'warning' }
+  return { label: '其他状态', tone: 'neutral' }
+}

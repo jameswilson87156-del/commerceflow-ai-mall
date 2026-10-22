@@ -7,7 +7,7 @@ import MobileBottomNav from '../../components/MobileBottomNav.vue'
 import MobileStatusPill from '../../components/MobileStatusPill.vue'
 import MobileMoney from '../../components/MobileMoney.vue'
 import type { Product } from '../../api/types'
-import { CLIENT_DATA_MODE } from '../../config/runtime'
+import { CLIENT_DATA_MODE_LABEL } from '../../config/runtime'
 import { CATALOG_SORT_MODES, filterAndSortProducts, getCatalogCategories } from '../../ui/mobile-catalog-policy.mjs'
 
 type CatalogSortMode = 'recommended' | 'price-asc' | 'price-desc' | 'name-asc'
@@ -27,7 +27,13 @@ const visibleProducts = computed(() => filterAndSortProducts(products.value, {
 }) as Product[])
 const visibleProductCount = computed(() => visibleProducts.value.length)
 const sortLabel = computed(() => CATALOG_SORT_MODES.find(option => option.value === sortMode.value)?.label || '推荐排序')
-const hasDiscoveryFilters = computed(() => Boolean(query.value.trim()) || selectedCategory.value !== '全部' || sortMode.value !== 'recommended')
+const filterSummary = computed(() => {
+  const filters = [
+    query.value.trim() ? `关键词“${query.value.trim()}”` : '',
+    selectedCategory.value !== '全部' ? `分类“${selectedCategory.value}”` : ''
+  ].filter(Boolean)
+  return filters.length ? `筛选：${filters.join(' · ')}` : '全部商品'
+})
 function imageUrl(path?: string | null) { return resolveImageUrl(path) }
 function lowestSku(product: Product) { return product.skus.reduce((best, sku) => Number(sku.salePrice) < Number(best.salePrice) ? sku : best, product.skus[0]) }
 function openProduct(product: Product) { uni.navigateTo({ url: `/pages/product/detail?productId=${product.id}` }) }
@@ -61,10 +67,10 @@ onMounted(loadProducts)
         <text class="storefront-wordmark__mark">CF</text>
         <view>
           <text class="storefront-wordmark__name">CommerceFlow</text>
-          <text class="storefront-wordmark__meta">THE EVERYDAY EDIT</text>
+        <text class="storefront-wordmark__meta">日常好物</text>
         </view>
       </view>
-      <text class="storefront-edition">日常精选 / 01</text>
+      <text class="storefront-edition">商城首页</text>
     </view>
 
     <view class="storefront-hero">
@@ -73,7 +79,7 @@ onMounted(loadProducts)
         <text class="storefront-hero-title">日常，</text>
         <text class="storefront-hero-title storefront-hero-title--second">自有分寸</text>
         <text class="page-subtitle">衣物与随身好物，为平常的一天留一点讲究。</text>
-        <text class="storefront-boundary">{{ CLIENT_DATA_MODE === 'LOCAL_DEMO_FIXTURE' ? '本地演示数据' : '商品目录 · API 数据' }}</text>
+        <text class="storefront-boundary">{{ CLIENT_DATA_MODE_LABEL }}</text>
       </view>
       <button v-if="products[0] && state === 'ready'" class="storefront-feature" type="button" :aria-label="`查看${products[0].name}`" @click="openProduct(products[0])">
         <ProductImage :src="imageUrl(products[0].coverImagePath)" :alt="products[0].name" />
@@ -84,7 +90,7 @@ onMounted(loadProducts)
     <view class="catalog-toolbar">
       <view class="catalog-toolbar__copy">
         <text class="catalog-toolbar__title">精选好物</text>
-        <text class="catalog-toolbar__count" aria-live="polite">{{ visibleProductCount }} / {{ productCount }} 件在售</text>
+        <text class="catalog-toolbar__count" aria-live="polite">{{ visibleProductCount }} / {{ productCount }} 件商品</text>
       </view>
       <button class="catalog-sort-button" type="button" :aria-label="`切换商品排序，当前为${sortLabel}`" @click="cycleSort">
         <text>{{ sortLabel }}</text><text aria-hidden="true"> ↕</text>
@@ -105,7 +111,7 @@ onMounted(loadProducts)
         </view>
       </scroll-view>
       <view class="catalog-result-line" aria-live="polite">
-        <text>{{ hasDiscoveryFilters ? `已按${selectedCategory === '全部' ? '全部分类' : selectedCategory}筛选` : '全部真实商品' }}</text>
+        <text>{{ filterSummary }}</text>
         <text v-if="sortMode !== 'recommended'"> · {{ sortLabel }}</text>
       </view>
     </view>
@@ -185,7 +191,7 @@ onMounted(loadProducts)
 .storefront-wordmark__mark { width: 27px; height: 27px; border-radius: 8px; background: #1d1d1f; font-size: 9px; letter-spacing: -.06em; }
 .storefront-wordmark__name { color: #1d1d1f; font-size: 14px; font-weight: 650; letter-spacing: -.025em; }
 .storefront-wordmark__meta { margin-top: 4px; color: #6e6e73; font: 10px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; letter-spacing: 0; }
-.storefront-topbar .mobile-status-pill { border: 1px solid #d7eadb; background: #fff; color: #248a3d; }
+.storefront-topbar .mobile-status-pill { border: 1px solid #d7eadb; background: #fff; color: var(--state-success); }
 .storefront-hero { margin-bottom: 43px; }
 .storefront-kicker { color: #6e6e73; font: 600 11px/1.2 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; letter-spacing: 0; }
 .storefront-hero-title { display: block; margin-top: 14px; color: #1d1d1f; font-size: 40px; font-weight: 700; letter-spacing: -.07em; line-height: 1.04; }
@@ -195,13 +201,13 @@ onMounted(loadProducts)
 .catalog-toolbar { border-top: 0; border-bottom: 1px solid #d2d2d7; padding: 0 0 14px; }
 .catalog-toolbar__title { color: #1d1d1f; font-size: 18px; font-weight: 650; letter-spacing: -.025em; }
 .catalog-toolbar__count { color: #6e6e73; font: 12px/1.2 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; }
-.catalog-toolbar__sort { color: #0071e3; font: 12px/1.2 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; letter-spacing: 0; }
+.catalog-toolbar__sort { color: var(--brand-primary); font: 12px/1.2 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; letter-spacing: 0; }
 .product-grid { gap: 22px 12px; }
 .store-product-card { border-radius: 20px; }
 .store-product-card--feature { grid-column: 1 / -1; }
 .store-product-media { aspect-ratio: 1 / 1.04; border-radius: 20px; background: #fff; }
 .store-product-image.image-frame { border-radius: 20px; background: #fff; }
-.store-product-media .mobile-status-pill { top: 12px; left: 12px; border: 1px solid rgba(210, 210, 215, .9); background: rgba(255, 255, 255, .88); color: #248a3d; }
+.store-product-media .mobile-status-pill { top: 12px; left: 12px; border: 1px solid rgba(210, 210, 215, .9); background: rgba(255, 255, 255, .88); color: var(--state-success); }
 .store-product-index { display: none; }
 .store-product-copy { padding: 15px 3px 2px; }
 .store-product-category { color: #6e6e73; font: 11px/1.2 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; letter-spacing: 0; text-transform: none; }
@@ -209,7 +215,7 @@ onMounted(loadProducts)
 .store-product-card .product-description { min-height: 0; margin-top: 6px; color: #6e6e73; font-size: 12px; line-height: 1.4; }
 .store-product-footer { margin-top: 12px; }
 .store-product-footer .mobile-money { color: #1d1d1f; font-size: 17px; font-weight: 650; }
-.store-product-arrow { width: 27px; height: 27px; border-color: #d2d2d7; color: #0071e3; font-size: 18px; font-weight: 350; }
+.store-product-arrow { width: 27px; height: 27px; border-color: #d2d2d7; color: var(--brand-primary); font-size: 18px; font-weight: 350; }
 .store-product-meta { margin-top: 8px; color: #8d8d92; font: 10px/1.2 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; }
 .store-product-card--feature .store-product-media { aspect-ratio: 1.62 / 1; }
 .store-product-card--feature .store-product-media { height: 220px; aspect-ratio: auto; }
@@ -225,7 +231,7 @@ onMounted(loadProducts)
 /* EC-UI-02: discovery controls stay local to the real product response. */
 .catalog-discovery { margin: 17px 0 24px; }
 .catalog-search { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px; border: 1px solid #d2d2d7; border-radius: 14px; background: #fff; }
-.catalog-search:focus-within { border-color: #0071e3; box-shadow: 0 0 0 3px rgba(0, 113, 227, .12); }
+.catalog-search:focus-within { border-color: var(--brand-primary); box-shadow: 0 0 0 3px var(--focus-ring-soft); }
 .catalog-search__icon { flex: none; color: #6e6e73; font-size: 21px; line-height: 1; transform: translateY(-1px); }
 .catalog-search__input { min-width: 0; flex: 1; height: 42px; padding: 0; border: 0; outline: 0; background: transparent; color: #1d1d1f; font-size: 14px; line-height: 42px; }
 .catalog-search__input::placeholder { color: #8d8d92; }
@@ -234,9 +240,9 @@ onMounted(loadProducts)
 .catalog-category-list { display: inline-flex; gap: 7px; min-width: 100%; padding: 1px 1px 3px; }
 .catalog-category { min-height: 32px; padding: 6px 13px; border: 1px solid #d2d2d7; border-radius: 999px; background: #fff; color: #6e6e73; font-size: 12px; line-height: 1.2; white-space: nowrap; }
 .catalog-category--active { border-color: #1d1d1f; background: #1d1d1f; color: #fff; }
-.catalog-category:focus-visible, .catalog-sort-button:focus-visible, .catalog-search__clear:focus-visible { outline: 3px solid rgba(0, 113, 227, .28); outline-offset: 2px; }
+.catalog-category:focus-visible, .catalog-sort-button:focus-visible, .catalog-search__clear:focus-visible { outline: 3px solid var(--focus-ring-soft); outline-offset: 2px; }
 .catalog-result-line { margin-top: 10px; color: #8d8d92; font-size: 11px; line-height: 1.35; }
-.catalog-sort-button { display: inline-flex; align-items: center; gap: 2px; min-height: 30px; padding: 4px 0 4px 8px; background: transparent; color: #0071e3; font-size: 12px; line-height: 1.2; white-space: nowrap; }
+.catalog-sort-button { display: inline-flex; align-items: center; gap: 2px; min-height: 30px; padding: 4px 0 4px 8px; background: transparent; color: var(--brand-primary); font-size: 12px; line-height: 1.2; white-space: nowrap; }
 .catalog-filter-empty { margin-top: 8px; }
 .catalog-filter-empty .retry-button { max-width: 220px; margin-right: auto; margin-left: auto; }
 @media (min-width: 760px) {

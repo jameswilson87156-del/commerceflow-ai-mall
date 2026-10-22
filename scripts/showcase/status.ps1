@@ -20,16 +20,20 @@ Write-Host "Health: api=$healthStatus readiness=$readinessStatus python=$pythonS
 Write-Host "URLs: admin=http://127.0.0.1:$admin mobile=http://127.0.0.1:$mobile api=http://127.0.0.1:$api"
 if($pythonStatus -eq 200){$provider=Invoke-RestMethod "http://127.0.0.1:$python/health"; Write-Host "Provider: $($provider.provider) / $($provider.providerMode)"}
 if($readinessStatus -eq 200){$overview=Invoke-RestMethod "http://127.0.0.1:$api/api/v1/operator/operations/overview"; Write-Host "Rate limit: $($overview.runtimeBoundary.rateLimitAlgorithm), $($overview.runtimeBoundary.rateLimitLimit)/$($overview.runtimeBoundary.rateLimitWindowSeconds)s, $($overview.runtimeBoundary.rateLimitFailurePolicy)"; Write-Host "Runtime scope: $($overview.runtimeBoundary.dataScope), auth=$($overview.runtimeBoundary.authenticationMode)"}
-Push-Location $script:ShowcaseRoot
-$composeLines = @(docker compose -p $script:ShowcaseComposeProject ps --format json)
-$composeServices = @($composeLines | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | ForEach-Object { $_ | ConvertFrom-Json })
+$composeServices = @(Get-ShowcaseComposeServices -All)
 $mysqlService = @($composeServices | Where-Object { $_.Service -eq 'mysql' } | Select-Object -First 1)
 $redisService = @($composeServices | Where-Object { $_.Service -eq 'redis' } | Select-Object -First 1)
 $mysqlState = if ($mysqlService.Count) { "$($mysqlService[0].State)/$($mysqlService[0].Health)" } else { 'not-running' }
 $redisState = if ($redisService.Count) { "$($redisService[0].State)/$($redisService[0].Health)" } else { 'not-running' }
 Write-Host "Compose: mysql=$mysqlState redis=$redisState"
 $mysqlPassword=Get-ShowcaseValue -Name 'MYSQL_PASSWORD' -Fallback 'commerceflow'; $mysqlUser=Get-ShowcaseValue -Name 'MYSQL_USER' -Fallback 'commerceflow'; $mysqlDatabase=Get-ShowcaseValue -Name 'MYSQL_DATABASE' -Fallback 'commerceflow'
-try { if ($mysqlService.Count -and $mysqlService[0].State -eq 'running') {$flywayVersion=docker compose -p $script:ShowcaseComposeProject exec -T -e "MYSQL_PWD=$mysqlPassword" mysql mysql -u $mysqlUser -N -s -e "SELECT MAX(version) FROM flyway_schema_history WHERE success=1" $mysqlDatabase 2>$null; if($LASTEXITCODE -eq 0){Write-Host "Flyway: V$flywayVersion"}} else {Write-Host 'Flyway: unavailable (MySQL not running)'} } finally {Pop-Location}
+if ($mysqlService.Count -and $mysqlService[0].State -eq 'running') {
+    Push-Location $script:ShowcaseRoot
+    try {
+        $flywayVersion=docker compose -p $script:ShowcaseComposeProject exec -T -e "MYSQL_PWD=$mysqlPassword" mysql mysql -u $mysqlUser -N -s -e "SELECT version FROM flyway_schema_history WHERE success=1 ORDER BY installed_rank DESC LIMIT 1" $mysqlDatabase 2>$null
+        if($LASTEXITCODE -eq 0){Write-Host "Flyway: V$flywayVersion"} else {Write-Host 'Flyway: unavailable (query failed)'}
+    } finally { Pop-Location }
+} else { Write-Host 'Flyway: unavailable (MySQL not running)' }
 Write-Host "Git: $(git -C $script:ShowcaseRoot branch --show-current) $(git -C $script:ShowcaseRoot rev-parse --short HEAD)"; if(git -C $script:ShowcaseRoot status --porcelain){Write-Host 'Git worktree: DIRTY'}else{Write-Host 'Git worktree: CLEAN'}
 
 

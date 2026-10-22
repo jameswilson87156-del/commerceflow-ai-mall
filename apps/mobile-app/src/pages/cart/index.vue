@@ -7,7 +7,7 @@ import MobileMoney from '../../components/MobileMoney.vue'
 import ProductImage from '../../components/ProductImage.vue'
 import { getCart, updateCartItem, deleteCartItem } from '../../api/cart'
 import { apiErrorMessage, resolveImageUrl } from '../../api/runtime'
-import { CLIENT_DATA_MODE } from '../../config/runtime'
+import { CLIENT_DATA_MODE_LABEL } from '../../config/runtime'
 import { addCents } from '../../api/runtime-helpers.mjs'
 import type { CartItem } from '../../api/types'
 
@@ -29,17 +29,17 @@ onMounted(loadCart)
 
 <template>
   <view class="mobile-page mobile-page--with-bottom-action cart-page">
-    <MobileHeader eyebrow="COMMERCEFLOW / CART" title="购物车" :subtitle="`${CLIENT_DATA_MODE === 'LOCAL_DEMO_FIXTURE' ? 'Local Demo Fixture' : 'Real Backend'} · /api/v1/me 服务端范围`" action-label="继续选购" @action="openProducts" />
-    <view class="cart-intro"><text class="eyebrow">YOUR BAG / {{ count }} ITEMS</text><text class="cart-heading">已选商品</text><text class="cart-subtitle">服务端购物车 · 本地 Showcase</text></view>
+    <MobileHeader eyebrow="商城 / 购物车" title="购物车" :subtitle="`${CLIENT_DATA_MODE_LABEL} · 当前账号范围`" action-label="继续选购" @action="openProducts" />
+    <view class="cart-intro"><text class="eyebrow">已选商品 · {{ count }} 件</text><text class="cart-heading">购物袋</text><text class="cart-subtitle">库存与价格以当前接口返回为准</text></view>
     <view class="summary-strip"><view><text class="summary-label">购物车商品</text><text class="summary-caption">可购买库存实时校验</text></view><view class="summary-side"><text class="summary-value">{{ count }} 件</text><MobileStatusPill label="已同步" tone="success" /></view></view>
     <view v-if="state === 'loading'" class="panel empty-box">正在读取服务端购物车...</view>
     <view v-else-if="state === 'error'" class="error-box"><text>{{ errorMessage }}</text><button class="secondary-button retry-button" type="button" @click="loadCart">重新加载</button></view>
     <view v-else-if="state === 'empty'" class="panel empty-box"><text>购物车还是空的，先去挑选一件商品吧。</text><button class="secondary-button retry-button" type="button" @click="openProducts">去商品列表</button></view>
     <template v-else>
-      <MobileNotice title="消费者接口边界" :message="`${CLIENT_DATA_MODE === 'LOCAL_DEMO_FIXTURE' ? '显式本地 Demo' : 'Real Backend'}：商品、SKU、价格和库存来自服务端；用户身份由 /api/v1/me 范围决定。`" />
+      <MobileNotice title="数据范围" :message="`${CLIENT_DATA_MODE_LABEL}：商品、SKU、价格和库存由当前接口提供；用户身份由服务端识别。`" />
       <view v-for="item in items" :key="item.id" class="cart-item panel"><ProductImage class="cart-image" :src="imageUrl(item)" :alt="item.productName" /><view class="cart-copy"><view class="cart-item-heading"><view class="cart-item-title"><text class="cart-name">{{ item.productName }}</text><text class="sku-code">{{ item.skuCode }}</text></view><MobileStatusPill label="已选" tone="blue" /></view><text class="cart-spec">{{ item.color }} / {{ item.size }}</text><view class="price-row"><MobileMoney :amount="item.unitPrice" :currency="item.currency" compact /><text class="line-total">小计 ¥{{ lineTotal(item) }}</text></view><view class="cart-actions"><view class="quantity-control"><button class="quantity-button" type="button" :aria-label="`减少 ${item.productName} 数量`" :disabled="busyItemId === item.id || item.quantity <= 1" @click="changeQuantity(item, -1)">−</button><text class="quantity-value" aria-live="polite">{{ item.quantity }}</text><button class="quantity-button" type="button" :aria-label="`增加 ${item.productName} 数量`" :disabled="busyItemId === item.id || item.quantity >= item.availableStock" @click="changeQuantity(item, 1)">+</button></view><text class="stock-hint">库存 {{ item.availableStock }}</text><button class="remove-button" type="button" :disabled="busyItemId === item.id" @click="removeItem(item)">删除</button></view></view></view>
       <view v-if="errorMessage" class="error-box cart-inline-error"><text>{{ errorMessage }}</text></view>
-      <view class="bottom-action cart-checkout"><view class="checkout-copy"><text class="muted">订单预计总额</text><MobileMoney :amount="total" currency="CNY" /><text class="checkout-count">共 {{ count }} 件真实演示商品</text></view><button class="primary-button total-button" type="button" @click="openConfirm">去确认订单</button></view>
+      <view class="bottom-action cart-checkout"><view class="checkout-copy"><text class="muted">订单预计总额</text><MobileMoney :amount="total" currency="CNY" /><text class="checkout-count">共 {{ count }} 件商品</text></view><button class="primary-button total-button" type="button" @click="openConfirm">去确认订单</button></view>
     </template>
   </view>
 </template>
@@ -103,7 +103,7 @@ onMounted(loadCart)
 .quantity-button { color: #1d1d1f; }
 .quantity-value { color: #1d1d1f; }
 .stock-hint { color: #6e6e73; }
-.remove-button { color: #c9343f; }
+.remove-button { color: var(--state-danger); }
 .cart-checkout { grid-template-columns: minmax(0, 1fr) 150px; }
 .checkout-copy .mobile-money { color: #1d1d1f; font-weight: 650; }
 .total-button { font-size: 13px; }

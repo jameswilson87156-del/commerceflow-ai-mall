@@ -5,7 +5,8 @@ import MobileStatusPill from '../../components/MobileStatusPill.vue'
 import MobileMoney from '../../components/MobileMoney.vue'
 import { getOrder } from '../../api/orders'
 import { apiErrorMessage } from '../../api/runtime'
-import { CLIENT_DATA_MODE } from '../../config/runtime'
+import { CLIENT_DATA_MODE_LABEL } from '../../config/runtime'
+import { getOrderStatusPresentation } from '../../ui/mobile-commerce-policy.mjs'
 import type { OrderSummary } from '../../api/types'
 
 const order = ref<OrderSummary | null>(null)
@@ -13,6 +14,10 @@ const state = ref<'loading' | 'ready' | 'error'>('loading')
 const errorMessage = ref('')
 const orderNo = ref('')
 const itemCount = computed(() => order.value?.items.reduce((sum, item) => sum + item.quantity, 0) || 0)
+const statusPresentation = computed(() => getOrderStatusPresentation(order.value?.status ?? ''))
+const resultTitle = computed(() => order.value?.status === 'CREATED' ? '订单已创建' : order.value?.status === 'CANCELLED_TIMEOUT' ? '订单已超时取消' : '订单状态')
+const resultSubtitle = computed(() => order.value?.status === 'CREATED' ? '商品和金额已由服务端确认' : order.value?.status === 'CANCELLED_TIMEOUT' ? '该订单已按超时规则关闭，状态以服务端记录为准。' : '当前订单状态以服务端记录为准。')
+const resultMark = computed(() => order.value?.status === 'CREATED' ? '✓' : '！')
 async function load(requestedOrderNo: string) { orderNo.value = requestedOrderNo; state.value = 'loading'; errorMessage.value = ''; try { order.value = (await getOrder(orderNo.value)).data; state.value = 'ready' } catch (error) { state.value = 'error'; errorMessage.value = apiErrorMessage(error, '订单结果加载失败，请重试。') } }
 function openDetail() { if (order.value) uni.redirectTo({ url: `/pages/order/detail?orderNo=${encodeURIComponent(order.value.orderNo)}` }) }
 function backToProducts() { uni.reLaunch({ url: '/pages/index/index' }) }
@@ -22,11 +27,11 @@ onMounted(async () => { const { queryParam } = await import('../../platform/h5')
 
 <template>
   <view class="mobile-page result-page mobile-page--result">
-    <MobileHeader eyebrow="COMMERCEFLOW / RESULT" title="订单结果" :subtitle="`${CLIENT_DATA_MODE === 'LOCAL_DEMO_FIXTURE' ? 'Local Demo Fixture' : 'Real Backend'} · 服务端已返回真实创建结果`" />
+    <MobileHeader eyebrow="商城 / 创建结果" title="订单结果" :subtitle="`${CLIENT_DATA_MODE_LABEL} · 订单信息由接口返回`" />
     <view class="checkout-stepper checkout-stepper--result" aria-label="订单流程"><view class="checkout-step is-done"><text>1</text><span>购物车</span></view><view class="checkout-step-line is-done"></view><view class="checkout-step is-done"><text>2</text><span>确认订单</span></view><view class="checkout-step-line is-done"></view><view class="checkout-step is-current"><text>3</text><span>创建结果</span></view></view>
     <view v-if="state === 'loading'" class="panel empty-box">正在读取真实订单结果...</view>
     <view v-else-if="state === 'error'" class="error-box"><text>{{ errorMessage }}</text><button class="secondary-button retry-button" type="button" @click="retry">重新加载</button></view>
-    <view v-else-if="order" class="result-shell"><view class="success-mark" aria-hidden="true">✓</view><MobileStatusPill label="CREATED / 已创建" tone="success" /><text class="result-title">订单已创建</text><text class="result-subtitle">商品已按真实库存完成一次服务端创建</text><view class="result-card panel"><view class="result-row"><text class="muted">订单号</text><text class="mono">{{ order.orderNo }}</text></view><view class="result-row"><text class="muted">总金额</text><MobileMoney :amount="order.totalAmount" :currency="order.currency" compact /></view><view class="result-row"><text class="muted">商品件数</text><text>{{ itemCount }} 件</text></view><view class="result-row"><text class="muted">创建时间</text><text class="result-value">{{ order.createdAt }}</text></view><view class="result-row"><text class="muted">状态</text><MobileStatusPill label="已创建" tone="success" /></view></view><view class="result-actions"><button class="primary-button" type="button" @click="openDetail">查看订单详情</button><button class="secondary-button" type="button" @click="backToProducts">返回商品列表</button></view><text class="boundary-note">本页面不代表支付、发货或物流完成。</text></view>
+    <view v-else-if="order" class="result-shell"><view :class="['success-mark', { 'success-mark--warning': order.status !== 'CREATED' }]" aria-hidden="true">{{ resultMark }}</view><MobileStatusPill :label="statusPresentation.label" :tone="statusPresentation.tone" /><text class="result-title">{{ resultTitle }}</text><text class="result-subtitle">{{ resultSubtitle }}</text><view class="result-card panel"><view class="result-row"><text class="muted">订单号</text><text class="mono">{{ order.orderNo }}</text></view><view class="result-row"><text class="muted">总金额</text><MobileMoney :amount="order.totalAmount" :currency="order.currency" compact /></view><view class="result-row"><text class="muted">商品件数</text><text>{{ itemCount }} 件</text></view><view class="result-row"><text class="muted">创建时间</text><text class="result-value">{{ order.createdAt }}</text></view><view class="result-row"><text class="muted">状态</text><MobileStatusPill :label="statusPresentation.label" :tone="statusPresentation.tone" /></view></view><view class="result-actions"><button class="primary-button" type="button" @click="openDetail">查看订单详情</button><button class="secondary-button" type="button" @click="backToProducts">返回商品列表</button></view><text class="boundary-note">本页面不代表支付、发货或物流完成。</text></view>
   </view>
 </template>
 
@@ -39,7 +44,7 @@ onMounted(async () => { const { queryParam } = await import('../../platform/h5')
 /* Apple-inspired result pass: quiet confirmation, no dashboard chrome. */
 .result-page { background: #f5f5f7; }
 .result-shell { border-top: 0; padding-top: 8px; }
-.success-mark { width: 64px; height: 64px; border: 0; background: #fff; color: #248a3d; font-size: 34px; font-weight: 600; box-shadow: 0 4px 18px rgba(0, 0, 0, .05); }
+.success-mark { width: 64px; height: 64px; border: 0; background: #fff; color: var(--state-success); font-size: 34px; font-weight: 600; box-shadow: 0 4px 18px rgba(0, 0, 0, .05); }
 .result-title { color: #1d1d1f; font-size: 30px; font-weight: 700; letter-spacing: -.055em; }
 .result-subtitle { color: #6e6e73; font-size: 13px; }
 .result-card.panel { margin-top: 24px; border: 0; border-radius: 20px; background: #fff; padding: 4px 18px; }
@@ -48,4 +53,5 @@ onMounted(async () => { const { queryParam } = await import('../../platform/h5')
 .result-actions { gap: 10px; margin-top: 16px; }
 .result-actions button { font-size: 13px; }
 .boundary-note { color: #6e6e73; font: 10px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; }
+.success-mark--warning { background: var(--state-warning-soft); color: var(--state-warning); box-shadow: none; }
 </style>

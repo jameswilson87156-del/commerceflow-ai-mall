@@ -8,7 +8,7 @@ import ProductImage from '../../components/ProductImage.vue'
 import { getCart } from '../../api/cart'
 import { submitOrder } from '../../api/orders'
 import { ApiError, apiErrorMessage, resolveImageUrl } from '../../api/runtime'
-import { CLIENT_DATA_MODE } from '../../config/runtime'
+import { CLIENT_DATA_MODE_LABEL } from '../../config/runtime'
 import { addCents, createClientIdempotencyKey } from '../../api/runtime-helpers.mjs'
 import type { CartItem } from '../../api/types'
 
@@ -37,14 +37,14 @@ onMounted(loadCart)
 
 <template>
   <view class="mobile-page mobile-page--with-bottom-action confirm-page">
-    <MobileHeader eyebrow="COMMERCEFLOW / CHECKOUT" title="确认订单" subtitle="创建后状态为 CREATED" :back="true" @back="backToCart" />
+    <MobileHeader eyebrow="商城 / 订单确认" title="确认订单" subtitle="提交后订单进入“已创建”状态" :back="true" @back="backToCart" />
     <view class="checkout-stepper" aria-label="订单流程"><view class="checkout-step is-done"><text>1</text><span>购物车</span></view><view class="checkout-step-line is-done"></view><view class="checkout-step is-current"><text>2</text><span>确认订单</span></view><view class="checkout-step-line"></view><view class="checkout-step"><text>3</text><span>创建结果</span></view></view>
     <view v-if="state === 'loading'" class="panel empty-box">正在重新读取服务端购物车...</view>
     <view v-else-if="state === 'error'" class="error-box"><text>{{ errorMessage }}</text><button class="secondary-button retry-button" type="button" @click="loadCart">重新加载</button></view>
     <view v-else-if="state === 'empty'" class="panel empty-box"><text>购物车为空，请先选择商品。</text><button class="secondary-button retry-button" type="button" @click="backToCart">返回购物车</button></view>
     <template v-else>
-      <MobileNotice title="消费者接口边界" :message="`${CLIENT_DATA_MODE === 'LOCAL_DEMO_FIXTURE' ? '显式本地 Demo' : 'Real Backend'}：订单通过 /api/v1/me 创建，身份由服务端推导，页面不提交 userId。`" />
-      <view class="checkout-heading"><view><text class="eyebrow">ORDER REVIEW</text><text class="checkout-title">核对商品明细</text></view><MobileStatusPill label="服务端重算" tone="blue" /></view>
+      <MobileNotice title="数据范围" :message="`${CLIENT_DATA_MODE_LABEL}：订单由服务端根据当前账号创建，页面不会传入用户 ID。`" />
+      <view class="checkout-heading"><view><text class="eyebrow">订单确认</text><text class="checkout-title">核对商品明细</text></view><MobileStatusPill label="服务端重算" tone="blue" /></view>
       <view v-for="item in items" :key="item.id" class="confirm-item panel"><ProductImage class="confirm-image" :src="imageUrl(item)" :alt="item.productName" /><view class="confirm-copy"><text class="cart-name">{{ item.productName }}</text><text class="sku-code">{{ item.skuCode }}</text><text class="cart-spec">{{ item.color }} / {{ item.size }} · 数量 {{ item.quantity }}</text><view class="price-row"><MobileMoney :amount="item.unitPrice" :currency="item.currency" compact /><text class="line-total">小计 ¥{{ lineTotal(item) }}</text></view></view></view>
       <view class="amount-panel panel"><view class="amount-heading"><text class="muted">订单预计总额</text><MobileStatusPill label="CNY" tone="neutral" /></view><MobileMoney class="amount" :amount="total" currency="CNY" /><text class="amount-note">最终金额以服务端创建订单结果为准。</text></view>
       <MobileNotice v-if="submitError" tone="error" title="订单未创建" :message="submitError" />
@@ -73,8 +73,8 @@ onMounted(loadCart)
 .confirm-page { background: #f5f5f7; }
 .checkout-stepper { margin-bottom: 23px; }
 .checkout-step text { background: #fff; color: #6e6e73; }
-.checkout-step.is-current text { background: #0071e3; color: #fff; }
-.checkout-step.is-done text { background: #e9f7ed; color: #248a3d; }
+.checkout-step.is-current text { background: var(--brand-primary); color: #fff; }
+.checkout-step.is-done text { background: var(--state-success-soft); color: var(--state-success); }
 .checkout-step-line { background: #d2d2d7; }.checkout-step-line.is-done { background: #a9d9b7; }
 .checkout-heading { margin-top: 22px; border-top: 0; padding-top: 0; }
 .checkout-title { color: #1d1d1f; font-size: 25px; font-weight: 700; letter-spacing: -.045em; }

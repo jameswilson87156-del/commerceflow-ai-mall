@@ -1,6 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import OrderInventoryEvidence from './OrderInventoryEvidence.vue'
+import { orderStatusLabel, orderStatusTone } from './orders'
 
 const grayItem = {
   productNameSnapshot: '轻盈棉质基础 T 恤', skuCodeSnapshot: 'T-SHIRT-GRAY-L', colorSnapshot: '灰色', sizeSnapshot: 'L',
@@ -16,7 +17,7 @@ const whiteItem = {
 }
 const orders = [
   { orderNo: 'CF2001', userId: 1, totalAmount: 328, currency: 'CNY', status: 'CREATED', createdAt: '2026-07-26T10:00:00', items: [grayItem, toteItem] },
-  { orderNo: 'CF2002', userId: 1, totalAmount: 129, currency: 'CNY', status: 'CREATED', createdAt: '2026-07-26T10:02:00', items: [whiteItem] },
+  { orderNo: 'CF2002', userId: 1, totalAmount: 129, currency: 'CNY', status: 'CANCELLED_TIMEOUT', createdAt: '2026-07-26T10:02:00', items: [whiteItem] },
 ]
 const evidence = {
   orderNo: 'CF2001', userId: 1, totalAmount: 328, currency: 'CNY', status: 'CREATED', createdAt: '2026-07-26T10:00:00',
@@ -42,6 +43,14 @@ function readyFetch() {
 afterEach(() => vi.unstubAllGlobals())
 
 describe('OrderInventoryEvidence', () => {
+  it('maps known order status enums to accurate Chinese labels and tones', () => {
+    expect(orderStatusLabel('CREATED')).toBe('已创建')
+    expect(orderStatusTone('CREATED')).toBe('green')
+    expect(orderStatusLabel('CANCELLED_TIMEOUT')).toBe('超时取消')
+    expect(orderStatusTone('CANCELLED_TIMEOUT')).toBe('amber')
+    expect(orderStatusLabel('UNRECOGNIZED')).toBe('其他状态')
+  })
+
   it('renders loading before the real order list resolves', () => {
     vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})))
     const wrapper = mount(OrderInventoryEvidence)
@@ -52,7 +61,7 @@ describe('OrderInventoryEvidence', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse([])))
     const wrapper = mount(OrderInventoryEvidence)
     await flushPromises()
-    expect(wrapper.get('[data-testid="order-empty"]').text()).toContain('当前 Operator 范围没有已创建订单')
+    expect(wrapper.get('[data-testid="order-empty"]').text()).toContain('当前权限范围内没有订单')
   })
 
   it('renders an error state and retries the order API', async () => {
@@ -78,6 +87,8 @@ describe('OrderInventoryEvidence', () => {
     expect(wrapper.get('[data-testid="order-thumbnail-CF2001"]').attributes('src')).toBe('/assets/products/product-tshirt-gray.png')
     expect(wrapper.get('[data-testid="order-thumbnail-CF2001-TOTE-BEIGE-ONE"]').attributes('src')).toBe('/assets/products/product-tote-beige.png')
     expect(wrapper.get('[data-testid="order-CF2001"]').text()).toContain('共 2 件')
+    expect(wrapper.get('[data-testid="order-CF2002"]').text()).toContain('超时取消')
+    expect(wrapper.get('[data-testid="order-CF2002"] .created-status').classes()).toContain('created-status--amber')
     expect(wrapper.get('[data-testid="order-list-total"]').text()).toContain('共 2 笔服务端订单')
     expect(wrapper.get('[data-testid="order-item-image-T-SHIRT-GRAY-L"]').attributes('src')).toBe('/assets/products/product-tshirt-gray.png')
     expect(wrapper.get('[data-testid="order-item-image-TOTE-BEIGE-ONE"]').attributes('src')).toBe('/assets/products/product-tote-beige.png')

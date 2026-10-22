@@ -18,11 +18,11 @@ export function classifyAdminAccess(status: number): AdminAccessState {
 
 export function adminAccessStateLabel(state: AdminAccessState): string {
   const labels: Record<AdminAccessState, string> = {
-    unauthorized: 'Unauthorized',
-    forbidden: 'Forbidden',
-    'not-found': 'Not Found',
-    'backend-unavailable': 'Backend Unavailable',
-    'request-failed': 'Request Failed',
+    unauthorized: '尚未登录',
+    forbidden: '无权访问',
+    'not-found': '接口不存在',
+    'backend-unavailable': '服务暂不可用',
+    'request-failed': '请求失败',
   }
   return labels[state]
 }

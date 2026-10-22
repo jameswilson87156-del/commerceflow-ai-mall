@@ -16,16 +16,23 @@ foreach($headerName in @('X-RateLimit-Limit','X-RateLimit-Remaining','X-RateLimi
 foreach($path in @('product-tshirt-white.png','product-tshirt-black.png','product-tshirt-gray.png','product-tshirt-navy.png','product-tote-beige.png')){$response=Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:$admin/assets/products/$path";if($response.StatusCode -ne 200 -or $response.Headers['Content-Type'] -notlike 'image/*' -or $response.RawContentLength -le 0){throw "商品图片校验失败: $path"}}
 function Invoke-ShowcaseJsonRequest {
     param([string]$Uri, [string]$Method = 'Get', [string]$Body, [hashtable]$Headers = @{})
-    try {
-        $response = Invoke-WebRequest -UseBasicParsing -Method $Method -Uri $Uri -ContentType 'application/json' -Headers $Headers -Body $Body
-        return [pscustomobject]@{ StatusCode = [int]$response.StatusCode; Body = ($response.Content | ConvertFrom-Json); Headers = $response.Headers }
-    } catch {
-        $webResponse = $_.Exception.Response
-        if ($null -eq $webResponse) { throw }
-        $reader = New-Object System.IO.StreamReader($webResponse.GetResponseStream())
-        try { $content = $reader.ReadToEnd() } finally { $reader.Dispose() }
-        return [pscustomobject]@{ StatusCode = [int]$webResponse.StatusCode; Body = ($content | ConvertFrom-Json); Headers = $webResponse.Headers }
+    $request = @{ UseBasicParsing = $true; Method = $Method; Uri = $Uri; ContentType = 'application/json'; Headers = $Headers }
+    if (-not [string]::IsNullOrWhiteSpace($Body)) { $request.Body = $Body }
+    $invokeCommand = Get-Command Invoke-WebRequest -ErrorAction Stop
+    if ($invokeCommand.Parameters.ContainsKey('SkipHttpErrorCheck')) {
+        $response = Invoke-WebRequest @request -SkipHttpErrorCheck
+    } else {
+        try {
+            $response = Invoke-WebRequest @request
+        } catch {
+            $webResponse = $_.Exception.Response
+            if ($null -eq $webResponse) { throw }
+            $reader = New-Object System.IO.StreamReader($webResponse.GetResponseStream())
+            try { $content = $reader.ReadToEnd() } finally { $reader.Dispose() }
+            return [pscustomobject]@{ StatusCode = [int]$webResponse.StatusCode; Body = ($content | ConvertFrom-Json); Headers = $webResponse.Headers }
+        }
     }
+    return [pscustomobject]@{ StatusCode = [int]$response.StatusCode; Body = ($response.Content | ConvertFrom-Json); Headers = $response.Headers }
 }
 if($IncludeOrderSmoke){
     $orderBase = "http://127.0.0.1:$api/api/v1/me/orders"
@@ -60,7 +67,17 @@ if($IncludeRateLimitSmoke){
     foreach($headerName in @('Retry-After','X-RateLimit-Limit','X-RateLimit-Remaining','X-RateLimit-Reset','X-RateLimit-Mode')){if([string]::IsNullOrWhiteSpace($blocked[0].Headers[$headerName])){throw "429 响应缺少限流响应头: $headerName"}}
     Write-Host "RATE_LIMIT_SMOKE_OK serverDerivedConsumerScope allowed=$allowedCount blocked=$($blocked.Count)"
 }
-if($Deep){& "$script:ShowcaseRoot\mvnw.cmd" -f "$script:ShowcaseRoot\apps\mall-api\pom.xml" test; Push-Location "$script:ShowcaseRoot\apps\admin-web"; npm test; npm run build; Pop-Location}
+if($Deep){
+    & "$script:ShowcaseRoot\mvnw.cmd" -f "$script:ShowcaseRoot\apps\mall-api\pom.xml" test
+    if($LASTEXITCODE -ne 0){throw "Maven test failed with exit code $LASTEXITCODE."}
+    Push-Location "$script:ShowcaseRoot\apps\admin-web"
+    try {
+        npm test
+        if($LASTEXITCODE -ne 0){throw "Admin npm test failed with exit code $LASTEXITCODE."}
+        npm run build
+        if($LASTEXITCODE -ne 0){throw "Admin production build failed with exit code $LASTEXITCODE."}
+    } finally { Pop-Location }
+}
 Write-Host 'SHOWCASE_VERIFY_OK'
 
 
