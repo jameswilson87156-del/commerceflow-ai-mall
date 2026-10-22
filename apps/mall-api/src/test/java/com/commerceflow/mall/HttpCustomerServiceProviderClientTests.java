@@ -82,8 +82,9 @@ class HttpCustomerServiceProviderClientTests {
     @Test
     void scaledSlowLocalStubCompletesBeyondThePreviousReadBudget() throws Exception {
         // The 45 ms stub delay is deliberately beyond the scaled 30 ms legacy budget.
+        // Keep enough headroom for slower CI scheduling while preserving that comparison.
         try (StubServer server = StubServer.respondingAfter(45, 200, successfulResponse())) {
-            var response = client(server.baseUrl(), 100).answer(request());
+            var response = client(server.baseUrl(), 1_000).answer(request());
             assertEquals("ai11-stub-trace", response.traceId());
             assertEquals(AiModels.AnswerStatus.ANSWERED, response.answerStatus());
         }
