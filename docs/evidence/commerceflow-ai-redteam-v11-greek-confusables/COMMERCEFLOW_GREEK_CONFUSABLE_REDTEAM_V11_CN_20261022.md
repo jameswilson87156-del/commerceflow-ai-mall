@@ -3,7 +3,7 @@
 日期：2026-10-22  
 分支：`feat/order-timeout-cancellation`  
 基线提交：`b9bdaa1e8bb5a89735403fe66c55413d2628905b`  
-本地工作区：`D:\面试冲刺包\_JOB_READY_SPRINT_20261021\worktrees\commerce-repair`（开始时已有未提交修改；本次未清理、重置、提交或推送）
+本地工作区：`<LOCAL_PATH>`（开始时已有未提交修改；本次未清理、重置、提交或推送）
 
 ## 结果摘要
 
@@ -36,37 +36,37 @@ Python 侧的三条独立 Greek lookalike 测试在修复前都被分类为 `PRI
 | 阶段 | 工作目录 | 命令 | 退出码与结果 |
 | --- | --- | --- | --- |
 | 修复前 Python RED | `services/ai-service` | `py -3.12 -m pytest -q tests/test_real_provider.py -k greek_script_confusable` | 1；3 failed，均为攻击误分类为 `PRICE` |
-| 修复前 Java RED | `apps/mall-api` | `& 'C:\Users\wangxun\.local\tools\apache-maven-3.9.11\bin\mvn.cmd' -Dtest=AiCustomerServiceTests#unavailableProviderRejectsUnicodeConfusablePolicyAttacks test` | 1；预期 `UNSUPPORTED_QUESTION`，实际 `FALLBACK_ANSWER` |
+| 修复前 Java RED | `apps/mall-api` | `& 'mvn.cmd' -Dtest=AiCustomerServiceTests#unavailableProviderRejectsUnicodeConfusablePolicyAttacks test` | 1；预期 `UNSUPPORTED_QUESTION`，实际 `FALLBACK_ANSWER` |
 | Python 新旧 Greek 分类与真实模式门禁回归 | `services/ai-service` | `py -3.12 -m pytest -q tests/test_real_provider.py -k "greek_script_confusable or greek_confusables"` | 0；27 passed，130 deselected |
 | V11 评测器契约测试 | `services/ai-service` | `py -3.12 -m pytest -q tests/test_evaluate_provider.py -k greek_confusable` | 0；1 passed，33 deselected |
 | 真实模式请求前门禁 RED | `services/ai-service` | `py -3.12 -m pytest -q tests/test_real_provider.py -k real_provider_short_circuits_unsupported_greek_confusables_before_http` | 1；6 条攻击均已发到桩 HTTP transport，6 条正常控制通过 |
 | 真实模式请求前门禁 GREEN | `services/ai-service` | `py -3.12 -m pytest -q tests/test_real_provider.py -k real_provider_short_circuits_unsupported_greek_confusables_before_http` | 0；12 passed；6 条攻击 HTTP 调用为 0，6 条正常控制各调用桩 transport 一次 |
 | 评测器真实请求计数 RED/GREEN | `services/ai-service` | `py -3.12 -m pytest -q tests/test_evaluate_provider.py -k external_report_counts_local_policy_gate` | RED 1：错误计为 1 次；修复后 0；1 passed，拦截样本记录 `LOCAL_POLICY_GATE` |
 | Provider HTTP 兼容回归 | `services/ai-service` | `py -3.12 -m pytest -q tests/test_real_provider.py -k 'external_request or request_uses_only_model'` | 0；2 passed |
-| Java AI 客服定向回归 | `apps/mall-api` | `& 'C:\Users\wangxun\.local\tools\apache-maven-3.9.11\bin\mvn.cmd' '-Dtest=AiCustomerServiceTests' test` | 0；19 passed |
+| Java AI 客服定向回归 | `apps/mall-api` | `& 'mvn.cmd' '-Dtest=AiCustomerServiceTests' test` | 0；19 passed |
 | V11 本地离线评测 | `services/ai-service` | `py -3.12 evaluate_provider.py --dataset evaluation/customer-service-redteam-v11-greek-confusables.json --output docs/evidence/commerceflow-ai-redteam-v11-greek-confusables/customer-service-redteam-v11-mock-final.json`；进程环境强制 `COMMERCEFLOW_AI_PROVIDER=MOCK`、`COMMERCEFLOW_AI_EVAL_ENABLED=false`，未传 `--allow-external` | 0；66/66，外部请求 0 |
 | Python 全量 | `services/ai-service` | `py -3.12 -m pytest -q`（进程环境强制 `COMMERCEFLOW_AI_PROVIDER=MOCK`） | 0；207 passed |
-| Java 全量 | `apps/mall-api` | `& 'C:\Users\wangxun\.local\tools\apache-maven-3.9.11\bin\mvn.cmd' test` | 0；120 tests，0 failures/errors，10 skipped |
+| Java 全量 | `apps/mall-api` | `& 'mvn.cmd' test` | 0；120 tests，0 failures/errors，10 skipped |
 
 Maven 使用本机 Maven 3.9.11；Java 17.0.19。初次尝试从 `apps/mall-api` 调用模块内 `mvnw.cmd` 时，该文件不存在，随后改用本机 Maven CLI 执行；未下载或修改构建依赖。
 
 完整输出保存在执行交付目录：
 
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerceflow-redteam-v11-offline-20261022.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerceflow-greek-direct-tests-20261022.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerceflow-v11-evaluator-tests-20261022.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerceflow-python-pytest-full-20261022.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerceflow-maven-full-20261022.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerceflow-v11-pre-request-gate-red-20261022.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerceflow-v11-pre-request-gate-green-20261022.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerceflow-v11-evaluator-gate-red-20261022.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerceflow-v11-evaluator-gate-green-20261022.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerceflow-python-pytest-full-v11-gate-20261022.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerceflow-redteam-v11-offline-final-20261022.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerceflow-greek-policy-and-gate-tests-final-20261022.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerceflow-evaluator-gate-accounting-final-20261022.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerceflow-provider-http-regression-final-20261022.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerceflow-v11-evaluator-tests-final-20261022.log`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
 
 最终逐样本输出：[`customer-service-redteam-v11-mock-final.json`](customer-service-redteam-v11-mock-final.json)。数据集：[`customer-service-redteam-v11-greek-confusables.json`](../../../services/ai-service/evaluation/customer-service-redteam-v11-greek-confusables.json)。
 
@@ -109,15 +109,15 @@ Maven 使用本机 Maven 3.9.11；Java 17.0.19。初次尝试从 `apps/mall-api`
 | 项目 | 工作目录 | 命令 | 结果 |
 | --- | --- | --- | --- |
 | Admin 测试 | `apps/admin-web` | `npm test` | 退出码 0；6 个测试文件、46 项通过 |
-| Admin 生产构建 | `apps/admin-web` | `npm run build -- --outDir D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerce-admin-build-20261022-final` | 退出码 0；`vue-tsc --noEmit` 与 Vite build 通过，37 个模块 |
+| Admin 生产构建 | `apps/admin-web` | `npm run build -- --outDir <LOCAL_PATH>` | 退出码 0；`vue-tsc --noEmit` 与 Vite build 通过，37 个模块 |
 | Mobile H5 测试 | `apps/mobile-app` | `npm test` | 退出码 0；36 项通过 |
-| Mobile H5 生产构建 | `apps/mobile-app` | `npm run build -- --outDir D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerce-mobile-h5-build-20261022-final` | 退出码 0；Vite H5 build 通过 |
+| Mobile H5 生产构建 | `apps/mobile-app` | `npm run build -- --outDir <LOCAL_PATH>` | 退出码 0；Vite H5 build 通过 |
 
 两个构建输出都写入开始前确认不存在的执行交付目录，Admin `dist` 和 Mobile 原有 `dist` 未被覆盖。完整原始输出：
 
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerce-admin-test-20261022-final.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerce-admin-build-20261022-final.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerce-mobile-test-20261022-final.log`
-- `D:\面试冲刺包\_JOB_READY_SPRINT_20261021\deliverables\commerce-mobile-h5-build-20261022-final.log`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
+- `<LOCAL_PATH>`
 
 Mobile H5 build 有现存的 `.env` `NODE_ENV` 提示、UniApp 更新提示与 `platform/h5.ts` 动静态导入提示；命令成功退出。该构建不等于原生设备运行验收。本轮没有重跑浏览器端到端验收，也没有运行 `build:uni`。
