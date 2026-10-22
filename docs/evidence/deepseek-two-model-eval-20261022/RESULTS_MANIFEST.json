@@ -1,0 +1,308 @@
+{
+  "project": "commerce",
+  "sourceFileCount": 43,
+  "publicSanitization": "Absolute Windows drive paths in string values are replaced with <REDACTED_LOCAL_PATH>; source SHA-256 values refer to original local files.",
+  "files": [
+    {
+      "source": "commerce-CIM18-prompt-followups.jsonl",
+      "sourceSha256": "5106c3a231d0bda29eb665d5ca4618e8bb603fd092901f0607fc9567cfa99436",
+      "bytes": 827,
+      "records": 2,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "datasets/composite-CIM18-prompt-followup-20261022.json",
+      "sourceSha256": "95316f009a39bad11b2a65e6adca41ed1748d15564d50943fb018d742e4c14a9",
+      "bytes": 557,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "datasets/composite-CIM18-prompt-followup-v2-20261022.json",
+      "sourceSha256": "ec2d0d968c68b38bc6b7f0f573aeb2e391cf76ef4cc70c699c79d0929094aad7",
+      "bytes": 1295,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "datasets/customer-service-v3-pro-CS12-timeout-followup.json",
+      "sourceSha256": "aad260f4f04868ce8976e483a0bc782a1f3fa1ddf72bc3ddb44944cfe8ff25f4",
+      "bytes": 1132,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "datasets/customer-service-v3-pro-offset10-residual.json",
+      "sourceSha256": "57554dd58c42f962bb27674d475b2eb2116411e7efd6a9e17d82ced1fb36d7e0",
+      "bytes": 2649,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/composite-CIM18-prompt-followup-v2-20261022/results.json",
+      "sourceSha256": "4e78b09b4b4ea799664cbce095d7f207799008a2de2c97d4f97bdc942453a865",
+      "bytes": 4963,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/composite-v2-offset-0/results.json",
+      "sourceSha256": "5a4a51134026b811ea2ca05c660cf070404a85f177ebf1dcf46ca9280c54b9d8",
+      "bytes": 12998,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/composite-v2-offset-10/results.json",
+      "sourceSha256": "3fee96f4c735aac9c6af11cf4b8e26d46202ac064ffdfea502fb5162a425e24b",
+      "bytes": 11124,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/core-offset-0/results.json",
+      "sourceSha256": "10843bee8f3e2a3a61bb9a07b21177d099119aab8f56d31fefdf978644899bab",
+      "bytes": 12477,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/core-v3-offset-10/results.json",
+      "sourceSha256": "2d0b89c897446db5a827f9baf01e0d9237497319fbf6fad507a34748fdd7909a",
+      "bytes": 11771,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/core-v3-offset-20/results.json",
+      "sourceSha256": "5b0882ac0149dc7d6ed0a9860ad1a5de5d96ac98ab650235104bf9846e98d962",
+      "bytes": 12572,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/core-v3-offset-30/results.json",
+      "sourceSha256": "849d4e2de8b38a747faea8222e99335758bcb7250c06296aef31e1ce460d2adc",
+      "bytes": 12642,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/core-v3-offset-40/results.json",
+      "sourceSha256": "92e719b65e305bfba3faf6d0982a69c2bde8325f24011b53161a22f7a6bc67cd",
+      "bytes": 6512,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/redteam-v13-offset-0/results.json",
+      "sourceSha256": "c5cf44b8b1cf97e2dd6d05f19afdcddcfd2c9a9234b0c591c62f8aaf8eb452e5",
+      "bytes": 14232,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/redteam-v13-offset-10/results.json",
+      "sourceSha256": "ca91e5b4b67254e260fefd712eacf68c558e6a39be8e9fe191b367f21766a2c1",
+      "bytes": 14038,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/redteam-v13-offset-20/results.json",
+      "sourceSha256": "b47fd1b15071a998ddae365b070f931bf2d43447db3f24298323c704fd93260b",
+      "bytes": 14389,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/redteam-v13-offset-30/results.json",
+      "sourceSha256": "20803eee8d2152b01629c5c85b5983aa76293fc40dfa4db9ee2b1f8d149f8298",
+      "bytes": 13811,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/redteam-v13-offset-40/results.json",
+      "sourceSha256": "e3028fc567002c1743f083f262606b666592c5e2f7a1f42e4e23d87881eee695",
+      "bytes": 14611,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/redteam-v13-offset-50/results.json",
+      "sourceSha256": "4952c88010898e82ac43621ab140c25d882a33147c56862c907b4e63279e3e59",
+      "bytes": 13839,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/redteam-v13-offset-60/results.json",
+      "sourceSha256": "e0640d0bb9a79607853d95d1c3f3b365af3fc831c43726e3ec42b75197a87eed",
+      "bytes": 14695,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/redteam-v13-offset-70/results.json",
+      "sourceSha256": "d296f357ac8f92fc4ab0af5bc388a0c43fa9cd7493b7dfb891202b388f35adda",
+      "bytes": 14959,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/redteam-v13-offset-80/results.json",
+      "sourceSha256": "a1a2116cfa6bc473579b3259401dc2d58f44340f8e5a7478c19284fa514346ad",
+      "bytes": 14838,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-flash/supported-injection-v1/results.json",
+      "sourceSha256": "b29e63e6622eac09bf5bc993597ff705d438f55a70bf29855d40781b4c0d4bd7",
+      "bytes": 11119,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/composite-CIM18-prompt-followup-v2-20261022/results.json",
+      "sourceSha256": "ce4a82a70ebce91f88711fe011cea34e907b96b94acde2316c03b7d6d41dc9fa",
+      "bytes": 4967,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/composite-v2-offset-0/results.json",
+      "sourceSha256": "1674b0b18816e3d75bde89870893ddfd17a8c00ad8e60875151cbc527e2168c4",
+      "bytes": 13020,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/composite-v2-offset-10/results.json",
+      "sourceSha256": "10e9f6713b6cf82f412a41c69afe733e698c4bc3069399727e8bbae1a524f0aa",
+      "bytes": 11371,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/core-offset-0/results.json",
+      "sourceSha256": "25e0ca32823cecf4c93e9c3ff856101fa8f493a4951ce693f03a92c173b3beb3",
+      "bytes": 12494,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/core-v3-offset-10/results.json",
+      "sourceSha256": "e81400f2bc550a889565fa7c62ff341fed57ee56d2ac2f9f247fc4bb477d2cc9",
+      "bytes": 5559,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/core-v3-offset-10-residual/results.json",
+      "sourceSha256": "133819db2f2651194604e36cad32e7ede8048a048343e5539f744cd29e9793ee",
+      "bytes": 10039,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/core-v3-offset-10-timeout-followup/results.json",
+      "sourceSha256": "b811460ab62a4d77db52536017a5308d4116617e7d4c998f4b3122c3bbaa6ad8",
+      "bytes": 4896,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/core-v3-offset-20/results.json",
+      "sourceSha256": "bf4997a2fb28b71c83ad1c5ec3f0edd73215c11377238524221342185522a836",
+      "bytes": 12593,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/core-v3-offset-30/results.json",
+      "sourceSha256": "2dc32ef312760307b2e964e6a0c8fc13c7eb14e87c673abaa0ec15fa2d354c41",
+      "bytes": 12662,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/core-v3-offset-40/results.json",
+      "sourceSha256": "d8f0eb99ca7b2834cb784791a1fa9f8508e628b09dc83a1bcce98edbb8747511",
+      "bytes": 6513,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/redteam-v13-offset-0/results.json",
+      "sourceSha256": "da853f77d4523587572723e62693f179b48e7eef1bdb829d2ffb21b530a9d1ab",
+      "bytes": 14239,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/redteam-v13-offset-10/results.json",
+      "sourceSha256": "4ad9314ca7a3475f3f793c3807bcd9cd69f95103c6b429277e6cb86e2dd14aa0",
+      "bytes": 14049,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/redteam-v13-offset-20/results.json",
+      "sourceSha256": "f2bc5b6fbed71155146477d99bdb7b804cb964fd28d32b64ed21e519d6a78910",
+      "bytes": 14400,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/redteam-v13-offset-30/results.json",
+      "sourceSha256": "99202c32513616d3f1aa12f004c1fbcefba54122ef93deb80daefac4dafdf58f",
+      "bytes": 13818,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/redteam-v13-offset-40/results.json",
+      "sourceSha256": "2158b4ed3d7b36b45d2775770ba5d51f847d12ae307d542dcc26c3543c4eda69",
+      "bytes": 14626,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/redteam-v13-offset-50/results.json",
+      "sourceSha256": "f69b42af0cd520e55255db86037e398cca15e438dfe273901e3e686d5c1069a4",
+      "bytes": 13849,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/redteam-v13-offset-60/results.json",
+      "sourceSha256": "d1e7b26efde3d29796b396b25324b03bfa54fc88ad7e71815697f5ab5c38d9bf",
+      "bytes": 14708,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/redteam-v13-offset-70/results.json",
+      "sourceSha256": "a44a7ba214cace5dd5d8ce047a95917c48a1e293d0b401e7f578057a18594162",
+      "bytes": 14972,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/redteam-v13-offset-80/results.json",
+      "sourceSha256": "48907a4978851a9c8a12e70c5f70fa1a54f1c5f393ebb7fda93f9a1e86462c58",
+      "bytes": 14851,
+      "records": 1,
+      "publicPathsRedacted": true
+    },
+    {
+      "source": "deepseek-v4-pro/supported-injection-v1/results.json",
+      "sourceSha256": "b48b0950238ec87f71490fa191cf068cc01bfd6d542cb0359dcbee111ef35f3a",
+      "bytes": 11132,
+      "records": 1,
+      "publicPathsRedacted": true
+    }
+  ]
+}
