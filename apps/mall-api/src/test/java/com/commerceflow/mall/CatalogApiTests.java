@@ -4,18 +4,29 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 class CatalogApiTests {
     @Autowired MockMvc mockMvc;
     @Autowired JdbcTemplate jdbc;
+
+    @BeforeEach
+    void restoreShowcaseInventoryFixture() {
+        // Earlier order-flow tests share this H2 context and mutate inventory.
+        // Restore the migration seed so this API contract test is order-independent.
+        jdbc.update("UPDATE inventory SET available_stock = 28 WHERE sku_id = 10004");
+        jdbc.update("UPDATE inventory SET available_stock = 0 WHERE sku_id = 10005");
+    }
 
     @Test
     void returnsShowcaseProductAndSkuImagePaths() throws Exception {
@@ -50,3 +61,4 @@ class CatalogApiTests {
         }
     }
 }
+
