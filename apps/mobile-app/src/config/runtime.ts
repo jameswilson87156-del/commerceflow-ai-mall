@@ -10,4 +10,5 @@ const configuredRuntimeMode = String(env.VITE_MOBILE_RUNTIME_MODE || '').trim().
 export const CLIENT_DATA_MODE: ClientDataMode = configuredRuntimeMode === 'LOCAL_DEMO_FIXTURE' || configuredRuntimeMode === 'DEMO'
   ? 'LOCAL_DEMO_FIXTURE'
   : 'REAL_BACKEND'
+export const CLIENT_DATA_MODE_LABEL = CLIENT_DATA_MODE === 'LOCAL_DEMO_FIXTURE' ? '本地演示数据' : '服务端数据'
 export const REQUEST_TIMEOUT_MS = Number(env.VITE_MOBILE_REQUEST_TIMEOUT_MS || 8000) || 8000

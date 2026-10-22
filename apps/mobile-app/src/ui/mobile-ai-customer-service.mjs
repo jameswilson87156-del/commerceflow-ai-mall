@@ -1,5 +1,43 @@
 export const MAX_QUESTION_LENGTH = 500
 
+export function canSubmitQuestion({ pageState, hasSku, sending, cooldownRemaining }) {
+  return pageState === 'ready' && Boolean(hasSku) && !sending && Number(cooldownRemaining || 0) === 0
+}
+
+export function isCurrentRequestActive(pageActive, requestId, currentRequestId) {
+  return Boolean(pageActive) && requestId === currentRequestId
+}
+
+export function normalizeCustomerServiceAnswer(value) {
+  const answer = value && typeof value === 'object' ? value : null
+  const provider = answer?.provider && typeof answer.provider === 'object' ? answer.provider : null
+  if (
+    !answer
+    || typeof answer.traceId !== 'string' || !answer.traceId.trim()
+    || typeof answer.answer !== 'string' || !answer.answer.trim()
+    || typeof answer.answerStatus !== 'string' || !answer.answerStatus.trim()
+    || typeof provider?.name !== 'string' || !provider.name.trim()
+    || typeof provider?.mode !== 'string' || !provider.mode.trim()
+    || !Array.isArray(answer.evidence)
+    || !answer.businessFacts || typeof answer.businessFacts !== 'object'
+    || !Array.isArray(answer.trace)
+  ) {
+    throw new Error('AI 客服暂未返回有效回答，请重试。')
+  }
+  return answer
+}
+
+export function isCustomerServiceTimeout(error) {
+  const message = typeof error?.message === 'string' ? error.message : String(error || '')
+  return /timeout|timed\s*out|超时/i.test(message)
+}
+
+export function customerServiceFailureMessage(error, fallbackMessage) {
+  if (isCustomerServiceTimeout(error)) return '请求超时，尚未收到客服回答，请稍后重试。'
+  if (Number(error?.statusCode) >= 500) return '商品客服服务暂时不可用，请稍后重试。'
+  return fallbackMessage || '商品客服服务暂时不可用，请稍后重试。'
+}
+
 export function createClientRequestId(randomUuid) {
   const uuid = typeof randomUuid === 'function' ? randomUuid() : ''
   if (typeof uuid === 'string' && /^[A-Za-z0-9._-]{1,80}$/.test(uuid)) return `mobile-${uuid}`

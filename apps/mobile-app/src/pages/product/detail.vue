@@ -7,7 +7,7 @@ import MobileNotice from '../../components/MobileNotice.vue'
 import MobileStatusPill from '../../components/MobileStatusPill.vue'
 import MobileMoney from '../../components/MobileMoney.vue'
 import ProductImage from '../../components/ProductImage.vue'
-import { CLIENT_DATA_MODE } from '../../config/runtime'
+import { CLIENT_DATA_MODE_LABEL } from '../../config/runtime'
 import { getStockPresentation, isPurchasableSku } from '../../ui/mobile-commerce-policy.mjs'
 import type { Product, Sku } from '../../api/types'
 
@@ -122,7 +122,7 @@ onMounted(async () => {
         <view class="detail-nav__mark" aria-hidden="true">CF</view>
         <view>
           <text class="detail-nav__name">CommerceFlow</text>
-          <text class="detail-nav__context">{{ CLIENT_DATA_MODE === 'LOCAL_DEMO_FIXTURE' ? 'Local Demo Fixture' : 'Real Backend' }}</text>
+          <text class="detail-nav__context">{{ CLIENT_DATA_MODE_LABEL }}</text>
         </view>
       </view>
       <button class="detail-nav__button detail-nav__button--bag" type="button" aria-label="打开购物袋" @click="openCart">
@@ -140,7 +140,7 @@ onMounted(async () => {
     </view>
 
     <view v-else-if="state === 'error'" class="detail-state detail-state--error">
-      <text class="detail-state__eyebrow">PRODUCT UNAVAILABLE</text>
+      <text class="detail-state__eyebrow">商品详情</text>
       <text class="detail-state__title">暂时无法读取商品</text>
       <text class="detail-state__message">{{ errorMessage }}</text>
       <button class="detail-outline-button" type="button" @click="retry">重新加载</button>
@@ -237,7 +237,7 @@ onMounted(async () => {
             <view class="fact-line"><text class="fact-line__mark">✓</text><text>当前可用库存：{{ selectedSku?.availableStock ?? 0 }} 件</text></view>
             <view class="fact-line"><text class="fact-line__mark">✓</text><text>库存数据来自 Java 商品与库存接口</text></view>
             <view class="fact-line"><text class="fact-line__mark">✓</text><text>下单时会再次校验真实库存</text></view>
-            <view class="fact-line fact-line--technical"><text class="fact-line__mark">·</text><text>Product code：{{ product.productCode }} · SKU：{{ selectedSku?.skuCode || '未选择' }}</text></view>
+             <view class="fact-line fact-line--technical"><text class="fact-line__mark">·</text><text>商品编码：{{ product.productCode }} · SKU：{{ selectedSku?.skuCode || '未选择' }}</text></view>
           </view>
         </view>
 
@@ -278,10 +278,10 @@ onMounted(async () => {
   --detail-ink: #1d1d1f;
   --detail-muted: #6e6e73;
   --detail-line: #d2d2d7;
-  --detail-blue: #0071e3;
-  --detail-success: #248a3d;
-  --detail-warning: #a05a00;
-  --detail-danger: #c9343f;
+  --detail-blue: var(--brand-primary);
+  --detail-success: var(--state-success);
+  --detail-warning: var(--state-warning);
+  --detail-danger: var(--state-danger);
   background: var(--detail-canvas);
   color: var(--detail-ink);
 }

@@ -1,5 +1,6 @@
 import { request } from './runtime'
 import type { RateLimitMeta } from './types'
+import { normalizeCustomerServiceAnswer } from '../ui/mobile-ai-customer-service.mjs'
 
 export interface CustomerServiceAskRequest {
   productId: number
@@ -69,9 +70,9 @@ export interface AiRequestResult {
 }
 
 export async function askCustomerService(payload: CustomerServiceAskRequest): Promise<AiRequestResult> {
-  const response = await request<CustomerServiceAnswer>('/v1/me/ai/customer-service/ask', { method: 'POST', data: payload })
+  const response = await request<unknown>('/v1/me/ai/customer-service/ask', { method: 'POST', data: payload })
   return {
-    answer: response.data,
+    answer: normalizeCustomerServiceAnswer(response.data) as CustomerServiceAnswer,
     rateLimit: {
       mode: response.headers['x-ratelimit-mode'],
       limit: numberHeader(response.headers['x-ratelimit-limit']),

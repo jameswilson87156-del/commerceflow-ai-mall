@@ -1,5 +1,42 @@
-/* Everyday Edit: original editorial direction, existing product imagery and API contracts. */
-html:root { --cf-page:#faf9f6; --cf-soft:#f0efea; --cf-line:#dcded5; --cf-ink:#292d24; --cf-muted:#686d62; --cf-blue:#354c35; --cf-blue-soft:#edf1e9; --cf-shadow:none; --cf-shadow-sm:none; }
+/* Storefront semantic aliases retain the warm catalog palette and mobile-first layout. */
+html:root {
+  --brand-primary:#354c35;
+  --brand-soft:#edf1e9;
+  --text-primary:#292d24;
+  --text-secondary:#686d62;
+  --border-subtle:#dcded5;
+  --surface-page:#faf9f6;
+  --surface-panel:#fff;
+  --state-success:#286b4f;
+  --state-success-soft:#eaf2ee;
+  --state-warning:#805413;
+  --state-warning-soft:#fff7e7;
+  --state-danger:#a32c39;
+  --state-danger-soft:#fff1f1;
+  --state-info:#315e71;
+  --state-info-soft:#eef4f6;
+  --focus-ring:#354c35;
+  --focus-ring-soft:rgba(53, 76, 53, .2);
+  --font-body:-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+  --space-unit:4px;
+  --radius-control:6px;
+  --radius-panel:8px;
+  --cf-page:var(--surface-page);
+  --cf-soft:#f0efea;
+  --cf-line:var(--border-subtle);
+  --cf-ink:var(--text-primary);
+  --cf-muted:var(--text-secondary);
+  --cf-blue:var(--brand-primary);
+  --cf-blue-soft:var(--brand-soft);
+  --cf-green:var(--state-success);
+  --cf-green-soft:var(--state-success-soft);
+  --cf-orange:var(--state-warning);
+  --cf-orange-soft:var(--state-warning-soft);
+  --cf-red:var(--state-danger);
+  --cf-red-soft:var(--state-danger-soft);
+  --cf-shadow:none;
+  --cf-shadow-sm:none;
+}
 .mobile-page:not(.catalog-page):not(.detail-page) { max-width:1000px; margin:auto; background:#faf9f6; color:#292d24; }
 .mobile-page .header-title { font-size:21px; font-weight:550; }
 .mobile-page .header-eyebrow { color:#686d62; font-weight:500; letter-spacing:.08em; }
@@ -8,8 +45,8 @@ html:root { --cf-page:#faf9f6; --cf-soft:#f0efea; --cf-line:#dcded5; --cf-ink:#2
 .mobile-page .order-list-item.panel { border:1px solid #dcded5; border-radius:5px; }
 .mobile-page .mobile-notice { border-radius:5px; box-shadow:none; }
 .mobile-page.catalog-page, .mobile-page.detail-page { max-width:1200px; margin:auto; background:#faf9f6; color:#292d24; padding-right:28px; padding-left:28px; }
-.mobile-page .primary-button { background:#354c35; color:#fff; box-shadow:none; border-radius:3px; }
-.mobile-page .secondary-button { background:#f7f8f4; color:#354c35; border:1px solid #b7c1b1; box-shadow:none; border-radius:3px; }
+.mobile-page .primary-button { background:var(--brand-primary); color:#fff; box-shadow:none; border-radius:var(--radius-control); }
+.mobile-page .secondary-button { background:#f7f8f4; color:var(--brand-primary); border:1px solid #b7c1b1; box-shadow:none; border-radius:var(--radius-control); }
 .mobile-page .panel { box-shadow:none; border-radius:6px; }
 .catalog-page .storefront-topbar { padding:14px 0 20px; margin-bottom:30px; border-bottom:1px solid #dcded5; }
 .catalog-page .storefront-wordmark__mark { border-radius:0; background:transparent; border:1px solid #374331; color:#374331; width:34px; height:34px; font:15px Georgia,serif; }
@@ -98,7 +135,7 @@ html:root { --cf-page:#faf9f6; --cf-soft:#f0efea; --cf-line:#dcded5; --cf-ink:#2
 .detail-page .detail-actions { max-width:1144px; margin:auto; width:100%; }
 .detail-page .detail-primary-action, .detail-page .detail-secondary-action { min-height:48px; border-radius:3px; font-size:14px; font-weight:500; }
 .detail-page .detail-secondary-action { background:transparent; color:#354c35; border:1px solid #354c35; }
-.mobile-page button:focus-visible, .mobile-page input:focus-visible { outline:2px solid #354c35; outline-offset:3px; }
+.mobile-page button:focus-visible, .mobile-page input:focus-visible, .mobile-page textarea:focus-visible, .mobile-page select:focus-visible { outline:2px solid var(--focus-ring); outline-offset:3px; }
 .mobile-page .mobile-bottom-nav { background:#faf9f6f5; box-shadow:none; border-color:#dcded5; }
 .mobile-page .mobile-bottom-nav__item { color:#63705d; font-weight:500; }
 .mobile-page .mobile-bottom-nav__item.active { color:#354c35; }

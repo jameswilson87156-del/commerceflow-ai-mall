@@ -1,0 +1,433 @@
+{
+  "generatedAt": "2026-10-21T22:16:05.943699+00:00",
+  "datasetVersion": "customer-service-composite-intents-v1",
+  "dataSource": "Synthetic, deterministic, non-customer data. Focuses on a price plus inventory request in one utterance.",
+  "provider": {
+    "name": "commerceflow-mock",
+    "mode": "MOCK",
+    "model": null
+  },
+  "datasetSize": 12,
+  "requestedCaseCount": 12,
+  "evaluatedCaseCount": 12,
+  "caseOffset": 0,
+  "fullDataset": true,
+  "selectedCaseIds": [
+    "CIM01",
+    "CIM02",
+    "CIM03",
+    "CIM04",
+    "CIM05",
+    "CIM06",
+    "CIM07",
+    "CIM08",
+    "CIM09",
+    "CIM10",
+    "CIM11",
+    "CIM12"
+  ],
+  "externalRequestAttempts": 0,
+  "maxExternalRequestAttempts": 10,
+  "metrics": {
+    "scenarioAccuracy": 1.0,
+    "responseSuccessRate": 1.0,
+    "statusAccuracy": 1.0,
+    "answerFactAccuracy": 1.0,
+    "intentClassification": {
+      "accuracy": 1.0,
+      "macroAveragedIntents": [
+        "STOCK_OR_PURCHASE"
+      ],
+      "macroPrecision": 1.0,
+      "macroRecall": 1.0,
+      "macroF1": 1.0,
+      "perIntent": {
+        "PRICE": {
+          "support": 0,
+          "correct": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "SPECIFICATION": {
+          "support": 0,
+          "correct": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "SKU_CODE": {
+          "support": 0,
+          "correct": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        },
+        "STOCK_OR_PURCHASE": {
+          "support": 12,
+          "correct": 12,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "UNSUPPORTED": {
+          "support": 0,
+          "correct": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0
+        }
+      },
+      "confusionMatrix": {
+        "PRICE": {
+          "PRICE": 0,
+          "SPECIFICATION": 0,
+          "SKU_CODE": 0,
+          "STOCK_OR_PURCHASE": 0,
+          "UNSUPPORTED": 0,
+          "UNCLASSIFIED": 0
+        },
+        "SPECIFICATION": {
+          "PRICE": 0,
+          "SPECIFICATION": 0,
+          "SKU_CODE": 0,
+          "STOCK_OR_PURCHASE": 0,
+          "UNSUPPORTED": 0,
+          "UNCLASSIFIED": 0
+        },
+        "SKU_CODE": {
+          "PRICE": 0,
+          "SPECIFICATION": 0,
+          "SKU_CODE": 0,
+          "STOCK_OR_PURCHASE": 0,
+          "UNSUPPORTED": 0,
+          "UNCLASSIFIED": 0
+        },
+        "STOCK_OR_PURCHASE": {
+          "PRICE": 0,
+          "SPECIFICATION": 0,
+          "SKU_CODE": 0,
+          "STOCK_OR_PURCHASE": 12,
+          "UNSUPPORTED": 0,
+          "UNCLASSIFIED": 0
+        },
+        "UNSUPPORTED": {
+          "PRICE": 0,
+          "SPECIFICATION": 0,
+          "SKU_CODE": 0,
+          "STOCK_OR_PURCHASE": 0,
+          "UNSUPPORTED": 0,
+          "UNCLASSIFIED": 0
+        }
+      }
+    },
+    "perIntent": {
+      "STOCK_OR_PURCHASE": {
+        "total": 12,
+        "correct": 12,
+        "scenarioAccuracy": 1.0
+      }
+    },
+    "providerFailureCodes": {},
+    "redTeam": null
+  },
+  "tokenUsageStatus": "NOT_CAPTURED",
+  "caseResults": [
+    {
+      "id": "CIM01",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "¥129.00",
+        "27 件"
+      ],
+      "matchedExpectedFacts": {
+        "¥129.00": true,
+        "27 件": true
+      },
+      "latencyMs": 0.374,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "¥129.00；27 件",
+      "finalAnswer": "Gray L 码当前库存为 27 件，可以购买，售价为 ¥129.00。"
+    },
+    {
+      "id": "CIM02",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "¥129.00",
+        "库存为 0"
+      ],
+      "matchedExpectedFacts": {
+        "¥129.00": true,
+        "库存为 0": true
+      },
+      "latencyMs": 0.498,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "¥129.00；库存为 0",
+      "finalAnswer": "Synthetic T-shirt Gray L 的售价为 ¥129.00。 该 SKU 当前库存为 0，暂时无法购买。"
+    },
+    {
+      "id": "CIM03",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "¥129.00",
+        "27 件"
+      ],
+      "matchedExpectedFacts": {
+        "¥129.00": true,
+        "27 件": true
+      },
+      "latencyMs": 0.079,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "¥129.00；27 件",
+      "finalAnswer": "Gray L 码当前库存为 27 件，可以购买，售价为 ¥129.00。"
+    },
+    {
+      "id": "CIM04",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "¥129.00",
+        "不是上架销售状态"
+      ],
+      "matchedExpectedFacts": {
+        "¥129.00": true,
+        "不是上架销售状态": true
+      },
+      "latencyMs": 0.078,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "¥129.00；不是上架销售状态",
+      "finalAnswer": "Synthetic T-shirt Gray L 的售价为 ¥129.00。 该商品当前不是上架销售状态，暂时无法购买。"
+    },
+    {
+      "id": "CIM05",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "¥129.00",
+        "库存为 0"
+      ],
+      "matchedExpectedFacts": {
+        "¥129.00": true,
+        "库存为 0": true
+      },
+      "latencyMs": 0.075,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "¥129.00；库存为 0",
+      "finalAnswer": "Synthetic T-shirt Gray L 的售价为 ¥129.00。 该 SKU 当前库存为 0，暂时无法购买。"
+    },
+    {
+      "id": "CIM06",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "¥129.00",
+        "27 件"
+      ],
+      "matchedExpectedFacts": {
+        "¥129.00": true,
+        "27 件": true
+      },
+      "latencyMs": 0.058,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "¥129.00；27 件",
+      "finalAnswer": "Gray L 码当前库存为 27 件，可以购买，售价为 ¥129.00。"
+    },
+    {
+      "id": "CIM07",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "¥129.00",
+        "27 件"
+      ],
+      "matchedExpectedFacts": {
+        "¥129.00": true,
+        "27 件": true
+      },
+      "latencyMs": 0.071,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "¥129.00；27 件",
+      "finalAnswer": "Gray L 码当前库存为 27 件，可以购买，售价为 ¥129.00。"
+    },
+    {
+      "id": "CIM08",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "¥129.00",
+        "库存为 0"
+      ],
+      "matchedExpectedFacts": {
+        "¥129.00": true,
+        "库存为 0": true
+      },
+      "latencyMs": 0.11,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "¥129.00；库存为 0",
+      "finalAnswer": "Synthetic T-shirt Gray L 的售价为 ¥129.00。 该 SKU 当前库存为 0，暂时无法购买。"
+    },
+    {
+      "id": "CIM09",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "¥129.00",
+        "不是上架销售状态"
+      ],
+      "matchedExpectedFacts": {
+        "¥129.00": true,
+        "不是上架销售状态": true
+      },
+      "latencyMs": 0.09,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "¥129.00；不是上架销售状态",
+      "finalAnswer": "Synthetic T-shirt Gray L 的售价为 ¥129.00。 该商品当前不是上架销售状态，暂时无法购买。"
+    },
+    {
+      "id": "CIM10",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "¥129.00",
+        "27 件"
+      ],
+      "matchedExpectedFacts": {
+        "¥129.00": true,
+        "27 件": true
+      },
+      "latencyMs": 0.085,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "¥129.00；27 件",
+      "finalAnswer": "Gray L 码当前库存为 27 件，可以购买，售价为 ¥129.00。"
+    },
+    {
+      "id": "CIM11",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "¥129.00",
+        "库存为 0"
+      ],
+      "matchedExpectedFacts": {
+        "¥129.00": true,
+        "库存为 0": true
+      },
+      "latencyMs": 0.103,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "¥129.00；库存为 0",
+      "finalAnswer": "Synthetic T-shirt Gray L 的售价为 ¥129.00。 该 SKU 当前库存为 0，暂时无法购买。"
+    },
+    {
+      "id": "CIM12",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "¥129.00",
+        "不是上架销售状态"
+      ],
+      "matchedExpectedFacts": {
+        "¥129.00": true,
+        "不是上架销售状态": true
+      },
+      "latencyMs": 0.104,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "¥129.00；不是上架销售状态",
+      "finalAnswer": "Synthetic T-shirt Gray L 的售价为 ¥129.00。 该商品当前不是上架销售状态，暂时无法购买。"
+    }
+  ],
+  "limitations": [
+    "Synthetic showcase cases only; results do not represent customer or production traffic.",
+    "A Mock run checks local intent and fact-rendering behavior, not language-model quality.",
+    "External model runs validate these exact cases only and are not a production quality or safety guarantee.",
+    "Only structured intent, response model, request ID, and token counts are retained; raw provider response is not stored.",
+    "The user-facing finalAnswer is rendered from Java-owned facts after model intent validation; it is not free-form model prose.",
+    "Red-team contract rates cover only listed synthetic attack cases and forbidden markers; they are not a general jailbreak safety score."
+  ]
+}

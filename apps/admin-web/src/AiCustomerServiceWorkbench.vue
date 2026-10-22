@@ -308,11 +308,11 @@ onBeforeUnmount(clearCooldown)
   <section class="ai-workbench-page" aria-labelledby="ai-workbench-title">
     <header class="ai-workbench-heading">
       <div>
-        <p class="eyebrow">AI 商品客服 / Operator 真实链路</p>
+        <p class="eyebrow">AI 商品客服 · 管理端工作区</p>
         <h1 id="ai-workbench-title">AI 商品客服</h1>
-        <p class="subtitle">基于真实商品、SKU、价格和库存事实生成可追溯回答；管理端请求需要后端 Operator 身份</p>
+        <p class="subtitle">基于商品、SKU、价格和库存事实生成可追溯回答；管理端请求由 Java 后端校验权限。</p>
       </div>
-      <p class="ai-heading-boundary">仅展示 Operator API 返回的真实结果；未授权或后端失败时不回填 Mock 数据</p>
+      <p class="ai-heading-boundary">只展示后端返回的回答；未授权或请求失败时不会补造结果。</p>
     </header>
 
     <div v-if="catalogState === 'loading'" class="state-panel" data-testid="ai-catalog-loading" role="status" aria-live="polite">
@@ -380,7 +380,7 @@ onBeforeUnmount(clearCooldown)
               <strong>请求过于频繁</strong>
               <span>本窗口限额 {{ rateLimit.limit }} 次</span>
               <span>剩余 {{ rateLimit.remaining }} 次</span>
-              <span data-testid="ai-inline-countdown">Retry-After {{ cooldownSeconds }} 秒</span>
+              <span data-testid="ai-inline-countdown">请等待 {{ cooldownSeconds }} 秒</span>
               <span v-if="formatResetTime(rateLimit.resetEpochSeconds)">重置时间 {{ formatResetTime(rateLimit.resetEpochSeconds) }}</span>
             </template>
             <template v-else-if="rateLimit.mode === 'redis'">
@@ -391,7 +391,7 @@ onBeforeUnmount(clearCooldown)
             </template>
             <template v-else-if="rateLimit.mode === 'degraded'">
               <strong>限流保护暂时降级</strong>
-              <span>本次继续按本地 Showcase 链路处理，未展示未经证实的额度。</span>
+              <span>当前请求继续按演示链路处理，不展示未经证实的剩余额度。</span>
             </template>
             <template v-else>
               <strong>限流保护已关闭</strong>
@@ -462,7 +462,7 @@ onBeforeUnmount(clearCooldown)
           </template>
         </section>
         <section class="ai-provider-card" data-testid="ai-provider-card">
-          <p class="eyebrow">Provider 状态</p>
+          <p class="eyebrow">技术运行状态</p>
           <strong>{{ latestResponse?.provider.name ?? '等待首次请求' }}</strong>
           <p>{{ providerDescription(latestResponse) }}</p>
           <dl v-if="latestResponse"><div><dt>模式</dt><dd>{{ latestResponse.provider.mode }}</dd></div><div><dt>外部网络</dt><dd>未使用</dd></div><div><dt>真实 API Key</dt><dd>未配置</dd></div><div><dt>Fallback</dt><dd>{{ latestResponse.fallbackUsed ? '是' : '否' }}</dd></div><div><dt>延迟</dt><dd>{{ latestResponse.latencyMs }} ms</dd></div></dl>

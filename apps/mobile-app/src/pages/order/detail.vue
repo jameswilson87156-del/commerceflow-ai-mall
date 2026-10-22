@@ -7,7 +7,8 @@ import ProductImage from '../../components/ProductImage.vue'
 import { getOrder } from '../../api/orders'
 import { apiErrorMessage, resolveImageUrl } from '../../api/runtime'
 import { addCents } from '../../api/runtime-helpers.mjs'
-import { CLIENT_DATA_MODE } from '../../config/runtime'
+import { CLIENT_DATA_MODE_LABEL } from '../../config/runtime'
+import { getOrderStatusPresentation } from '../../ui/mobile-commerce-policy.mjs'
 import type { OrderSummary, OrderItem } from '../../api/types'
 
 const order = ref<OrderSummary | null>(null)
@@ -15,6 +16,7 @@ const state = ref<'loading' | 'ready' | 'error'>('loading')
 const errorMessage = ref('')
 const orderNo = ref('')
 const itemCount = computed(() => order.value?.items.reduce((sum, item) => sum + item.quantity, 0) || 0)
+const statusPresentation = computed(() => getOrderStatusPresentation(order.value?.status ?? ''))
 async function load(no: string) { orderNo.value = no; state.value = 'loading'; errorMessage.value = ''; try { order.value = (await getOrder(no)).data; state.value = 'ready' } catch (error) { state.value = 'error'; errorMessage.value = apiErrorMessage(error, '订单详情加载失败，请重试。') } }
 function imageUrl(item: OrderItem) { return resolveImageUrl(item.imagePathSnapshot) }
 function lineTotal(item: OrderItem) { return addCents('0', item.unitPrice, item.quantity) }
@@ -24,11 +26,11 @@ onMounted(async () => { const { queryParam } = await import('../../platform/h5')
 
 <template>
   <view class="mobile-page order-detail-page">
-    <MobileHeader eyebrow="COMMERCEFLOW / ORDER" title="订单详情" :subtitle="`${CLIENT_DATA_MODE === 'LOCAL_DEMO_FIXTURE' ? 'Local Demo Fixture' : 'Real Backend'} · 读取创建时保存的商品快照`" :back="true" @back="goBack" />
+    <MobileHeader eyebrow="商城 / 订单详情" title="订单详情" :subtitle="`${CLIENT_DATA_MODE_LABEL} · 商品信息按下单时记录展示`" :back="true" @back="goBack" />
     <view v-if="state === 'loading'" class="panel empty-box">正在读取订单详情...</view>
     <view v-else-if="state === 'error'" class="error-box"><text>{{ errorMessage }}</text><button class="secondary-button retry-button" type="button" @click="load(orderNo)">重新加载</button></view>
     <template v-else-if="order">
-      <view class="order-header panel"><view class="order-header-main"><text class="eyebrow">ORDER DETAIL</text><text class="order-no">{{ order.orderNo }}</text></view><MobileStatusPill label="CREATED / 已创建" tone="success" /><text class="order-created">创建时间 · {{ order.createdAt }}</text></view>
+      <view class="order-header panel"><view class="order-header-main"><text class="eyebrow">订单信息</text><text class="order-no">{{ order.orderNo }}</text></view><MobileStatusPill :label="statusPresentation.label" :tone="statusPresentation.tone" /><text class="order-created">创建时间 · {{ order.createdAt }}</text></view>
       <view class="order-stat-strip"><view><text>商品件数</text><strong>{{ itemCount }}</strong></view><view><text>币种</text><strong>{{ order.currency }}</strong></view><view><text>服务端快照</text><strong>已保存</strong></view></view>
       <view class="section-title section-title-stack"><text>订单商品快照</text><text class="muted">历史下单时保存</text></view>
       <view v-for="(item,index) in order.items" :key="`${item.skuCodeSnapshot}-${index}`" class="order-item panel"><ProductImage class="order-image" :src="imageUrl(item)" :alt="item.productNameSnapshot" placeholder="暂无历史图片" /><view class="order-copy"><text class="item-name">{{ item.productNameSnapshot }}</text><text class="sku-code">{{ item.skuCodeSnapshot }}</text><text class="item-spec">{{ item.colorSnapshot }} / {{ item.sizeSnapshot }}</text><view class="item-values"><text>数量 {{ item.quantity }}</text><MobileMoney :amount="item.unitPrice" :currency="order.currency" compact /><text class="item-subtotal">小计 ¥{{ lineTotal(item) }}</text></view></view></view>

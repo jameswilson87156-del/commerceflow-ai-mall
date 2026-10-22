@@ -46,7 +46,7 @@ The Java adapter accepts the following OpenAI-compatible configurations:
 | Provider | Base URL | Path | Example model |
 | --- | --- | --- | --- |
 | OpenAI | `https://api.openai.com/v1` | `/chat/completions` | provider account model |
-| DeepSeek | `https://api.deepseek.com` | `/v1/chat/completions` | `deepseek-chat` |
+| DeepSeek | `https://api.deepseek.com` | `/v1/chat/completions` | `deepseek-flash` |
 | Compatible gateway | gateway base | gateway-specific path | gateway model |
 
 Set:
@@ -62,7 +62,7 @@ COMMERCEFLOW_AI_FALLBACK_ENABLED=false
 
 The application sends the question plus Java-owned product/SKU/inventory facts, validates the provider response, stores trace/evidence data, and preserves the customer-service boundary. With fallback disabled, an upstream error returns `PROVIDER_ERROR` and is recorded in the trace; it is not relabeled as a successful local answer. Local fallback remains available for Showcase by setting the explicit local mode and enabling it there.
 
-The provider adapter has deterministic in-process HTTP tests and a bounded local real-provider verification. On 2026-09-05, the CommerceFlow synthetic smoke called DeepSeek through the Java OpenAI-compatible adapter with `fallbackUsed=false`, returned `ANSWERED`, preserved 7 Java-owned Evidence entries and 6 Trace steps, and released its temporary backend port. This proves one local synthetic success path only; it does not prove public availability, quota, cost, concurrency, model quality, or production SLO.
+The provider adapter has deterministic in-process HTTP tests and a bounded local real-provider verification. On 2026-09-05, the CommerceFlow synthetic smoke called DeepSeek through the Java OpenAI-compatible adapter with `fallbackUsed=false`, returned `ANSWERED`, preserved 7 Java-owned Evidence entries and 6 Trace steps, and released its temporary backend port. This proves one local synthetic success path only; it does not prove public availability, quota, cost, concurrency, model quality, or production SLO. That historical run used `deepseek-chat`; use `deepseek-flash` for a current run.
 
 ## Staging runbook
 

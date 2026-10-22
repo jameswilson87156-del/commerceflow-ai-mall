@@ -51,7 +51,15 @@ export function formatOrderMoney(amount: number, currency: string): string {
 }
 
 export function orderStatusLabel(status: string): string {
-  return status === 'CREATED' ? '已创建' : status
+  if (status === 'CREATED') return '已创建'
+  if (status === 'CANCELLED_TIMEOUT') return '超时取消'
+  return '其他状态'
+}
+
+export function orderStatusTone(status: string): 'green' | 'amber' | 'neutral' {
+  if (status === 'CREATED') return 'green'
+  if (status === 'CANCELLED_TIMEOUT') return 'amber'
+  return 'neutral'
 }
 
 export function requestResultLabel(result: string): string {

@@ -1,0 +1,690 @@
+{
+  "generatedAt": "2026-10-22T01:57:47.559934+00:00",
+  "datasetVersion": "customer-service-synthetic-v2",
+  "dataSource": "synthetic showcase facts and compound paraphrases checked against the local answer contract; no customer or production data",
+  "provider": {
+    "name": "commerceflow-mock",
+    "mode": "MOCK",
+    "model": null
+  },
+  "datasetSize": 22,
+  "requestedCaseCount": 22,
+  "evaluatedCaseCount": 22,
+  "caseOffset": 0,
+  "fullDataset": true,
+  "selectedCaseIds": [
+    "CS01",
+    "CS02",
+    "CS03",
+    "CS04",
+    "CS05",
+    "CS06",
+    "CS07",
+    "CS08",
+    "CS09",
+    "CS10",
+    "CS11",
+    "CS12",
+    "CS13",
+    "CS14",
+    "CS15",
+    "CS16",
+    "CS17",
+    "CS18",
+    "CS19",
+    "CS20",
+    "CS21",
+    "CS22"
+  ],
+  "externalRequestAttempts": 0,
+  "maxExternalRequestAttempts": 10,
+  "metrics": {
+    "scenarioAccuracy": 1.0,
+    "responseSuccessRate": 1.0,
+    "statusAccuracy": 1.0,
+    "answerFactAccuracy": 1.0,
+    "intentClassification": {
+      "accuracy": 1.0,
+      "macroAveragedIntents": [
+        "PRICE",
+        "SPECIFICATION",
+        "SKU_CODE",
+        "STOCK_OR_PURCHASE",
+        "UNSUPPORTED"
+      ],
+      "macroPrecision": 1.0,
+      "macroRecall": 1.0,
+      "macroF1": 1.0,
+      "perIntent": {
+        "PRICE": {
+          "support": 4,
+          "correct": 4,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "SPECIFICATION": {
+          "support": 4,
+          "correct": 4,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "SKU_CODE": {
+          "support": 4,
+          "correct": 4,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "STOCK_OR_PURCHASE": {
+          "support": 6,
+          "correct": 6,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "UNSUPPORTED": {
+          "support": 4,
+          "correct": 4,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "confusionMatrix": {
+        "PRICE": {
+          "PRICE": 4,
+          "SPECIFICATION": 0,
+          "SKU_CODE": 0,
+          "STOCK_OR_PURCHASE": 0,
+          "UNSUPPORTED": 0,
+          "UNCLASSIFIED": 0
+        },
+        "SPECIFICATION": {
+          "PRICE": 0,
+          "SPECIFICATION": 4,
+          "SKU_CODE": 0,
+          "STOCK_OR_PURCHASE": 0,
+          "UNSUPPORTED": 0,
+          "UNCLASSIFIED": 0
+        },
+        "SKU_CODE": {
+          "PRICE": 0,
+          "SPECIFICATION": 0,
+          "SKU_CODE": 4,
+          "STOCK_OR_PURCHASE": 0,
+          "UNSUPPORTED": 0,
+          "UNCLASSIFIED": 0
+        },
+        "STOCK_OR_PURCHASE": {
+          "PRICE": 0,
+          "SPECIFICATION": 0,
+          "SKU_CODE": 0,
+          "STOCK_OR_PURCHASE": 6,
+          "UNSUPPORTED": 0,
+          "UNCLASSIFIED": 0
+        },
+        "UNSUPPORTED": {
+          "PRICE": 0,
+          "SPECIFICATION": 0,
+          "SKU_CODE": 0,
+          "STOCK_OR_PURCHASE": 0,
+          "UNSUPPORTED": 4,
+          "UNCLASSIFIED": 0
+        }
+      }
+    },
+    "perIntent": {
+      "PRICE": {
+        "total": 4,
+        "correct": 4,
+        "scenarioAccuracy": 1.0
+      },
+      "SKU_CODE": {
+        "total": 4,
+        "correct": 4,
+        "scenarioAccuracy": 1.0
+      },
+      "SPECIFICATION": {
+        "total": 4,
+        "correct": 4,
+        "scenarioAccuracy": 1.0
+      },
+      "STOCK_OR_PURCHASE": {
+        "total": 6,
+        "correct": 6,
+        "scenarioAccuracy": 1.0
+      },
+      "UNSUPPORTED": {
+        "total": 4,
+        "correct": 4,
+        "scenarioAccuracy": 1.0
+      }
+    },
+    "providerFailureCodes": {},
+    "redTeam": null
+  },
+  "tokenUsageStatus": "NOT_CAPTURED",
+  "caseResults": [
+    {
+      "id": "CS01",
+      "expectedIntent": "PRICE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "¥129.00"
+      ],
+      "matchedExpectedFacts": {
+        "¥129.00": true
+      },
+      "latencyMs": 0.344,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "PRICE",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "¥129.00",
+      "finalAnswer": "Synthetic T-shirt Gray L 的售价为 ¥129.00。"
+    },
+    {
+      "id": "CS02",
+      "expectedIntent": "PRICE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "¥129.00"
+      ],
+      "matchedExpectedFacts": {
+        "¥129.00": true
+      },
+      "latencyMs": 0.089,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "PRICE",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "¥129.00",
+      "finalAnswer": "Synthetic T-shirt Gray L 的售价为 ¥129.00。"
+    },
+    {
+      "id": "CS03",
+      "expectedIntent": "PRICE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "¥129.00"
+      ],
+      "matchedExpectedFacts": {
+        "¥129.00": true
+      },
+      "latencyMs": 0.065,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "PRICE",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "¥129.00",
+      "finalAnswer": "Synthetic T-shirt Gray L 的售价为 ¥129.00。"
+    },
+    {
+      "id": "CS04",
+      "expectedIntent": "PRICE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "¥129.00"
+      ],
+      "matchedExpectedFacts": {
+        "¥129.00": true
+      },
+      "latencyMs": 0.065,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "PRICE",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "¥129.00",
+      "finalAnswer": "Synthetic T-shirt Gray L 的售价为 ¥129.00。"
+    },
+    {
+      "id": "CS05",
+      "expectedIntent": "SPECIFICATION",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "Gray L"
+      ],
+      "matchedExpectedFacts": {
+        "Gray L": true
+      },
+      "latencyMs": 0.054,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "SPECIFICATION",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "Gray L",
+      "finalAnswer": "当前 SKU 为 Gray L，SKU 编码为 T-SHIRT-GRAY-L。"
+    },
+    {
+      "id": "CS06",
+      "expectedIntent": "SPECIFICATION",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "Gray L"
+      ],
+      "matchedExpectedFacts": {
+        "Gray L": true
+      },
+      "latencyMs": 0.045,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "SPECIFICATION",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "Gray L",
+      "finalAnswer": "当前 SKU 为 Gray L，SKU 编码为 T-SHIRT-GRAY-L。"
+    },
+    {
+      "id": "CS07",
+      "expectedIntent": "SPECIFICATION",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "Gray L"
+      ],
+      "matchedExpectedFacts": {
+        "Gray L": true
+      },
+      "latencyMs": 0.052,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "SPECIFICATION",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "Gray L",
+      "finalAnswer": "当前 SKU 为 Gray L，SKU 编码为 T-SHIRT-GRAY-L。"
+    },
+    {
+      "id": "CS08",
+      "expectedIntent": "SPECIFICATION",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "Gray L"
+      ],
+      "matchedExpectedFacts": {
+        "Gray L": true
+      },
+      "latencyMs": 0.067,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "SPECIFICATION",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "Gray L",
+      "finalAnswer": "当前 SKU 为 Gray L，SKU 编码为 T-SHIRT-GRAY-L。"
+    },
+    {
+      "id": "CS09",
+      "expectedIntent": "SKU_CODE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "T-SHIRT-GRAY-L"
+      ],
+      "matchedExpectedFacts": {
+        "T-SHIRT-GRAY-L": true
+      },
+      "latencyMs": 0.051,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "SKU_CODE",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "T-SHIRT-GRAY-L",
+      "finalAnswer": "该 SKU 编码为 T-SHIRT-GRAY-L。"
+    },
+    {
+      "id": "CS10",
+      "expectedIntent": "SKU_CODE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "T-SHIRT-GRAY-L"
+      ],
+      "matchedExpectedFacts": {
+        "T-SHIRT-GRAY-L": true
+      },
+      "latencyMs": 0.047,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "SKU_CODE",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "T-SHIRT-GRAY-L",
+      "finalAnswer": "该 SKU 编码为 T-SHIRT-GRAY-L。"
+    },
+    {
+      "id": "CS11",
+      "expectedIntent": "SKU_CODE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "T-SHIRT-GRAY-L"
+      ],
+      "matchedExpectedFacts": {
+        "T-SHIRT-GRAY-L": true
+      },
+      "latencyMs": 0.059,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "SKU_CODE",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "T-SHIRT-GRAY-L",
+      "finalAnswer": "该 SKU 编码为 T-SHIRT-GRAY-L。"
+    },
+    {
+      "id": "CS12",
+      "expectedIntent": "SKU_CODE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "T-SHIRT-GRAY-L"
+      ],
+      "matchedExpectedFacts": {
+        "T-SHIRT-GRAY-L": true
+      },
+      "latencyMs": 0.046,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "SKU_CODE",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "T-SHIRT-GRAY-L",
+      "finalAnswer": "该 SKU 编码为 T-SHIRT-GRAY-L。"
+    },
+    {
+      "id": "CS13",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "27 件"
+      ],
+      "matchedExpectedFacts": {
+        "27 件": true
+      },
+      "latencyMs": 0.046,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "27 件",
+      "finalAnswer": "Gray L 码当前库存为 27 件，可以购买，售价为 ¥129.00。"
+    },
+    {
+      "id": "CS14",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "27 件"
+      ],
+      "matchedExpectedFacts": {
+        "27 件": true
+      },
+      "latencyMs": 0.04,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "27 件",
+      "finalAnswer": "Gray L 码当前库存为 27 件，可以购买，售价为 ¥129.00。"
+    },
+    {
+      "id": "CS15",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "27 件"
+      ],
+      "matchedExpectedFacts": {
+        "27 件": true
+      },
+      "latencyMs": 0.04,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "27 件",
+      "finalAnswer": "Gray L 码当前库存为 27 件，可以购买，售价为 ¥129.00。"
+    },
+    {
+      "id": "CS16",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "无法购买"
+      ],
+      "matchedExpectedFacts": {
+        "无法购买": true
+      },
+      "latencyMs": 0.584,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "无法购买",
+      "finalAnswer": "该商品当前不是上架销售状态，暂时无法购买。"
+    },
+    {
+      "id": "CS17",
+      "expectedIntent": "UNSUPPORTED",
+      "expectedStatus": "UNSUPPORTED_QUESTION",
+      "expectedFacts": [
+        "暂不支持"
+      ],
+      "matchedExpectedFacts": {
+        "暂不支持": true
+      },
+      "latencyMs": 0.104,
+      "actualStatus": "UNSUPPORTED_QUESTION",
+      "providerMode": "MOCK",
+      "actualIntent": "UNSUPPORTED",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "暂不支持",
+      "finalAnswer": "当前商品客服仅支持价格、颜色尺码、库存、是否可购买和 SKU 编码问题；暂不支持该问题。"
+    },
+    {
+      "id": "CS18",
+      "expectedIntent": "UNSUPPORTED",
+      "expectedStatus": "UNSUPPORTED_QUESTION",
+      "expectedFacts": [
+        "暂不支持"
+      ],
+      "matchedExpectedFacts": {
+        "暂不支持": true
+      },
+      "latencyMs": 0.042,
+      "actualStatus": "UNSUPPORTED_QUESTION",
+      "providerMode": "MOCK",
+      "actualIntent": "UNSUPPORTED",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "暂不支持",
+      "finalAnswer": "当前商品客服仅支持价格、颜色尺码、库存、是否可购买和 SKU 编码问题；暂不支持该问题。"
+    },
+    {
+      "id": "CS19",
+      "expectedIntent": "UNSUPPORTED",
+      "expectedStatus": "UNSUPPORTED_QUESTION",
+      "expectedFacts": [
+        "暂不支持"
+      ],
+      "matchedExpectedFacts": {
+        "暂不支持": true
+      },
+      "latencyMs": 0.037,
+      "actualStatus": "UNSUPPORTED_QUESTION",
+      "providerMode": "MOCK",
+      "actualIntent": "UNSUPPORTED",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "暂不支持",
+      "finalAnswer": "当前商品客服仅支持价格、颜色尺码、库存、是否可购买和 SKU 编码问题；暂不支持该问题。"
+    },
+    {
+      "id": "CS20",
+      "expectedIntent": "UNSUPPORTED",
+      "expectedStatus": "UNSUPPORTED_QUESTION",
+      "expectedFacts": [
+        "暂不支持"
+      ],
+      "matchedExpectedFacts": {
+        "暂不支持": true
+      },
+      "latencyMs": 0.046,
+      "actualStatus": "UNSUPPORTED_QUESTION",
+      "providerMode": "MOCK",
+      "actualIntent": "UNSUPPORTED",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "暂不支持",
+      "finalAnswer": "当前商品客服仅支持价格、颜色尺码、库存、是否可购买和 SKU 编码问题；暂不支持该问题。"
+    },
+    {
+      "id": "CS21",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "27 件",
+        "¥129.00"
+      ],
+      "matchedExpectedFacts": {
+        "27 件": true,
+        "¥129.00": true
+      },
+      "latencyMs": 0.061,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "27 件；¥129.00",
+      "finalAnswer": "Gray L 码当前库存为 27 件，可以购买，售价为 ¥129.00。"
+    },
+    {
+      "id": "CS22",
+      "expectedIntent": "STOCK_OR_PURCHASE",
+      "expectedStatus": "ANSWERED",
+      "expectedFacts": [
+        "27 件",
+        "¥129.00"
+      ],
+      "matchedExpectedFacts": {
+        "27 件": true,
+        "¥129.00": true
+      },
+      "latencyMs": 0.056,
+      "actualStatus": "ANSWERED",
+      "providerMode": "MOCK",
+      "actualIntent": "STOCK_OR_PURCHASE",
+      "intentSource": "MOCK_RULE",
+      "intentCorrect": true,
+      "statusCorrect": true,
+      "answerContainsExpectedFact": true,
+      "answerFactCorrect": true,
+      "correct": true,
+      "expectedFact": "27 件；¥129.00",
+      "finalAnswer": "Gray L 码当前库存为 27 件，可以购买，售价为 ¥129.00。"
+    }
+  ],
+  "limitations": [
+    "Synthetic showcase cases only; results do not represent customer or production traffic.",
+    "A Mock run checks local intent and fact-rendering behavior, not language-model quality.",
+    "External model runs validate these exact cases only and are not a production quality or safety guarantee.",
+    "Only structured intent, response model, request ID, and token counts are retained; raw provider response is not stored.",
+    "The user-facing finalAnswer is rendered from Java-owned facts after model intent validation; it is not free-form model prose.",
+    "The local pre-request policy gate rejects only questions classified as unsupported by finite rules; it is not a complete prompt-injection defense.",
+    "Red-team contract rates cover only listed synthetic attack cases and forbidden markers; they are not a general jailbreak safety score."
+  ]
+}

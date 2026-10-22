@@ -42,3 +42,9 @@ and persist the response Trace for one synthetic local request.
 This does not prove customer-facing model quality, production quota or cost,
 high concurrency, OIDC acceptance, cloud backup/restore, public availability,
 or Alibaba Cloud deployment.
+
+## Current model-name note
+
+This historical run used `deepseek-chat`. DeepSeek later retired that legacy
+model name. Use the current `deepseek-flash` model for a new evaluation; the
+record above remains an accurate account of the September 2026 run.

@@ -57,8 +57,8 @@ onMounted(loadCatalog)
 <template>
   <section class="catalog-page" aria-labelledby="catalog-page-title">
     <header class="page-hero page-hero--catalog">
-      <div><p class="eyebrow">CATALOG / PRODUCT MASTER</p><h1 id="catalog-page-title">商品与 SKU</h1><p class="subtitle">从商品主数据进入规格、价格和实时可用库存。</p></div>
-      <div class="page-hero__aside"><AdminStatusPill label="真实接口" tone="green" /><p class="catalog-source">GET /api/products<br>GET /api/products/{productId}</p></div>
+      <div><p class="eyebrow">商品目录</p><h1 id="catalog-page-title">商品与 SKU</h1><p class="subtitle">从商品主数据查看规格、价格和当前可用库存。</p></div>
+      <div class="page-hero__aside"><AdminStatusPill label="接口数据" tone="green" /><details class="catalog-source"><summary>接口诊断</summary><code>GET /api/products</code><br><code>GET /api/products/{productId}</code></details></div>
     </header>
     <AdminBoundaryStrip label="只读事实面" message="图片与字段来自 Java 商品接口；选择 SKU 只改变当前视图，不修改商品、价格或库存。" tone="green" />
 
@@ -75,8 +75,8 @@ onMounted(loadCatalog)
 
       <div class="catalog-layout catalog-layout--master-detail">
         <section class="product-panel product-panel--rail" aria-labelledby="product-list-title">
-          <AdminSectionHeader eyebrow="PRODUCT MASTER" title="商品列表" description="点击一项查看完整 SKU 事实。" :count="`${filteredProducts.length} 项`">
-            <AdminStatusPill label="API" tone="green" />
+          <AdminSectionHeader eyebrow="商品目录" title="商品列表" description="选择商品查看对应的 SKU、售价与库存。" :count="`${filteredProducts.length} 项`">
+            <AdminStatusPill label="只读" tone="green" />
           </AdminSectionHeader>
           <div v-if="filteredProducts.length" class="product-list">
             <button v-for="product in filteredProducts" :key="product.id" :class="['product-card', { selected: selectedProductId === product.id } ]" type="button" :data-testid="`product-${product.id}`" @click="selectProduct(product.id)">
@@ -93,16 +93,16 @@ onMounted(loadCatalog)
           <div v-else-if="detailState === 'error'" class="panel detail-state error-state" data-testid="detail-error"><strong>商品详情加载失败</strong><p>{{ detailError }}</p><button v-if="selectedProduct" class="secondary-button" type="button" @click="selectProduct(selectedProduct.id)">重新加载详情</button></div>
           <template v-else-if="selectedProduct">
             <section class="panel selected-product selected-product--hero" aria-labelledby="selected-product-title">
-              <div class="detail-overline"><span>SELECTED PRODUCT</span><AdminStatusPill :label="productStatusLabel(selectedProduct.status)" :tone="selectedProduct.status === 'ON_SALE' ? 'green' : 'neutral'" /></div>
+              <div class="detail-overline"><span>当前商品</span><AdminStatusPill :label="productStatusLabel(selectedProduct.status)" :tone="selectedProduct.status === 'ON_SALE' ? 'green' : 'neutral'" /></div>
               <div class="detail-grid">
                 <div class="product-hero-image-wrap"><img class="product-hero-image" :src="productImage" :alt="`${selectedProduct.name} 当前 SKU 图`" data-testid="product-main-image"></div>
-                <div class="detail-copy"><div class="detail-title-row"><div><small class="mono">{{ selectedProduct.productCode }}</small><h2 id="selected-product-title">{{ selectedProduct.name }}</h2></div></div><p>{{ selectedProduct.description }}</p><dl><div><dt>productId</dt><dd>{{ selectedProduct.id }}</dd></div><div><dt>分类</dt><dd>{{ selectedProduct.categoryName }}</dd></div><div><dt>当前 skuId</dt><dd>{{ selectedSku?.id ?? '-' }}</dd></div><div><dt>当前 skuCode</dt><dd class="mono">{{ selectedSku?.skuCode ?? '-' }}</dd></div></dl></div>
+                <div class="detail-copy"><div class="detail-title-row"><div><small class="mono">{{ selectedProduct.productCode }}</small><h2 id="selected-product-title">{{ selectedProduct.name }}</h2></div></div><p>{{ selectedProduct.description }}</p><dl><div><dt>商品 ID</dt><dd>{{ selectedProduct.id }}</dd></div><div><dt>分类</dt><dd>{{ selectedProduct.categoryName }}</dd></div><div><dt>当前 SKU ID</dt><dd>{{ selectedSku?.id ?? '-' }}</dd></div><div><dt>当前 SKU 编码</dt><dd class="mono">{{ selectedSku?.skuCode ?? '-' }}</dd></div></dl></div>
               </div>
             </section>
 
             <section class="panel sku-panel" aria-labelledby="sku-table-title">
-              <AdminSectionHeader eyebrow="VARIANTS / INVENTORY" title="SKU 与库存" description="选中行会同步上方商品图片和事实摘要。" :count="`${selectedProduct.skus.length} 个 SKU`"><AdminStatusPill label="实时库存" tone="green" /></AdminSectionHeader>
-              <div class="table-wrap"><table><thead><tr><th>skuId</th><th>skuCode</th><th>颜色</th><th>尺寸</th><th>salePrice</th><th>currency</th><th>availableStock</th><th>库存状态</th></tr></thead><tbody><tr v-for="sku in selectedProduct.skus" :key="sku.id" :class="{ 'selected-sku-row': selectedSkuId === sku.id }" :data-testid="`sku-${sku.id}`" tabindex="0" @click="selectSku(sku.id)" @keydown.enter="selectSku(sku.id)"><td class="mono">{{ sku.id }}</td><td class="mono strong-cell">{{ sku.skuCode }}</td><td><span class="sku-color"><img :src="sku.imagePath" :alt="`${sku.color} SKU 图`" :data-testid="`sku-image-${sku.id}`"><span>{{ sku.color }}</span></span></td><td>{{ sku.size }}</td><td class="money">{{ formatMoney(sku.salePrice, sku.currency) }}</td><td class="mono">{{ sku.currency }}</td><td class="stock-value">{{ sku.availableStock }}</td><td><span :class="['stock-badge', stockState(sku.availableStock)]">{{ stockLabel(sku.availableStock) }}</span></td></tr></tbody></table></div>
+              <AdminSectionHeader eyebrow="规格与库存" title="SKU 与库存" description="选择一行可同步查看对应规格图片和库存状态。" :count="`${selectedProduct.skus.length} 个 SKU`"><AdminStatusPill label="当前库存" tone="green" /></AdminSectionHeader>
+              <div class="table-wrap"><table><thead><tr><th>SKU ID</th><th>SKU 编码</th><th>颜色</th><th>尺寸</th><th>售价</th><th>币种</th><th>可用库存</th><th>库存状态</th></tr></thead><tbody><tr v-for="sku in selectedProduct.skus" :key="sku.id" :class="{ 'selected-sku-row': selectedSkuId === sku.id }" :data-testid="`sku-${sku.id}`" tabindex="0" @click="selectSku(sku.id)" @keydown.enter="selectSku(sku.id)"><td class="mono">{{ sku.id }}</td><td class="mono strong-cell">{{ sku.skuCode }}</td><td><span class="sku-color"><img :src="sku.imagePath" :alt="`${sku.color} SKU 图`" :data-testid="`sku-image-${sku.id}`"><span>{{ sku.color }}</span></span></td><td>{{ sku.size }}</td><td class="money">{{ formatMoney(sku.salePrice, sku.currency) }}</td><td class="mono">{{ sku.currency }}</td><td class="stock-value">{{ sku.availableStock }}</td><td><span :class="['stock-badge', stockState(sku.availableStock)]">{{ stockLabel(sku.availableStock) }}</span></td></tr></tbody></table></div>
             </section>
 
             <AdminBoundaryStrip label="库存事实说明" :message="`availableStock 来自 Java 商品接口。0 为缺货，1 至 ${LOW_STOCK_THRESHOLD - 1} 为库存偏低，其他为库存正常；页面不会修改后端库存事实。`" tone="green" />

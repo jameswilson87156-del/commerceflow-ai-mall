@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   LOW_STOCK_THRESHOLD,
+  getOrderStatusPresentation,
   getStockPresentation,
   hasHorizontalOverflow,
   isDecodedImage,
@@ -20,6 +21,12 @@ test('库存阈值集中为 10', () => {
 test('零库存 SKU 显示缺货且不可购买', () => {
   assert.deepEqual(getStockPresentation(0), { tone: 'danger', label: '缺货', available: false })
   assert.equal(isPurchasableSku(0), false)
+})
+
+test('订单状态按服务端枚举准确显示中文和状态色', () => {
+  assert.deepEqual(getOrderStatusPresentation('CREATED'), { label: '已创建', tone: 'success' })
+  assert.deepEqual(getOrderStatusPresentation('CANCELLED_TIMEOUT'), { label: '超时取消', tone: 'warning' })
+  assert.deepEqual(getOrderStatusPresentation('UNRECOGNIZED'), { label: '其他状态', tone: 'neutral' })
 })
 
 test('负库存不会被当作可购买库存', () => {

@@ -1,0 +1,43 @@
+{
+  "datasetVersion": "customer-service-composite-intents-v2-state-matrix",
+  "dataSource": "Synthetic, deterministic, non-customer data. Preserves v1 and completes the product-status x SKU-status x stock-availability state matrix.",
+  "description": "18 composite price and availability cases. Across the preserved v1 cases and additions, all eight ON_SALE/OFF_SALE product and SKU combinations with zero or positive stock are represented; one case also checks the one-unit boundary.",
+  "businessFacts": {
+    "question": "synthetic placeholder",
+    "productId": 101,
+    "productCode": "PROD-1001",
+    "productName": "Synthetic T-shirt",
+    "productStatus": "ON_SALE",
+    "productImagePath": "/assets/products/product-tshirt-gray.png",
+    "skuId": 10004,
+    "skuCode": "T-SHIRT-GRAY-L",
+    "color": "Gray",
+    "size": "L",
+    "skuStatus": "ON_SALE",
+    "unitPrice": "129.00",
+    "currency": "CNY",
+    "availableStock": 27,
+    "knowledgeSnippets": [],
+    "queriedAt": "2026-07-26T09:00:00Z"
+  },
+  "cases": [
+    {"id":"CIM01","question":"这件衣服多少钱？还有库存吗？","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","answerContainsAll":["¥129.00","27 件"]},
+    {"id":"CIM02","question":"商品售价是多少？目前有货吗？","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","businessFacts":{"availableStock":0},"answerContainsAll":["¥129.00","库存为 0"]},
+    {"id":"CIM03","question":"请告诉我单价和库存数量。","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","answerContainsAll":["¥129.00","27 件"]},
+    {"id":"CIM04","question":"现在多少钱，现货还能买吗？","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","businessFacts":{"productStatus":"OFF_SALE"},"answerContainsAll":["¥129.00","不是上架销售状态"]},
+    {"id":"CIM05","question":"当前价格和剩余数量分别是多少？","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","businessFacts":{"availableStock":0},"answerContainsAll":["¥129.00","库存为 0"]},
+    {"id":"CIM06","question":"这款产品的标价是多少？库存还有多少件？","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","answerContainsAll":["¥129.00","27 件"]},
+    {"id":"CIM07","question":"How much is this, and is it available?","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","answerContainsAll":["¥129.00","27 件"]},
+    {"id":"CIM08","question":"What is the current price and how many items are in stock?","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","businessFacts":{"availableStock":0},"answerContainsAll":["¥129.00","库存为 0"]},
+    {"id":"CIM09","question":"Can I buy it, and what does it cost?","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","businessFacts":{"productStatus":"OFF_SALE"},"answerContainsAll":["¥129.00","不是上架销售状态"]},
+    {"id":"CIM10","question":"Tell me the unit price and whether this SKU is available to purchase.","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","answerContainsAll":["¥129.00","27 件"]},
+    {"id":"CIM11","question":"What does it cost? Also, how many units are available?","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","businessFacts":{"availableStock":0},"answerContainsAll":["¥129.00","库存为 0"]},
+    {"id":"CIM12","question":"Please give me the sale price and current inventory count.","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","businessFacts":{"productStatus":"OFF_SALE"},"answerContainsAll":["¥129.00","不是上架销售状态"]},
+    {"id":"CIM13","question":"这款现在还有货吗？同时告诉我售价。","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","businessFacts":{"skuStatus":"OFF_SALE"},"answerContainsAll":["¥129.00","不是上架销售状态"]},
+    {"id":"CIM14","question":"商品现在的售价是多少？还有库存吗？","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","businessFacts":{"skuStatus":"OFF_SALE","availableStock":0},"answerContainsAll":["¥129.00","不是上架销售状态"]},
+    {"id":"CIM15","question":"这件商品多少钱？库存还有没有？","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","businessFacts":{"productStatus":"OFF_SALE","availableStock":0},"answerContainsAll":["¥129.00","不是上架销售状态"]},
+    {"id":"CIM16","question":"How much does it cost, and can I buy it?","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","businessFacts":{"productStatus":"OFF_SALE","skuStatus":"OFF_SALE"},"answerContainsAll":["¥129.00","不是上架销售状态"]},
+    {"id":"CIM17","question":"商品当前售价和库存情况分别如何？","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","businessFacts":{"productStatus":"OFF_SALE","skuStatus":"OFF_SALE","availableStock":0},"answerContainsAll":["¥129.00","不是上架销售状态"]},
+    {"id":"CIM18","question":"One unit is left in stock; what is the current price?","expectedIntent":"STOCK_OR_PURCHASE","expectedStatus":"ANSWERED","businessFacts":{"availableStock":1},"answerContainsAll":["¥129.00","1 件"]}
+  ]
+}

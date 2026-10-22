@@ -5,7 +5,7 @@ import type { CustomerServiceAnswer } from '../../api/ai'
 import { getProduct } from '../../api/catalog'
 import { ApiError, apiErrorMessage, resolveImageUrl } from '../../api/runtime'
 import type { Product, RateLimitMeta, Sku } from '../../api/types'
-import { CLIENT_DATA_MODE } from '../../config/runtime'
+import { CLIENT_DATA_MODE, CLIENT_DATA_MODE_LABEL } from '../../config/runtime'
 import MobileHeader from '../../components/MobileHeader.vue'
 import MobileNotice from '../../components/MobileNotice.vue'
 import MobileStatusPill from '../../components/MobileStatusPill.vue'
@@ -13,11 +13,14 @@ import MobileMoney from '../../components/MobileMoney.vue'
 import ProductImage from '../../components/ProductImage.vue'
 import {
   MAX_QUESTION_LENGTH,
+  canSubmitQuestion,
+  customerServiceFailureMessage,
   cooldownSeconds,
   clearQuestionAfterSuccess,
   createAskPayload,
   createClientRequestId,
   hasRedisQuota,
+  isCurrentRequestActive,
   isFailOpen,
   nextCooldown,
   pendingQuestionForAttempt,
@@ -48,6 +51,9 @@ const demoExpanded = ref(false)
 const productId = ref(0)
 const skuId = ref(0)
 let cooldownTimer: ReturnType<typeof setInterval> | undefined
+let pageActive = true
+let selectionRequestId = 0
+let answerRequestId = 0
 
 const quickQuestions = [
   '这款商品现在多少钱？',
@@ -57,7 +63,12 @@ const quickQuestions = [
   'SKU 编码是什么？'
 ]
 
-const canSend = computed(() => state.value === 'ready' && Boolean(selectedSku.value) && !sending.value && cooldownRemaining.value === 0)
+const canSend = computed(() => canSubmitQuestion({
+  pageState: state.value,
+  hasSku: Boolean(selectedSku.value),
+  sending: sending.value,
+  cooldownRemaining: cooldownRemaining.value
+}))
 const productImage = computed(() => resolveImageUrl(selectedSku.value?.imagePath || product.value?.coverImagePath))
 const providerLabel = computed(() => {
   if (!latestAnswer.value) return ''
@@ -74,9 +85,11 @@ function randomUuid() {
 }
 
 function loadSelection() {
+  const requestId = ++selectionRequestId
   state.value = 'loading'
   errorMessage.value = ''
   getProduct(productId.value).then(response => {
+    if (!isCurrentRequestActive(pageActive, requestId, selectionRequestId)) return
     const sku = response.data.skus.find(item => item.id === skuId.value) || null
     if (!sku) {
       throw new Error('所选 SKU 已不存在或不属于当前商品')
@@ -85,6 +98,7 @@ function loadSelection() {
     selectedSku.value = sku
     state.value = 'ready'
   }).catch(error => {
+    if (!isCurrentRequestActive(pageActive, requestId, selectionRequestId)) return
     state.value = 'error'
     errorMessage.value = apiErrorMessage(error, '商品信息加载失败，请重试。')
   })
@@ -125,6 +139,7 @@ function ask(rawQuestion: string) {
   sending.value = true
   requestFailure.value = null
   rateLimitFailure.value = null
+  const requestId = ++answerRequestId
   const payload = createAskPayload({
     productId: productId.value,
     skuId: selectedSku.value.id,
@@ -132,6 +147,7 @@ function ask(rawQuestion: string) {
     clientRequestId: createClientRequestId(randomUuid)
   })
   askCustomerService(payload).then(result => {
+    if (!isCurrentRequestActive(pageActive, requestId, answerRequestId)) return
     updateRateLimit(result.rateLimit)
     latestAnswer.value = result.answer
     turns.value.push({ id: result.answer.traceId, question: trimmed, answer: result.answer })
@@ -140,6 +156,7 @@ function ask(rawQuestion: string) {
     pendingQuestion.value = cleared.pendingQuestion
     scrollChatToLatest()
   }).catch(error => {
+    if (!isCurrentRequestActive(pageActive, requestId, answerRequestId)) return
     if (error instanceof ApiError && error.statusCode === 429) {
       updateRateLimit(error.rateLimit)
       latestAnswer.value = null
@@ -149,9 +166,15 @@ function ask(rawQuestion: string) {
       scrollChatToLatest()
       return
     }
-    requestFailure.value = { question: pendingQuestion.value, message: apiErrorMessage(error, '商品客服服务暂时不可用，请稍后重试。') }
+    const message = customerServiceFailureMessage(
+      error,
+      apiErrorMessage(error, '商品客服服务暂时不可用，请稍后重试。')
+    )
+    requestFailure.value = { question: pendingQuestion.value, message }
     scrollChatToLatest()
-  }).finally(() => { sending.value = false })
+  }).finally(() => {
+    if (isCurrentRequestActive(pageActive, requestId, answerRequestId)) sending.value = false
+  })
 }
 
 function sendQuestion() { ask(question.value) }
@@ -195,6 +218,7 @@ function resetTime() {
 
 onMounted(async () => {
   const { queryParam } = await import('../../platform/h5')
+  if (!pageActive) return
   productId.value = Number(queryParam('productId'))
   skuId.value = Number(queryParam('skuId'))
   resetForSkuChange()
@@ -205,12 +229,17 @@ onMounted(async () => {
   }
   loadSelection()
 })
-onUnmounted(clearCooldown)
+onUnmounted(() => {
+  pageActive = false
+  selectionRequestId += 1
+  answerRequestId += 1
+  clearCooldown()
+})
 </script>
 
 <template>
   <view class="mobile-page mobile-page--with-bottom-action ai-customer-service-page">
-    <MobileHeader title="AI 商品客服" eyebrow="COMMERCEFLOW / AI ASSISTANT" :subtitle="`${CLIENT_DATA_MODE === 'LOCAL_DEMO_FIXTURE' ? 'Local Demo Fixture' : 'Real Backend'} · 服务端用户范围`" :back="true" @back="goBack" />
+    <MobileHeader title="AI 商品客服" eyebrow="商城 / AI 助手" :subtitle="`${CLIENT_DATA_MODE_LABEL} · 当前账号范围`" :back="true" @back="goBack" />
     <view v-if="state === 'loading'" class="panel empty-box">正在读取当前商品与 SKU 事实...</view>
     <view v-else-if="state === 'error'" class="error-box"><text>{{ errorMessage }}</text><button class="secondary-button retry-button" @click="retryLoad">重新加载</button></view>
     <template v-else-if="product && selectedSku">
@@ -224,12 +253,12 @@ onUnmounted(clearCooldown)
         </view>
       </view>
 
-      <MobileNotice v-if="CLIENT_DATA_MODE === 'LOCAL_DEMO_FIXTURE'" title="显式本地演示模式" message="请求发送到 /api/v1/me/ai/customer-service/ask；用户身份由服务端范围决定，页面不会提交 userId。" />
-      <MobileNotice v-else-if="isDegraded" tone="warning" title="限流保护暂时降级" message="Redis 当前不可用，本次请求仍由本地 Java 与 Mock 链路完成；页面不会展示伪造的配额数据。" />
-      <MobileNotice v-if="CLIENT_DATA_MODE === 'LOCAL_DEMO_FIXTURE' && isDegraded" tone="warning" title="限流保护暂时降级" message="Redis 当前不可用，本次请求仍由本地 Java 与 Mock 链路完成；页面不会展示伪造的配额数据。" />
+      <MobileNotice v-if="CLIENT_DATA_MODE === 'LOCAL_DEMO_FIXTURE'" title="本地演示数据" message="问题会发送到 AI 客服接口；用户身份由服务端识别，页面不会传入用户 ID。" />
+      <MobileNotice v-else-if="isDegraded" tone="warning" title="请求保护暂时降级" message="当前限流服务不可用，服务端仍会处理请求；页面不会显示未经确认的配额信息。" />
+      <MobileNotice v-if="CLIENT_DATA_MODE === 'LOCAL_DEMO_FIXTURE' && isDegraded" tone="warning" title="请求保护暂时降级" message="当前限流服务不可用，演示服务仍会处理请求；页面不会显示未经确认的配额信息。" />
       <view v-if="quotaAvailable" class="quota-bar panel">
-        <view class="quota-heading"><text>{{ cooldownRemaining > 0 ? '已触发限流' : 'Redis 限流正常' }}</text><text>本窗口限额 {{ rateLimit.limit }} 次</text></view>
-        <view class="quota-values"><text>剩余 <text class="quota-number">{{ rateLimit.remaining }}</text> 次</text><text>重置 {{ resetTime() }}</text><text v-if="cooldownRemaining > 0">Retry-After {{ cooldownRemaining }} 秒</text></view>
+        <view class="quota-heading"><text>{{ cooldownRemaining > 0 ? '请求过于频繁' : '请求保护正常' }}</text><text>本窗口限额 {{ rateLimit.limit }} 次</text></view>
+        <view class="quota-values"><text>剩余 <text class="quota-number">{{ rateLimit.remaining }}</text> 次</text><text>重置 {{ resetTime() }}</text><text v-if="cooldownRemaining > 0">请等待 {{ cooldownRemaining }} 秒</text></view>
       </view>
 
       <view v-if="turns.length === 0 && !rateLimitFailure" class="quick-panel panel">
@@ -243,25 +272,25 @@ onUnmounted(clearCooldown)
           <view class="chat-bubble chat-bubble--user"><text>{{ turn.question }}</text></view>
           <view class="chat-bubble chat-bubble--assistant"><text class="answer-status">{{ statusCopy(turn.answer.answerStatus) }}</text><text>{{ turn.answer.answer }}</text><text class="provider-meta">{{ turn.answer.provider.name }} / {{ turn.answer.provider.mode }} · {{ turn.answer.latencyMs }} ms</text></view>
         </view>
-        <view v-if="sending" class="chat-bubble chat-bubble--assistant"><text>正在查询服务端商品事实并请求 AI Provider...</text></view>
-        <view v-if="requestFailure" class="chat-error"><text>“{{ requestFailure.question }}” 未获得回答：{{ requestFailure.message }}</text><button class="secondary-button" :disabled="!canSend" @click="retryFailed">重试请求</button></view>
+          <view v-if="sending" class="chat-bubble chat-bubble--assistant"><text>正在核对商品信息并联系 AI 服务…</text></view>
+        <view v-if="requestFailure" class="chat-error" role="alert" aria-live="assertive"><text>“{{ requestFailure.question }}” 未获得回答：{{ requestFailure.message }}</text><button class="secondary-button" :disabled="!canSend" @click="retryFailed">重试请求</button></view>
         <view v-if="rateLimitFailure" class="chat-error chat-error--rate"><text class="rate-title">请求过于频繁</text><text>{{ rateLimitFailure.message }}</text><text class="pending-question">待重试问题：{{ pendingQuestion }}</text><text>{{ cooldownRemaining }} 秒后可再次发送</text><button class="secondary-button" :disabled="!canSend" @click="retryRateLimited">{{ cooldownRemaining > 0 ? `${cooldownRemaining} 秒后可发送` : '重试请求' }}</button></view>
       </view>
 
       <view v-if="latestAnswer" class="ai-detail-stack">
-        <view class="collapsible-card panel"><button class="collapse-toggle" @click="factsExpanded = !factsExpanded"><text>Business Facts</text><text>{{ factsExpanded ? '收起' : '展开' }}</text></button><view v-if="factsExpanded" class="collapse-body"><text>商品：{{ latestAnswer.businessFacts.productName }}</text><text>SKU：{{ latestAnswer.businessFacts.skuCode }}</text><text>规格：{{ latestAnswer.businessFacts.color }} / {{ latestAnswer.businessFacts.size }}</text><text>售价：¥{{ latestAnswer.businessFacts.unitPrice }} {{ latestAnswer.businessFacts.currency }}</text><text>当前库存：{{ latestAnswer.businessFacts.availableStock }}</text><text>商品状态：{{ latestAnswer.businessFacts.productStatus }}</text></view></view>
-        <view class="collapsible-card panel"><button class="collapse-toggle" @click="evidenceExpanded = !evidenceExpanded"><text>Evidence（Java 真实来源）</text><text>{{ evidenceExpanded ? '收起' : '展开' }}</text></button><view v-if="evidenceExpanded" class="collapse-body"><view v-for="item in latestAnswer.evidence" :key="`${item.field}-${item.sourceId}`" class="evidence-row"><text>{{ item.displayName }}：{{ item.value }}</text><text class="source-meta">{{ item.sourceType }} #{{ item.sourceId }}</text></view></view></view>
-        <view class="collapsible-card panel"><button class="collapse-toggle" @click="traceExpanded = !traceExpanded"><text>Trace（{{ latestAnswer.trace.length }} 步）</text><text>{{ traceExpanded ? '收起' : '展开' }}</text></button><view v-if="traceExpanded" class="collapse-body"><view v-for="item in latestAnswer.trace" :key="item.step" class="trace-row"><text>{{ traceLabel(item.step) }} · {{ item.status }}</text><text>{{ item.durationMs }} ms</text><text class="source-meta">{{ item.detail }}</text></view></view></view>
+        <view class="collapsible-card panel"><button class="collapse-toggle" @click="factsExpanded = !factsExpanded"><text>商品事实</text><text>{{ factsExpanded ? '收起' : '展开' }}</text></button><view v-if="factsExpanded" class="collapse-body"><text>商品：{{ latestAnswer.businessFacts.productName }}</text><text>SKU：{{ latestAnswer.businessFacts.skuCode }}</text><text>规格：{{ latestAnswer.businessFacts.color }} / {{ latestAnswer.businessFacts.size }}</text><text>售价：¥{{ latestAnswer.businessFacts.unitPrice }} {{ latestAnswer.businessFacts.currency }}</text><text>当前库存：{{ latestAnswer.businessFacts.availableStock }}</text><text>商品状态：{{ latestAnswer.businessFacts.productStatus }}</text></view></view>
+        <view class="collapsible-card panel"><button class="collapse-toggle" @click="evidenceExpanded = !evidenceExpanded"><text>事实来源</text><text>{{ evidenceExpanded ? '收起' : '展开' }}</text></button><view v-if="evidenceExpanded" class="collapse-body"><view v-for="item in latestAnswer.evidence" :key="`${item.field}-${item.sourceId}`" class="evidence-row"><text>{{ item.displayName }}：{{ item.value }}</text><text class="source-meta">{{ item.sourceType }} #{{ item.sourceId }}</text></view></view></view>
+        <view class="collapsible-card panel"><button class="collapse-toggle" @click="traceExpanded = !traceExpanded"><text>调用步骤（{{ latestAnswer.trace.length }}）</text><text>{{ traceExpanded ? '收起' : '展开' }}</text></button><view v-if="traceExpanded" class="collapse-body"><view v-for="item in latestAnswer.trace" :key="item.step" class="trace-row"><text>{{ traceLabel(item.step) }} · {{ item.status }}</text><text>{{ item.durationMs }} ms</text><text class="source-meta">{{ item.detail }}</text></view></view></view>
         <view class="collapsible-card panel"><button class="collapse-toggle" @click="demoExpanded = !demoExpanded"><text>开发演示信息</text><text>{{ demoExpanded ? '收起' : '展开' }}</text></button><view v-if="demoExpanded" class="collapse-body"><text>Provider：{{ providerLabel }}</text><text>traceId：{{ latestAnswer.traceId }}</text><text>fallbackUsed：{{ latestAnswer.fallbackUsed ? 'true' : 'false' }}</text><text v-if="latestAnswer.warning" class="source-meta">{{ latestAnswer.warning }}</text></view></view>
       </view>
     </template>
 
-    <view v-if="state === 'ready'" class="bottom-action ai-composer"><view class="composer-wrap"><textarea v-model="question" class="question-input" :maxlength="MAX_QUESTION_LENGTH" :disabled="!canSend" placeholder="请输入商品价格、规格、库存、可购买性或 SKU 编码问题" confirm-type="send" @confirm="sendQuestion" /><view class="composer-footer"><text>{{ questionCount }}/{{ MAX_QUESTION_LENGTH }}</text><button class="primary-button" :disabled="!canSend || !question.trim()" @click="sendQuestion">{{ cooldownRemaining > 0 ? `${cooldownRemaining}秒后可发送` : sending ? '发送中...' : '发送' }}</button></view></view></view>
+    <view v-if="state === 'ready'" class="bottom-action ai-composer"><view class="composer-wrap"><textarea v-model="question" class="question-input" :maxlength="MAX_QUESTION_LENGTH" :disabled="!canSend" placeholder="可询问价格、规格、库存或 SKU 编码" confirm-type="send" @confirm="sendQuestion" /><view class="composer-footer"><text>{{ questionCount }}/{{ MAX_QUESTION_LENGTH }}</text><button class="primary-button" :disabled="!canSend || !question.trim()" @click="sendQuestion">{{ cooldownRemaining > 0 ? `${cooldownRemaining} 秒后可发送` : sending ? '发送中…' : '发送' }}</button></view></view></view>
   </view>
 </template>
 
 <style>
-.ai-customer-service-page{padding-bottom:calc(146px + env(safe-area-inset-bottom))}.ai-context{display:flex;gap:12px;padding:12px}.ai-context-image{width:94px;height:94px;flex:none;border-radius:12px}.ai-context-copy{min-width:0;flex:1}.context-category{display:block;color:var(--cf-blue);font-size:12px;font-weight:800}.context-title{display:block;margin-top:3px;color:var(--cf-ink);font-size:18px;font-weight:800;line-height:1.3}.context-spec{display:block;margin-top:5px;color:#607087;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;overflow-wrap:anywhere}.context-bottom{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:8px}.context-price{color:var(--cf-blue);font-size:20px;font-weight:800}.context-currency{color:var(--cf-muted);font-size:12px}.context-bottom .tag{padding:4px 7px;font-size:11px}.quota-bar{display:flex;flex-wrap:wrap;gap:6px 10px;margin-top:12px;padding:10px 12px;color:#45627f;font-size:12px;font-weight:700;line-height:1.4}.quick-panel{margin-top:12px;padding:13px}.quick-title{display:block;color:var(--cf-ink);font-size:15px;font-weight:800}.quick-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.quick-button{min-height:34px;padding:6px 9px;border:1px solid #cfe0ff;border-radius:9px;background:var(--cf-blue-soft);color:#145bc8;font-size:13px;line-height:1.2}.chat-panel{display:block;max-height:332px;margin-top:12px;padding:13px;overflow-y:auto}.chat-welcome{display:block;padding:10px;border-radius:10px;background:#f3f6fa;color:#53647c;font-size:13px;line-height:1.45}.chat-turn{display:block;margin-top:10px}.chat-bubble{display:block;max-width:92%;padding:10px 11px;border-radius:12px;font-size:14px;line-height:1.5;overflow-wrap:anywhere}.chat-bubble--user{margin-left:auto;background:var(--cf-blue);color:#fff}.chat-bubble--assistant{background:#eef8f4;color:#245540}.answer-status{display:block;margin-bottom:4px;color:var(--cf-green);font-size:12px;font-weight:800}.provider-meta{display:block;margin-top:7px;color:#5f8173;font-size:11px}.chat-error{display:flex;flex-direction:column;gap:9px;margin-top:10px;padding:11px;border:1px solid #efc2c7;border-radius:12px;background:var(--cf-red-soft);color:var(--cf-red);font-size:14px;line-height:1.45}.chat-error .secondary-button{width:100%;min-height:40px}.chat-error--rate{border-color:#f1d89b;background:var(--cf-orange-soft);color:#89520e}.rate-title{font-size:16px;font-weight:800}.ai-detail-stack{display:flex;flex-direction:column;gap:10px;margin-top:12px}.collapsible-card{overflow:hidden}.collapse-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:48px;padding:10px 13px;background:#fff;color:var(--cf-ink);font-size:15px;font-weight:800;text-align:left}.collapse-body{display:flex;flex-direction:column;gap:7px;padding:0 13px 13px;color:#4d5f78;font-size:13px;line-height:1.4;overflow-wrap:anywhere}.evidence-row,.trace-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px 8px;padding:8px;border-radius:9px;background:#f6f8fb}.source-meta{display:block;width:100%;color:#718097;font-size:11px}.ai-composer{height:132px;min-height:132px;max-height:132px;padding-top:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom))}.composer-wrap{width:100%}.question-input{display:block;width:100%;height:49px;min-height:49px;padding:9px 11px;border:1px solid #cfd9e5;border-radius:10px;background:#fff;color:var(--cf-ink);font:14px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;resize:none}.composer-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px;color:var(--cf-muted);font-size:12px}.composer-footer .primary-button{width:116px;min-height:40px;padding:7px 9px;font-size:14px}@media (min-width:420px){.chat-panel{max-height:370px}.ai-context-image{width:102px;height:102px}}
+.ai-customer-service-page{padding-bottom:calc(146px + env(safe-area-inset-bottom))}.ai-context{display:flex;gap:12px;padding:12px}.ai-context-image{width:94px;height:94px;flex:none;border-radius:12px}.ai-context-copy{min-width:0;flex:1}.context-category{display:block;color:var(--cf-blue);font-size:12px;font-weight:800}.context-title{display:block;margin-top:3px;color:var(--cf-ink);font-size:18px;font-weight:800;line-height:1.3}.context-spec{display:block;margin-top:5px;color:#607087;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;overflow-wrap:anywhere}.context-bottom{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:8px}.context-price{color:var(--cf-blue);font-size:20px;font-weight:800}.context-currency{color:var(--cf-muted);font-size:12px}.context-bottom .tag{padding:4px 7px;font-size:11px}.quota-bar{display:flex;flex-wrap:wrap;gap:6px 10px;margin-top:12px;padding:10px 12px;color:#45627f;font-size:12px;font-weight:700;line-height:1.4}.quick-panel{margin-top:12px;padding:13px}.quick-title{display:block;color:var(--cf-ink);font-size:15px;font-weight:800}.quick-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.quick-button{min-height:34px;padding:6px 9px;border:1px solid #cfe0ff;border-radius:9px;background:var(--cf-blue-soft);color:var(--brand-primary);font-size:13px;line-height:1.2}.chat-panel{display:block;max-height:332px;margin-top:12px;padding:13px;overflow-y:auto}.chat-welcome{display:block;padding:10px;border-radius:10px;background:#f3f6fa;color:#53647c;font-size:13px;line-height:1.45}.chat-turn{display:block;margin-top:10px}.chat-bubble{display:block;max-width:92%;padding:10px 11px;border-radius:12px;font-size:14px;line-height:1.5;overflow-wrap:anywhere}.chat-bubble--user{margin-left:auto;background:var(--cf-blue);color:#fff}.chat-bubble--assistant{background:#eef8f4;color:#245540}.answer-status{display:block;margin-bottom:4px;color:var(--cf-green);font-size:12px;font-weight:800}.provider-meta{display:block;margin-top:7px;color:#5f8173;font-size:11px}.chat-error{display:flex;flex-direction:column;gap:9px;margin-top:10px;padding:11px;border:1px solid #efc2c7;border-radius:12px;background:var(--cf-red-soft);color:var(--cf-red);font-size:14px;line-height:1.45}.chat-error .secondary-button{width:100%;min-height:40px}.chat-error--rate{border-color:#f1d89b;background:var(--cf-orange-soft);color:#89520e}.rate-title{font-size:16px;font-weight:800}.ai-detail-stack{display:flex;flex-direction:column;gap:10px;margin-top:12px}.collapsible-card{overflow:hidden}.collapse-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:48px;padding:10px 13px;background:#fff;color:var(--cf-ink);font-size:15px;font-weight:800;text-align:left}.collapse-body{display:flex;flex-direction:column;gap:7px;padding:0 13px 13px;color:#4d5f78;font-size:13px;line-height:1.4;overflow-wrap:anywhere}.evidence-row,.trace-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:3px 8px;padding:8px;border-radius:9px;background:#f6f8fb}.source-meta{display:block;width:100%;color:#718097;font-size:11px}.ai-composer{height:132px;min-height:132px;max-height:132px;padding-top:8px;padding-bottom:calc(8px + env(safe-area-inset-bottom))}.composer-wrap{width:100%}.question-input{display:block;width:100%;height:49px;min-height:49px;padding:9px 11px;border:1px solid #cfd9e5;border-radius:10px;background:#fff;color:var(--cf-ink);font:14px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;resize:none}.composer-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px;color:var(--cf-muted);font-size:12px}.composer-footer .primary-button{width:116px;min-height:40px;padding:7px 9px;font-size:14px}@media (min-width:420px){.chat-panel{max-height:370px}.ai-context-image{width:102px;height:102px}}
 .bottom-action.ai-composer{height:132px!important;min-height:132px!important;max-height:132px!important}
 .ai-context.panel{display:flex!important}
 .ai-context-copy{display:block}
@@ -298,10 +327,10 @@ onUnmounted(clearCooldown)
 .context-spec { color: #6e6e73; font: 10px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace; }
 .context-bottom .mobile-money { color: #1d1d1f; font-weight: 650; }
 .quota-bar.panel { margin-top: 0; border: 0; border-radius: 18px; background: #fff; padding: 15px 16px; }
-.quota-heading > text:first-child { color: #1d1d1f; font-size: 13px; font-weight: 600; }.quota-heading > text:last-child { color: #6e6e73; font: 10px/1.2 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; }.quota-values { color: #6e6e73; font: 10px/1.25 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; }.quota-number { color: #0071e3; }
-.quick-panel.panel { margin-top: 12px; border: 0; border-radius: 20px; background: #fff; padding: 16px; }.quick-title { color: #1d1d1f; font-size: 14px; font-weight: 600; }.quick-list { gap: 8px; }.quick-button { min-height: 34px; border: 1px solid #d2d2d7; border-radius: 999px; background: #fff; color: #0071e3; font-size: 12px; }
+.quota-heading > text:first-child { color: #1d1d1f; font-size: 13px; font-weight: 600; }.quota-heading > text:last-child { color: #6e6e73; font: 10px/1.2 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; }.quota-values { color: #6e6e73; font: 10px/1.25 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif; }.quota-number { color: var(--brand-primary); }
+.quick-panel.panel { margin-top: 12px; border: 0; border-radius: 20px; background: #fff; padding: 16px; }.quick-title { color: #1d1d1f; font-size: 14px; font-weight: 600; }.quick-list { gap: 8px; }.quick-button { min-height: 34px; border: 1px solid #d2d2d7; border-radius: 999px; background: #fff; color: var(--brand-primary); font-size: 12px; }
 .chat-panel.panel { max-height: 340px; margin-top: 12px; border: 0; border-radius: 20px; background: #fff; padding: 16px; }
-.chat-welcome { border-radius: 12px; background: #f5f5f7; color: #6e6e73; padding: 12px; font-size: 13px; }.chat-bubble { border-radius: 17px; font-size: 14px; }.chat-bubble--user { background: #0071e3; }.chat-bubble--assistant { background: #f5f5f7; color: #1d1d1f; }.answer-status { color: #248a3d; }.provider-meta { color: #6e6e73; }
+.chat-welcome { border-radius: 12px; background: #f5f5f7; color: #6e6e73; padding: 12px; font-size: 13px; }.chat-bubble { border-radius: 17px; font-size: 14px; }.chat-bubble--user { background: var(--brand-primary); }.chat-bubble--assistant { background: #f5f5f7; color: #1d1d1f; }.answer-status { color: var(--state-success); }.provider-meta { color: #6e6e73; }
 .ai-detail-stack { gap: 10px; margin-top: 12px; border-top: 0; }.collapsible-card.panel { border: 0; border-radius: 17px; background: #fff; }.collapse-toggle { min-height: 52px; padding: 10px 16px; background: #fff; color: #1d1d1f; font-size: 14px; font-weight: 600; }.collapse-body { padding: 0 16px 16px; color: #6e6e73; font-size: 12px; }.evidence-row, .trace-row { border-radius: 10px; background: #f5f5f7; }
 .ai-composer { background: rgba(255,255,255,.86); }.question-input { border: 1px solid #d2d2d7; border-radius: 14px; background: #fff; }.composer-footer .primary-button { border-radius: 999px; }
 </style>
